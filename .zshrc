@@ -1,11 +1,10 @@
 ### Tmux ------------------------------------------------------------------
 
 # if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
-#   ~/Scripts/clean_tmux.sh &> /dev/null
 #   if [ "$(pgrep -x kitty | wc -l)" -le 1 ]; then
-#     tmux new-session -A -s default &> /dev/null
+#     (tmux attach-session || tmux new-session) &> /dev/null
 #   else
-#     tmux new &> /dev/null
+#     tmux new-session &> /dev/null
 #   fi
 # fi
 
@@ -157,11 +156,11 @@ alias ff="fzf-nvim"
 alias ls="eza --icons -a --group-directories-first"
 alias ll="eza --icons -a --group-directories-first -l"
 alias ta="tmux attach"
-alias tx="tmux new-session -A -s default"
 alias quit="pkill -KILL -u $USER"
 alias wget="wget --hsts-file=$HOME/.local/share/wget-hsts"
 alias tree="eza --tree"
 alias bl="~/Scripts/bilal.sh -a | sed 's/:/:+/1' | column -ts + | rg '\d'"
+alias cleantmux="~/Scripts/clean_tmux.sh"
 alias nvim-custom="NVIM_APPNAME=nvim-custom nvim"
 alias zrefresh="source $HOME/.zshrc"
 alias zshrc="nvim $HOME/.zshrc"

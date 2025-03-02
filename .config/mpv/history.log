@@ -211,15 +211,6 @@
 [22/01/25 23:30:14] "069 - Query documents from Express ｜ Using MongoDB with Express.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/069 - Query documents from Express ｜ Using MongoDB with Express.mp4
 [22/01/25 23:45:19] "071 - Delete document from Express ｜ Using MongoDB with Express.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/071 - Delete document from Express ｜ Using MongoDB with Express.mp4
 [23/01/25 00:03:51] "072 - Defining schema for Movie model ｜ Using MongoDB with Express.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/072 - Defining schema for Movie model ｜ Using MongoDB with Express.mp4
-[23/01/25 06:36:32] "074 - Filtering ｜ Using MongoDB with Express.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/074 - Filtering ｜ Using MongoDB with Express.mp4
-[23/01/25 06:44:29] "075 - Excluding query object properties ｜ Using MongoDB with Express.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/075 - Excluding query object properties ｜ Using MongoDB with Express.mp4
-[23/01/25 23:37:55] "076 - Advance filtering ｜ Using MongoDB with Express.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/076 - Advance filtering ｜ Using MongoDB with Express.mp4
-[24/01/25 00:01:13] "077 - Sorting result ｜ Using MongoDB with Express.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/077 - Sorting result ｜ Using MongoDB with Express.mp4
-[24/01/25 00:12:29] "078 - Limiting fields ｜ Using MongoDB with Express.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/078 - Limiting fields ｜ Using MongoDB with Express.mp4
-[24/01/25 00:24:23] "079 - Pagination ｜ Using MongoDB with Express.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/079 - Pagination ｜ Using MongoDB with Express.mp4
-[24/01/25 00:34:20] "080 - Aliasing a route ｜ Using MongoDB with Express.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/080 - Aliasing a route ｜ Using MongoDB with Express.mp4
-[25/01/25 07:38:02] "081 - Creating a reusable class ｜ Using MongoDB with Express.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/081 - Creating a reusable class ｜ Using MongoDB with Express.mp4
-[25/01/25 14:24:00] "082 - Aggregation pipeline： $match & $group ｜ Using MongoDB with Express.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/082 - Aggregation pipeline： $match & $group ｜ Using MongoDB with Express.mp4
 [25/01/25 14:53:24] "083 - Aggregation pipeline： $unwind & $project ｜Using MongoDB with Express.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/083 - Aggregation pipeline： $unwind & $project ｜Using MongoDB with Express.mp4
 [25/01/25 20:55:00] "084 - Virtual Properties ｜ Using MongoDB with Express.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/084 - Virtual Properties ｜ Using MongoDB with Express.mp4
 [25/01/25 21:25:41] "085 - Document Middleware ｜ Using MongoDB with Express.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/085 - Document Middleware ｜ Using MongoDB with Express.mp4
@@ -249,12 +240,9 @@
 [27/01/25 12:19:00] "122 - Preventing Parameter Pollution ｜ Authentication & Authorization.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/122 - Preventing Parameter Pollution ｜ Authentication & Authorization.mp4
 [27/01/25 12:30:33] "100 - Handling Uncaught Exceptions ｜ Error Handling in Express.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/100 - Handling Uncaught Exceptions ｜ Error Handling in Express.mp4
 [27/01/25 14:22:42] "101 - Debugging NODE JS Code ｜ Error Handling in Express.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/101 - Debugging NODE JS Code ｜ Error Handling in Express.mp4
-[27/01/25 16:17:40] "102 - Creating a User Model ｜ Authentication & Authorization.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/102 - Creating a User Model ｜ Authentication & Authorization.mp4
-[27/01/25 16:32:57] "103 - Creating a new User ｜ Authentication & Authorization.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/103 - Creating a new User ｜ Authentication & Authorization.mp4
 [27/01/25 17:02:13] "2025-01-27 16-56-53.mp4" | /home/muhammad/2025-01-27 16-56-53.mp4
 [27/01/25 23:09:18] "2025-01-27 18-35-42.mp4" | /home/muhammad/2025-01-27 18-35-42.mp4
 [28/01/25 00:39:22] "35 ｜ التعليم الحر 02.m4a" | /mnt/Disk_D/إسلاميات/د.عبد الرحمن ذاكر/الف باء التربية/35 ｜ التعليم الحر 02.m4a
-[28/01/25 05:56:09] "104 - Encrypting Password ｜ Authentication & Authorization.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/104 - Encrypting Password ｜ Authentication & Authorization.mp4
 [28/01/25 13:41:57] "2025-01-28 07-52-13.mp4" | /home/muhammad/2025-01-28 07-52-13.mp4
 [28/01/25 18:12:01] "2025-01-28 15-20-35.mp4" | /home/muhammad/2025-01-28 15-20-35.mp4
 [30/01/25 23:18:25] "073 - Importing development data ｜ Using MongoDB with Express.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/073 - Importing development data ｜ Using MongoDB with Express.mp4
@@ -273,3 +261,45 @@
 [08/02/25 00:16:49] "Lecture 01 & 02.mp4" | /mnt/Disk_D/Engineering/Semester_materials/Bio/Dr.Abd-Elrahem/Lectures/Videos/Lecture 01 & 02.mp4
 [11/02/25 15:02:05] "WhatsApp Ptt 2025-02-11 at 3.00.00 PM.ogg" | /home/muhammad/Downloads/WhatSie/WhatsApp Ptt 2025-02-11 at 3.00.00 PM.ogg
 [11/02/25 18:46:54] "070 - Update document from Express ｜ Using MongoDB with Express.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/070 - Update document from Express ｜ Using MongoDB with Express.mp4
+[12/02/25 17:06:01] "074 - Filtering ｜ Using MongoDB with Express.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/074 - Filtering ｜ Using MongoDB with Express.mp4
+[14/02/25 15:12:47] "02 - Intro and Background Lecture 2.mp4" | /mnt/Disk_D/Engineering/Semester_materials/Optimization/Lectures/Dr Mohamed Karmoose/Videos/02 - Intro and Background Lecture 2.mp4
+[14/02/25 15:17:48] "01 - Part 1 Lecture 1 ： Sampling Theorem.mp4" | /home/muhammad/Downloads/01 - Part 1 Lecture 1 ： Sampling Theorem.mp4
+[14/02/25 17:25:07] "01 - Part 1 Lecture 1 ： Sampling Theorem.mp4" | /mnt/Disk_D/Engineering/Semester_materials/Digital/Elkhamy/Videos/01 - Part 1 Lecture 1 ： Sampling Theorem.mp4
+[15/02/25 00:32:44] "076 - Advance filtering ｜ Using MongoDB with Express.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/076 - Advance filtering ｜ Using MongoDB with Express.mp4
+[15/02/25 00:40:27] "075 - Excluding query object properties ｜ Using MongoDB with Express.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/075 - Excluding query object properties ｜ Using MongoDB with Express.mp4
+[15/02/25 06:23:55] "077 - Sorting result ｜ Using MongoDB with Express.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/077 - Sorting result ｜ Using MongoDB with Express.mp4
+[15/02/25 06:35:36] "078 - Limiting fields ｜ Using MongoDB with Express.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/078 - Limiting fields ｜ Using MongoDB with Express.mp4
+[15/02/25 06:54:03] "079 - Pagination ｜ Using MongoDB with Express.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/079 - Pagination ｜ Using MongoDB with Express.mp4
+[15/02/25 13:44:30] "01 - Part 1 Lecture 1 ： Sampling Theorem.mp4" | /mnt/Disk_D/Engineering/Semester_materials/Digital/Elkhamy/AlAlwani/Videos/01 - Part 1 Lecture 1 ： Sampling Theorem.mp4
+[15/02/25 16:59:43] "01 - Intro and Background Lecture 1.mp4" | /mnt/Disk_D/Engineering/Semester_materials/Optimization/Lectures/Dr Mohamed Karmoose/Videos/01 - Intro and Background Lecture 1.mp4
+[16/02/25 13:33:02] "080 - Aliasing a route ｜ Using MongoDB with Express.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/080 - Aliasing a route ｜ Using MongoDB with Express.mp4
+[16/02/25 13:37:47] "081 - Creating a reusable class ｜ Using MongoDB with Express.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/081 - Creating a reusable class ｜ Using MongoDB with Express.mp4
+[16/02/25 13:38:06] "082 - Aggregation pipeline： $match & $group ｜ Using MongoDB with Express.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/082 - Aggregation pipeline： $match & $group ｜ Using MongoDB with Express.mp4
+[16/02/25 16:40:17] "02 - 2 Lab1 Part 2  Error Detect VI.mp4" | /mnt/Disk_D/Engineering/Semester_materials/Digital/Lab/Videos/02 - 2 Lab1 Part 2  Error Detect VI.mp4
+[16/02/25 16:40:22] "03 - 3 Lab 1 Simulation 03.mp4" | /mnt/Disk_D/Engineering/Semester_materials/Digital/Lab/Videos/03 - 3 Lab 1 Simulation 03.mp4
+[16/02/25 16:40:27] "04 - 4 Lab 2 Part 1 Building the transmitter VI.mp4" | /mnt/Disk_D/Engineering/Semester_materials/Digital/Lab/Videos/04 - 4 Lab 2 Part 1 Building the transmitter VI.mp4
+[16/02/25 16:40:30] "05 - 5 Lab 2 Part 2 Building the Receiver VI.mp4" | /mnt/Disk_D/Engineering/Semester_materials/Digital/Lab/Videos/05 - 5 Lab 2 Part 2 Building the Receiver VI.mp4
+[16/02/25 16:50:04] "02 - 2 Lab1 Part 2  Error Detect VI.mp4" | /mnt/Disk_D/Engineering/Semester_materials/Digital/Lab/Videos/converted/02 - 2 Lab1 Part 2  Error Detect VI.mp4
+[16/02/25 23:04:15] "01 - 1 Lab1 Part 1  The source VI.mp4" | /mnt/Disk_D/Engineering/Semester_materials/Digital/Lab/Videos/01 - 1 Lab1 Part 1  The source VI.mp4
+[17/02/25 06:14:54] "102 - Creating a User Model ｜ Authentication & Authorization.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/102 - Creating a User Model ｜ Authentication & Authorization.mp4
+[17/02/25 06:24:33] "103 - Creating a new User ｜ Authentication & Authorization.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/103 - Creating a new User ｜ Authentication & Authorization.mp4
+[17/02/25 10:32:31] "104 - Encrypting Password ｜ Authentication & Authorization.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/104 - Encrypting Password ｜ Authentication & Authorization.mp4
+[17/02/25 10:57:30] "105 - How Authentication Works with JWT ｜ Authentication & Authorization.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/105 - How Authentication Works with JWT ｜ Authentication & Authorization.mp4
+[17/02/25 10:59:33] "03 - Part 1 Lecture 3a ： Non Uniform Quantization & M'ary Encoding.mp4" | /mnt/Disk_D/Engineering/Semester_materials/Digital/Elkhamy/AlAlwani/Videos/03 - Part 1 Lecture 3a ： Non Uniform Quantization & M'ary Encoding.mp4
+[17/02/25 10:59:56] "04 - Part 1 Lecture 3b ： Differential PCM (DPCM) & Delta Modulation (DM).mp4" | /mnt/Disk_D/Engineering/Semester_materials/Digital/Elkhamy/AlAlwani/Videos/04 - Part 1 Lecture 3b ： Differential PCM (DPCM) & Delta Modulation (DM).mp4
+[17/02/25 11:00:04] "05 - Part 1 Lecture 4a ： PSD for basic PCM waveforms.mp4" | /mnt/Disk_D/Engineering/Semester_materials/Digital/Elkhamy/AlAlwani/Videos/05 - Part 1 Lecture 4a ： PSD for basic PCM waveforms.mp4
+[17/02/25 11:00:25] "07 - Part 1 Lecture 5 ： Time Division Multiplexing (TDM).mp4" | /mnt/Disk_D/Engineering/Semester_materials/Digital/Elkhamy/AlAlwani/Videos/07 - Part 1 Lecture 5 ： Time Division Multiplexing (TDM).mp4
+[17/02/25 11:00:39] "06 - Bandwidth and Bitrate.mp4" | /mnt/Disk_D/Engineering/Semester_materials/Digital/Elkhamy/AlAlwani/Videos/06 - Bandwidth and Bitrate.mp4
+[17/02/25 21:58:05] "106 - Signing up a User ｜ Authentication & Authorization.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/106 - Signing up a User ｜ Authentication & Authorization.mp4
+[17/02/25 22:26:20] "107 - Logging in a User ｜ Authentication & Authorization.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/107 - Logging in a User ｜ Authentication & Authorization.mp4
+[17/02/25 23:42:51] "108 - Protecting Routes： PART 1 ｜ Authentication & Authorization.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/108 - Protecting Routes： PART 1 ｜ Authentication & Authorization.mp4
+[21/02/25 07:08:53] "109 - Protecting Routes： PART 2 ｜ Authentication & Authorization.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/109 - Protecting Routes： PART 2 ｜ Authentication & Authorization.mp4
+[21/02/25 14:29:18] "110 - Advanced Postman Setup ｜ Authentication & Authorization.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/110 - Advanced Postman Setup ｜ Authentication & Authorization.mp4
+[21/02/25 16:39:38] "111 - User Roles and Permission ｜ Authentication & Authorization.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/111 - User Roles and Permission ｜ Authentication & Authorization.mp4
+[21/02/25 18:54:41] "TORRENT ｜ شرح شامل لنظام التحميل تورنت ولماذا يعتبر افضل طرق التحميل ؟.mp4" | /home/muhammad/Downloads/TORRENT ｜ شرح شامل لنظام التحميل تورنت ولماذا يعتبر افضل طرق التحميل ؟.mp4
+[22/02/25 15:08:03] "112 - Password Reset Functionality ｜ Authentication & Authorization.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/112 - Password Reset Functionality ｜ Authentication & Authorization.mp4
+[22/02/25 17:02:51] "113 - Sending Email for Password Reset ｜ Authentication & Authorization.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/113 - Sending Email for Password Reset ｜ Authentication & Authorization.mp4
+[23/02/25 00:44:01] "She Left Islam For This... (WARNING!)" | https://www.youtube.com/watch?v=DXo3BAPAk9U
+[23/02/25 06:37:54] "114 - Setting new Password for User ｜ Authentication & Authorization.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/114 - Setting new Password for User ｜ Authentication & Authorization.mp4
+[23/02/25 14:12:33] "115 - Updating the User Password ｜ Authentication & Authorization.mp4" | /mnt/Disk_D/تعليمي/A Complete NODE JS Course Step by Step/115 - Updating the User Password ｜ Authentication & Authorization.mp4
+[23/02/25 16:55:15] "02 - Part 1 Lecture 2 ： Uniform Quantization & Coding.mp4" | /mnt/Disk_D/Engineering/Semester_materials/Digital/Elkhamy/AlAlwani/Videos/02 - Part 1 Lecture 2 ： Uniform Quantization & Coding.mp4

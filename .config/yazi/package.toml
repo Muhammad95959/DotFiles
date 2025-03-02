@@ -1,16 +1,16 @@
 [[plugin.deps]]
 use = "dedukun/relative-motions"
-rev = "0d9c8cf"
-hash = "561ad872c77b95360c2657c5e8d395ed"
+rev = "8103065"
+hash = "9f13f0740fa3a0c18e47ec6fb62ddfaa"
 
 [[plugin.deps]]
 use = "dedukun/bookmarks"
-rev = "202e450"
-hash = "9e2f6f7381542d3adb3080b394b431b4"
+rev = "95b2c58"
+hash = "17a094653b7d0db4ac68ed531d2e1412"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:full-border"
-rev = "8945e54"
+rev = "5186af7"
 hash = "ae9e1d0c6bfd68cdebc98cc684c22b45"
 
 [[plugin.deps]]
@@ -20,12 +20,12 @@ hash = "ee025be766240cc98e671754ac836da3"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:chmod"
-rev = "8945e54"
+rev = "5186af7"
 hash = "f28138c2e11e87962b66d583fef724c3"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:smart-enter"
-rev = "8945e54"
+rev = "5186af7"
 hash = "aef2b1a805b80cce573bb766f1459d88"
 
 [[plugin.deps]]
@@ -40,13 +40,13 @@ hash = "86e0312b01bc5762813c6c1d0517f073"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:hide-preview"
-rev = "8945e54"
-hash = "55904f17e1053cfb91dacd9015a99f9d"
+rev = "5186af7"
+hash = "1e31898370b752e4faf335b762b3eeaf"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:mount"
-rev = "8945e54"
-hash = "f3ade4dba8fb56b85e8363b66f677f9"
+rev = "5186af7"
+hash = "5c4d8080367dd2561a18c1cf5a1dd295"
 
 [flavor]
 deps = []

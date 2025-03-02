@@ -25,13 +25,12 @@ exec --no-startup-id unclutter
 exec --no-startup-id polybar -r main
 exec --no-startup-id xset s off -dpms
 exec --no-startup-id greenclip daemon
-exec --no-startup-id amixer set Capture 80%
-exec --no-startup-id ulauncher --hide-window
 exec --no-startup-id xhost +si:localuser:$USER
 exec --no-startup-id ~/Scripts/backup_zsh_history.sh
 exec --no-startup-id feh --no-fehbg --bg-fill ~/.cache/x11wall
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 exec --no-startup-id xss-lock --transfer-sleep-lock -- xfce4-screensaver-command -l
+exec --no-startup-id pactl set-source-volume alsa_input.pci-0000_00_1f.3.analog-stereo 20%
 exec --no-startup-id sudo chown $USER:$USER /sys/class/backlight/intel_backlight/brightness
 exec --no-startup-id cp ~/.config/BraveSoftware/Brave-Browser/Default/History /tmp/BraveHistory
 exec_always --no-startup-id xinput set-prop '2.4G Mouse' 'libinput Accel Speed' 0.5
@@ -41,6 +40,7 @@ exec_always --no-startup-id xinput set-prop 'Synaptics TM3336-004' 'libinput Nat
 exec_always --no-startup-id xinput set-prop 'PixArt Lenovo USB Optical Mouse' 'libinput Accel Speed' 0.3
 exec_always --no-startup-id xinput set-prop 'YICHIP Wireless Device Mouse' 'libinput Accel Speed' 1
 exec_always --no-startup-id killall volume_subscribe.sh ; sleep 1 ; ~/Scripts/volume_subscribe.sh
+exec_always --no-startup-id killall ulauncher; ulauncher --hide-window
 exec_always --no-startup-id autotiling -w 1 2 3 4 5 6 7 8 -l 2
 exec_always --no-startup-id ~/Scripts/keyboard_config.sh
 exec_always --no-startup-id ~/Scripts/layout_handler.sh
@@ -323,31 +323,32 @@ mode "redshift" {
 }
 
 mode "applications" {
-    bindsym a exec audacious                                                                      ,mode "default"
-    bindsym b exec brave --test-type --incognito                                                  ,mode "default"
-    bindsym c exec qalculate-gtk                                                                  ,mode "default"
-    bindsym d exec /home/muhammad/Disk_D/برامج/Linux/arduino-ide_2.3.2_Linux_64bit.AppImage       ,mode "default"
-    bindsym g exec gimp                                                                           ,mode "default"
-    bindsym i exec idea                                                                           ,mode "default"
-    bindsym k exec prime-run /home/muhammad/Disk_D/برامج/Linux/kdenlive-24.02.0_A-x86_64.AppImage ,mode "default"
-    bindsym l exec flatpak run net.sapples.LiveCaptions                                           ,mode "default"
-    bindsym m exec mpv --player-operation-mode=pseudo-gui                                         ,mode "default"
-    bindsym n exec kitty --class nvim --hold -e nvim                                              ,mode "default"
-    bindsym o exec kitty -o font_size=18 --class octave-cli --hold -e octave-cli --silent         ,mode "default"
-    bindsym p exec pomatez                                                                        ,mode "default"
-    bindsym q exec flatpak run io.github._0xzer0x.qurancompanion                                  ,mode "default"
-    bindsym t exec telegram-desktop                                                               ,mode "default"
-    bindsym v exec virt-manager                                                                   ,mode "default"
-    bindsym w exec whatsie                                                                        ,mode "default"
-    bindsym shift+a exec ~/Scripts/virt_opener.sh android-x86-9.0                                 ,mode "default"
-    bindsym shift+b exec notify-send -t 5000 "$(acpi)"                                            ,mode "default"
-    bindsym shift+c exec gcolor3                                                                  ,mode "default"
-    bindsym shift+m exec kitty --class pulsemixer --hold -e pulsemixer                            ,mode "default"
-    bindsym shift+n exec ~/Scripts/wallpaper.sh                                                   ,mode "default"
-    bindsym shift+s exec notify-send "$(~/Scripts/bilal.sh -a)"                                   ,mode "default"
-    bindsym shift+t exec mousepad                                                                 ,mode "default"
-    bindsym shift+u exec ~/Scripts/virt_opener.sh ubuntu24.04                                     ,mode "default"
-    bindsym shift+w exec ~/Scripts/virt_opener.sh win10                                           ,mode "default"
+    bindsym a exec audacious                                                              ,mode "default"
+    bindsym b exec brave --test-type --incognito                                          ,mode "default"
+    bindsym c exec qalculate-gtk                                                          ,mode "default"
+    bindsym d exec /mnt/Disk_D/برامج/Linux/arduino-ide_2.3.2_Linux_64bit.AppImage         ,mode "default"
+    bindsym g exec gimp                                                                   ,mode "default"
+    bindsym i exec idea                                                                   ,mode "default"
+    bindsym k exec prime-run /mnt/Disk_D/برامج/Linux/kdenlive-24.02.0_A-x86_64.AppImage   ,mode "default"
+    bindsym l exec flatpak run net.sapples.LiveCaptions                                   ,mode "default"
+    bindsym m exec mpv --player-operation-mode=pseudo-gui                                 ,mode "default"
+    bindsym n exec kitty --class nvim --hold -e nvim                                      ,mode "default"
+    bindsym o exec kitty -o font_size=18 --class octave-cli --hold -e octave-cli --silent ,mode "default"
+    bindsym p exec pomatez                                                                ,mode "default"
+    bindsym q exec flatpak run io.github._0xzer0x.qurancompanion                          ,mode "default"
+    bindsym s exec libreoffice /mnt/Disk_D/Muhammad/swears.odt                            ,mode "default"
+    bindsym t exec telegram-desktop                                                       ,mode "default"
+    bindsym v exec virt-manager                                                           ,mode "default"
+    bindsym w exec whatsie                                                                ,mode "default"
+    bindsym shift+a exec ~/Scripts/virt_opener.sh android-x86-9.0                         ,mode "default"
+    bindsym shift+b exec notify-send -t 5000 "$(acpi)"                                    ,mode "default"
+    bindsym shift+c exec gcolor3                                                          ,mode "default"
+    bindsym shift+m exec kitty --class pulsemixer --hold -e pulsemixer                    ,mode "default"
+    bindsym shift+n exec ~/Scripts/wallpaper.sh                                           ,mode "default"
+    bindsym shift+s exec notify-send "$(~/Scripts/bilal.sh -a)"                           ,mode "default"
+    bindsym shift+t exec mousepad                                                         ,mode "default"
+    bindsym shift+u exec ~/Scripts/virt_opener.sh ubuntu24.04                             ,mode "default"
+    bindsym shift+w exec ~/Scripts/virt_opener.sh win10                                   ,mode "default"
 
     bindsym Escape mode "default"
     bindsym $mod+a mode "default"
