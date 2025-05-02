@@ -1,0 +1,18 @@
+if [ "$XDG_CURRENT_DESKTOP" = "i3" ]; then
+  export QT_QPA_PLATFORMTHEME="qt6ct"
+  export QT_PLUGIN_PATH=$HOME/.kde4/lib/kde4/plugins/:/usr/lib/kde4/plugins/
+fi
+
+export EDITOR=nvim
+export TERMCMD=kitty
+export MANPAGER='nvim +Man!'
+export BAT_THEME="Catppuccin Mocha"
+export ANDROID_HOME="/home/muhammad/.local/share/Android/Sdk"
+export ANDROID_USER_HOME="/home/muhammad/.local/share/android"
+export CARGO_HOME="/home/muhammad/.local/share/cargo"
+export CUDA_CACHE_PATH="/home/muhammad/.cache/nv"
+export GRADLE_USER_HOME="/home/muhammad/.local/share/gradle"
+export GTK2_RC_FILES="/home/muhammad/.config/gtk-2.0/gtkrc"
+export INPUTRC="/home/muhammad/.config/readline/inputrc"
+export NODE_REPL_HISTORY="/home/muhammad/.local/share/node_repl_history"
+export WINEPREFIX="/home/muhammad/.local/share/wine"

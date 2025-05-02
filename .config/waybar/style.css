@@ -1,0 +1,212 @@
+@define-color transparent_base rgba(30,30,46,0.8);
+@define-color base #1e1e2e;
+@define-color mantle #181825;
+@define-color crust #11111b;
+
+@define-color text #cdd6f4;
+@define-color subtext0 #a6adc8;
+@define-color subtext1 #bac2de;
+
+@define-color surface0 #313244;
+@define-color surface1 #45475a;
+@define-color surface2 #585b70;
+
+@define-color overlay0 #6c7086;
+@define-color overlay1 #7f849c;
+@define-color overlay2 #9399b2;
+
+@define-color blue #89b4fa;
+@define-color lavender #b4befe;
+@define-color sapphire #74c7ec;
+@define-color sky #89dceb;
+@define-color teal #94e2d5;
+@define-color green #a6e3a1;
+@define-color yellow #f9e2af;
+@define-color peach #fab387;
+@define-color maroon #eba0ac;
+@define-color red #f38ba8;
+@define-color mauve #cba6f7;
+@define-color pink #f5c2e7;
+@define-color flamingo #f2cdcd;
+@define-color rosewater #f5e0dc;
+
+@define-color foreground #ffffff;
+@define-color disabled #777777;
+@define-color alert #e60053;
+
+* {
+  font-family:
+    Symbols Nerd Font,
+    RobotoMono Nerd Font;
+  min-height: 0;
+}
+
+window#waybar {
+  background-color: @base;
+  transition-duration: 0.5s;
+  /*border-radius: 4px;*/
+  /*border-bottom: 2px solid #ed8796;*/
+}
+
+#clock,
+#battery,
+#cpu,
+#memory,
+#backlight,
+#language,
+#network,
+#wireplumber,
+#tray,
+#custom-bilal {
+  padding: 0 5px;
+  font-size: 12px;
+}
+
+#custom-launcher,
+#workspaces button,
+#custom-powermenu
+{
+  font-size: 16px;
+}
+
+#workspaces {
+  margin-left: 12px;
+  margin-right: 6px;
+}
+
+#custom-launcher {
+  color: @flamingo;
+}
+
+#workspaces button {
+  color: @rosewater;
+  padding: 0 1px;
+  border-radius: 6px;
+}
+
+#workspaces button.empty {
+  color: @teal;
+}
+
+#workspaces button.active {
+  color: @pink;
+}
+
+#workspaces button.urgent {
+  background-color: @alert;
+  padding: 0 20px;
+}
+
+#submap {
+  background-color: @alert;
+  color: @foreground;
+  padding: 0 12px;
+  font-size: 12px;
+  margin-right: 12px;
+}
+
+#window {
+  font-weight: bold;
+  font-size: 13px;
+  padding-bottom: 2px;
+}
+
+#taskbar {
+  font-size: 13px;
+  font-weight: bold;
+  padding-bottom: 2px;
+}
+
+#taskbar button {
+  padding: 0;
+  padding-left: 8px;
+  margin-right: 1px;
+  border-radius: 6px;
+}
+
+#taskbar button.active {
+  background-color: #303555;
+}
+
+/* If workspaces is the leftmost module, omit left margin */
+.modules-left > widget:first-child > #workspaces {
+  margin-left: 0;
+}
+
+/* If workspaces is the rightmost module, omit right margin */
+.modules-right > widget:last-child > #workspaces {
+  margin-right: 0;
+}
+
+#custom-bilal-icon {
+  color: @sky;
+  font-size: 12px;
+  padding-right: 2px;
+}
+
+#custom-bilal {
+  font-weight: bold;
+}
+
+#clock {
+  color: @mauve;
+}
+
+#battery {
+  color: @green;
+}
+
+/* Using steps() instead of linear as a timing function to limit cpu usage */
+#battery.critical:not(.charging) {
+  color: @alert;
+  animation-name: blink;
+  animation-duration: 0.5s;
+  animation-timing-function: steps(12);
+  animation-iteration-count: infinite;
+  animation-direction: alternate;
+}
+
+#cpu {
+  color: @yellow;
+}
+
+#memory {
+  color: @teal;
+}
+
+#backlight {
+  color: @peach;
+}
+
+#network.bandwidth {
+  color: @rosewater;
+}
+
+#network {
+  color: @blue;
+}
+
+#wireplumber {
+  color: @sapphire;
+}
+
+#wireplumber.muted {
+  color: @disabled;
+}
+
+#tray > .passive {
+  -gtk-icon-effect: dim;
+}
+
+#tray > .needs-attention {
+  -gtk-icon-effect: highlight;
+  background-color: #eb4d4b;
+}
+
+#language {
+  color: @maroon;
+}
+
+#custom-powermenu {
+  color: @pink;
+}

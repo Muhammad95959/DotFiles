@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<actions>
+<action>
+	<icon>text-editor</icon>
+	<name>Edit as root</name>
+	<submenu></submenu>
+	<unique-id>1694358748656352-2</unique-id>
+	<command>sudo kitty -e nvim %f</command>
+	<description></description>
+	<range>*</range>
+	<patterns>*</patterns>
+	<text-files/>
+</action>
+<action>
+	<icon>spray-mode-copy</icon>
+	<name>Copy current path</name>
+	<submenu></submenu>
+	<unique-id>1694359011178927-3</unique-id>
+	<command>echo -n %f | xclip -selection &quot;clipboard&quot;</command>
+	<description></description>
+	<range>*</range>
+	<patterns>*</patterns>
+	<directories/>
+	<audio-files/>
+	<image-files/>
+	<other-files/>
+	<text-files/>
+	<video-files/>
+</action>
+<action>
+	<icon>utilities-terminal</icon>
+	<name>Open Terminal Here</name>
+	<submenu></submenu>
+	<unique-id>1690663577489158-1</unique-id>
+	<command>kitty --working-directory %f</command>
+	<description></description>
+	<range></range>
+	<patterns>*</patterns>
+	<startup-notify/>
+	<directories/>
+</action>
+<action>
+	<icon>default-folder-root</icon>
+	<name>Open thunar as root here</name>
+	<submenu></submenu>
+	<unique-id>1694358593275693-1</unique-id>
+	<command>sudo thunar %f</command>
+	<description></description>
+	<range>*</range>
+	<patterns>*</patterns>
+	<directories/>
+</action>
+</actions>

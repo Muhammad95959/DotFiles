@@ -1,0 +1,59 @@
+1920x1080 screen: Height=1060
+1920x1080 screen: Width=1920
+1920x1080 screen: XPosition=0
+1920x1080 screen: YPosition=20
+MenuBar=Disabled
+State=AAAA/wAAAAD9AAAAAQAAAAAAAADIAAAD1fwCAAAAAfsAAAAcAG8AawB1AGwAYQByAF8AcwBpAGQAZQBiAGEAcgAAAABPAAAD1QAAAV0A///+AAAHgAAAA/IAAAAEAAAABAAAAAgAAAAI/AAAAAMAAAABAAAAAQAAACwAcQB1AGkAYwBrAEEAbgBuAG8AdABhAHQAaQBvAG4AVABvAG8AbABCAGEAcgIAAAAA/////wAAAAAAAAAAAAAAAgAAAAEAAAAWAG0AYQBpAG4AVABvAG8AbABCAGEAcgEAAAAA/////wAAAAAAAAAAAAAAAgAAAAEAAAAiAGEAbgBuAG8AdABhAHQAaQBvAG4AVABvAG8AbABCAGEAcgAAAAAA/////wAAAAAAAAAA
+eDP-1=eDP-1
+
+[Desktop Entry]
+FullScreen=false
+shouldShowMenuBarComingFromFullScreen=false
+shouldShowToolBarComingFromFullScreen=true
+
+[General]
+LockSidebar=true
+ShowSidebar=false
+
+[MainWindow]
+1920x1080 screen: Height=1060
+1920x1080 screen: Width=1920
+1920x1080 screen: XPosition=0
+1920x1080 screen: YPosition=20
+MenuBar=Disabled
+ToolBarsMovable=Disabled
+eDP-1=eDP-1
+
+[MainWindow][Toolbar mainToolBar]
+ToolButtonStyle=IconOnly
+
+[Notification Messages]
+presentationInfo=false
+
+[Recent Files]
+File1[$e]=$HOME/Downloads/WhatSie/Analog Communications Midterm Exam Part II Fall 2023.pdf
+File10[$e]=$HOME/Downloads/WhatSie/varactor bk.pdf
+File2[$e]=/mnt/Disk_D/Engineering/Semester_materials/Solid/Midterm/السوليد في شوال.pdf
+File3[$e]=$HOME/Downloads/The Algorithm Design Manual by Steven S. Skiena.pdf
+File4[$e]=$HOME/Downloads/Venom War (Story Arc) (2024)/0 Prelude/1 Venom (2022-2024)/Venom 001 (2022).cbr
+File5[$e]=$HOME/Downloads/DSP -FALL 24-25.xls.pdf
+File6[$e]=$HOME/Downloads/Embedded_Systems_Course_Projects_Fall_2024_Level_3_Comm_Engineering.pdf
+File7[$e]=$HOME/Downloads/DSP mid_2.pdf
+File8[$e]=$HOME/Downloads/Analog-Presentation.pdf
+File9[$e]=$HOME/Downloads/DSP -FALL 24-25.pdf
+Name1[$e]=Analog Communications Midterm Exam Part II Fall 2023.pdf
+Name10[$e]=varactor bk.pdf
+Name2[$e]=السوليد في شوال.pdf
+Name3[$e]=The Algorithm Design Manual by Steven S. Skiena.pdf
+Name4[$e]=Venom 001 (2022).cbr
+Name5[$e]=DSP -FALL 24-25.xls.pdf
+Name6[$e]=Embedded_Systems_Course_Projects_Fall_2024_Level_3_Comm_Engineering.pdf
+Name7[$e]=DSP mid_2.pdf
+Name8[$e]=Analog-Presentation.pdf
+Name9[$e]=DSP -FALL 24-25.pdf
+
+[Toolbar mainToolBar]
+ToolButtonStyle=IconOnly
+
+[UiSettings]
+ColorScheme=KvArcDark

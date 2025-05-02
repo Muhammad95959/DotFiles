@@ -1,0 +1,26 @@
+#!/usr/bin/bash
+
+case $1 in
+shutdown)
+  shutdown now
+  ;;
+reboot)
+  reboot
+  ;;
+logout)
+  hyprctl dispatch exit
+  ;;
+suspend)
+  systemctl suspend
+  ;;
+hibernate)
+  systemctl hibernate
+  ;;
+lock)
+  hyprlock
+  ;;
+*)
+  echo "error"
+  ;;
+esac
+

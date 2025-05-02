@@ -1,0 +1,12 @@
+{
+    "blacklisted-desktop-dirs": "",
+    "clear-previous-query": true,
+    "disable-desktop-filters": true,
+    "grab-mouse-pointer": false,
+    "hotkey-show-app": "",
+    "render-on-screen": "mouse-pointer-monitor",
+    "show-indicator-icon": false,
+    "show-recent-apps": "0",
+    "terminal-command": "kitty --hold -e",
+    "theme-name": "arc-dark"
+}

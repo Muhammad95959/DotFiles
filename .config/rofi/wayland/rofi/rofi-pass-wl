@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+set -eu
+
+shopt -s nullglob globstar
+
+prefix=${PASSWORD_STORE_DIR-~/.password-store}
+password_files=( "$prefix"/**/*.gpg )
+password_files=( "${password_files[@]#"$prefix"/}" )
+password_files=( "${password_files[@]%.gpg}" )
+
+password=$(printf '%s\n' "${password_files[@]}" | rofi -i -dmenu "$@")
+
+
+[[ -n $password ]] || exit
+
+t=$(pass show "$password")
+tags=$(printf '%s' "$t" | tail -n +3 | sed 's/:.*//')
+filtered=$(printf "autotype\npassword\n%s\n" "$tags")
+action=$(printf '%s\n' "${filtered}" | rofi -dmenu "$@")
+
+if [[ $action == "password" ]]; then
+  passwd=`pass show "$password" | head -1`
+  echo -n "$passwd" | wtype -
+elif [[ $action == "autotype" ]]; then
+  txt=$(pass show "$password" | sed -n "s/$action: //p")
+  [[ -n $txt ]] || txt="user :tab pass" # default autotype
+  for word in $txt
+  do
+    if [[ $word == ":tab" ]]; then
+      wtype -P TAB
+    elif [[ $word == "pass" ]]; then
+      passwd=`pass show "$password" | head -1`
+      # echo removes newline from head
+      echo -n "$passwd" | wtype -
+    else
+      # fetch value of key
+      wtype "${password##*/}"
+    fi
+  done
+else
+  txt=$(pass show "$password" | sed -n "s/$action: //p")
+  wtype "$txt"
+fi
+

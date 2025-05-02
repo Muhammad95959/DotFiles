@@ -1,0 +1,133 @@
+#!/bin/sh
+
+# determine where to place the log file
+logfile="$HOME/.dkrc.log"
+[ -d "$HOME/.local/share/xorg" ] && logfile="$HOME/.local/share/xorg/dkrc.log"
+: > "$logfile"
+
+
+# (re)load sxhkd for keybinds
+if hash sxhkd >/dev/null 2>&1; then
+	pkill sxhkd
+  mkfifo /run/user/1000/sxhkd.fifo
+	sxhkd -s /run/user/1000/sxhkd.fifo -c "$HOME/.config/dk/sxhkdrc" &
+fi
+
+#autostart commands
+bash "$HOME/.config/dk/autostart.sh"
+
+# spawn a scratchpad terminal if not already (see sxhkdrc and rules for bind and setup)
+# if ! pgrep -f "st -c scratchpad" >/dev/null 2>&1; then
+# 	st -c scratchpad &
+# fi
+
+{ # compound command to redirect all output
+
+	# workspace settings
+	# ------------------------
+
+	dkcmd set numws=10
+
+	dkcmd set ws=_ apply layout=tile master=1 stack=3 gap=10 msplit=0.5 ssplit=0.5
+
+	# global settings
+	# ---------------------
+
+	# focus windows when receiving activation and enable focus-follows-mouse
+	dkcmd set focus_open=true focus_urgent=true focus_mouse=false
+
+	# place clients at the tail and ignore size hints on tiled windows
+	dkcmd set tile_tohead=0 tile_hints=false
+
+	# minimum width/height for resizing, and minimum allowed on-screen when moving
+	dkcmd set win_minwh=50 win_minxy=10
+
+	# disable gaps and borders in single window layouts
+	dkcmd set smart_gap=false smart_border=false
+
+	# define mouse mod and move/resize buttons
+	dkcmd set mouse mod=super move=button1 resize=button3
+
+	# obey motif border hints on windows that draw their own (steam, easyeffects, etc.)
+	dkcmd set obey_motif=true
+
+  # gaps
+  dkcmd set gap 10
+
+	# borders
+	# ---------
+
+	# traditional
+	# set border width and colour for each window state
+	# dkcmd set border width=$border_width colour focus='#6699cc' unfocus='#000000' urgent='#ee5555'
+
+	# alternative
+	# enable split borders and colours, width is overall width, outer_width consumes some of width.
+	# outer_width must be less than width, outer_width of 0 will be single borders
+	dkcmd set border width=2 outer_width=0 \
+		colour \
+		focus='#6699cc' \
+		unfocus='#444444' \
+		urgent='#ee5555' \
+		outer_focus='#222222' \
+		outer_unfocus='#222222' \
+		outer_urgent='#222222'
+
+	# window rules
+	# --------------
+
+	# rule class, instance, and title regexes (*ALWAYS* CASE INSENSITIVE)
+
+	# open window(s) on a specific workspace (assigned monitor)
+	# dkcmd rule class="^gimp$" ws=2
+
+	# open window(s) on a monitor by number or name (active workspace on monitor)
+	# dkcmd rule class="^chromium$" mon="HDMI-A-0"
+
+	# open window(s) and use a callback function (user defined in config.h)
+	# we also ignore_cfg=true to stop the window from being resized on it's own from events
+	# eg. mpv --x11-name=albumart /path/to/media
+	# dkcmd rule class="^mpv$" instance="^albumart$" float=true ignore_cfg=true callback=albumart bw=0
+
+	# open window(s) in a floating state
+	dkcmd rule class="^(RangerFileChooser|Nitrogen|Gcolor3|livecaptions|Arandr|pomatez)$" float=true
+
+	# open window(s) with a specific geometry and coordinates (floating only!)
+	# dkcmd rule class="^google-chrome$" title="^open files$" float=true w=1280 h=720
+
+	# open window(s) with ignore_msg=true to avoid focus being grabbed and changing workspace
+	# dkcmd rule class="^TelegramDesktop$" ignore_msg=true
+
+	# define some terminals and allow them to be absorbed by spawned windows
+	dkcmd rule class="^(st|st-256color|urxvt|kitty|alacritty|xterm|xterm-256colors)$" terminal=true
+
+	# set a window to never absorb other windows, like the xev event tester
+	dkcmd rule title="^Event Tester$" no_absorb=true
+	dkcmd rule title="^terminal$" no_absorb=false
+
+	# send a window to the scratchpad
+	dkcmd rule class="^scratchpad$" scratch=true
+
+	# focus window and workspace on opening
+	# dkcmd rule class="^firefox$" ws=1 focus=true
+
+	# update or remove an existing rule with the same match patterns
+	# dkcmd rule class="^firefox$" mon="HDMI-A-0"
+	# dkcmd rule remove class="^firefox$"
+
+	# apply current rule set to all existing windows (used mainly for WM restart)
+	dkcmd rule apply '*'
+
+	# delete all rules
+	# dkcmd rule remove '*'
+
+} >> "$logfile" 2>&1 # append responses
+
+# inform of any errors in a notification
+if grep -q 'error:' "$logfile"; then
+	hash notify-send && notify-send -t 0 -u critical "dkrc has errors" \
+		"$(awk '/error:/ {sub(/^error: /, ""); gsub(/</, "\<"); print}' "$logfile")"
+	exit 1
+fi
+
+exit 0

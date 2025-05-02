@@ -1,0 +1,199 @@
+// -*- mode: jsonc -*-
+{
+  // "position": "bottom",
+  // "width": 1900,
+  "margin-top": 0,
+  "layer": "top",
+  "height": 20,
+  "spacing": 0,
+  "modules-left": [
+    "custom/launcher",
+    "hyprland/workspaces",
+    "hyprland/submap",
+    "wlr/taskbar"
+    // "hyprland/window"
+  ],
+  "modules-center": [
+    "custom/bilal-icon",
+    "custom/bilal"
+  ],
+  "modules-right": [
+    "tray",
+    "network#bandwidth",
+    "hyprland/language",
+    "cpu",
+    "memory",
+    "wireplumber",
+    "backlight",
+    "battery",
+    "clock",
+    "network",
+    "custom/powermenu"
+  ],
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  "custom/launcher": {
+    "format": "  {icon}",
+    "format-icons": "",
+    "tooltip": false,
+    "on-click": "nwg-drawer",
+    "on-click-right": "flameshot gui"
+  },
+
+  "hyprland/workspaces": {
+    "format": "{icon}",
+    "format-icons": {
+      "active": "",
+      "default": ""
+    },
+    "persistent-workspaces": {
+      "*": 10
+    }
+  },
+
+  "hyprland/window": {
+    "format": "{class}",
+    "separate-outputs": true
+  },
+
+  "wlr/taskbar": {
+    "format": "{icon}",
+    "icon-size": 12,
+    "active-first": false,
+    "tooltip-format": "{title}",
+    "on-click": "minimize-raise",
+    "on-click-middle": "close",
+    "on-click-right": "close",
+    "ignore-list": [
+      "Notification"
+    ]
+  },
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  "custom/bilal-icon": {
+    "format": "{icon}",
+    "format-icons": "",
+    "on-click": "notify-send \"$(~/Scripts/bilal.sh -a)\"",
+    "tooltip": false,
+    "restart-interval": 0
+  },
+
+  "custom/bilal": {
+    "format": "{0}",
+    "exec": "~/Scripts/bilal.sh -r",
+    "on-click": "notify-send \"$(~/Scripts/bilal.sh -a)\"",
+    "tooltip": false,
+    "restart-interval": 30
+  },
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  "tray": {
+    "icon-size": 14,
+    "spacing": 10
+  },
+
+  "network#bandwidth": {
+    "interval": 1,
+    "format": "<span font='10'>󰇚</span> <span color='#fff'>{bandwidthTotalBytes}</span>",
+    "format-disconnected": "",
+    "tooltip": false
+  },
+
+  "hyprland/language": {
+    "format": "<span font='10'>󰌌</span> <span color='#fff'>{shortDescription}</span>"
+  },
+
+  "cpu": {
+    "interval": 2,
+    "format": "<span font='11'></span> <span color='#fff'>{usage}%</span>",
+    "tooltip": false
+  },
+
+  "memory": {
+    "interval": 2,
+    "format": "<span font='11'>󰆼</span> <span color='#fff'>{}%</span>",
+    "tooltip": false
+  },
+
+  "wireplumber": {
+    "scroll-step": 5,
+    "format": "<span font='11'>{icon}</span> <span color='#fff'>{volume}%</span>",
+    "format-bluetooth": "<span font='11'> {icon}</span> <span color='#fff'>{volume}%</span>",
+    "format-bluetooth-muted": "<span font='11'> </span> <span color='#fff'>muted</span>",
+    "format-muted": "<span font='11'></span> <span color='#fff'>muted</span>",
+    "format-source": "<span font='11'></span> <span color='#fff'>{volume}%</span>",
+    "format-source-muted": "",
+    "format-icons": {
+      "headphone": "",
+      "hands-free": "",
+      "headset": "",
+      "phone": "",
+      "portable": "",
+      "car": "",
+      "default": ["", "", ""]
+    },
+    "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+    "on-click-right": "pavucontrol",
+    "max-volume": 150,
+    "tooltip": false
+  },
+
+  "backlight": {
+    "scroll-step": 5,
+    "format": "<span font='11'>{icon}</span> <span color='#fff'>{percent}%</span>",
+    "format-icons": "",
+    "tooltip": false
+  },
+
+  "battery": {
+    "interval": 10,
+    "states": {
+      "warning": 20,
+      "critical": 10
+    },
+    "format": "<span font='11'>{icon}</span> <span color='#fff'>{capacity}%</span>",
+    "format-full": "<span font='11'>{icon}</span> <span color='#fff'>{capacity}%</span>",
+    "format-charging": "<span color='#f38ba8' font='11'>󱐋  </span><span font='11'>{icon}</span> <span color='#fff'>{capacity}%</span>",
+    "format-icons": ["", "", "", "", "", "", "", "", ""]
+  },
+
+  "clock": {
+    "interval": 1,
+    "format": "<span font='11'></span> {:%I:%M <span color='#fff'>%p}</span>",
+    "format-alt": "<span font='11'>󰃶</span> {:%Y-%m-%d  <span color='#fff'>%H:%M:%S}</span>",
+    "tooltip-format": "<tt><small>{calendar}</small></tt>",
+    "calendar": {
+      "mode"          : "month",
+      "mode-mon-col"  : 3,
+      "on-scroll"     : 1,
+      "format": {
+        "months":     "<span color='#ffead3'><b>{}</b></span>",
+        "days":       "<span color='#ecc6d9'><b>{}</b></span>",
+        "weeks":      "<span color='#99ffdd'><b>W{}</b></span>",
+        "weekdays":   "<span color='#ffcc66'><b>{}</b></span>",
+        "today":      "<span color='#ff6699'><b><u>{}</u></b></span>"
+      }
+    },
+    "actions":  {
+      "on-click-right": "mode"
+    }
+  },
+
+  "network": {
+    "interval": 10,
+    "format": "<span font='11'>{icon}</span> {essid} <span color='#fff'>{signalStrength}%</span>",
+    "tooltip-format": "{ifname} via {gwaddr}",
+    "format-disconnected": "<span font='11'>󰤭</span> disconnected",
+    "format-icons": ["󰤯", "󰤯", "󰤟", "󰤢", "󰤥", "󰤨"]
+  },
+
+  "custom/powermenu": {
+    "format": " {icon}  ",
+    "format-icons": "",
+    "tooltip": false,
+    "on-click": "wlogout -b 5"
+  }
+}

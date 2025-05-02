@@ -1,0 +1,138 @@
+/* Notification center */
+
+.blurredBG, #main_window, .blurredBG.low, .blurredBG.normal {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+.noti-center.time {
+    font-size: 32px;
+}
+
+/* Notifications */
+
+.notification.content {
+    margin-left: 15px;
+    margin-right: 15px;
+}
+
+.title {
+    font-weight: bold;
+    font-size: 16px;
+}
+
+.appname {
+    font-size: 12px;
+}
+
+.time {
+    font-size: 12px;
+}
+
+.blurredBG.notification {
+    background:  rgba(30, 30, 39, 0.9); /* edited manually */
+}
+
+.blurredBG.notification.critical {
+    background: rgba(255, 0, 0, 0.5); /* unreversed */
+}
+
+.notificationInCenter.critical {
+    background: rgba(155, 0, 20, 0.5); /* unreversed */
+}
+
+/* Labels */
+
+label {
+    color: #dcc;
+}
+
+label.notification {
+    color: #dcc;
+}
+
+label.critical {
+    color: #fff;
+}
+.notificationInCenter label.critical {
+    color: #fff;
+}
+
+
+/* Buttons */
+
+button {
+    background: transparent;
+    color: #dcc;
+    border-radius: 3px;
+    border-width: 0px;
+    background-position: 0px 0px;
+    text-shadow: none;
+}
+
+button:hover {
+    border-radius: 3px;
+    background: rgba(255, 235, 235, 0.2);
+    border-width: 0px;
+    border-top: transparent;
+    border-color: #0ff;
+    color: #011;
+}
+
+
+/* Custom Buttons */
+
+.userbutton {
+    background: rgba(235,255,255, 0.15);
+}
+
+.userbuttonlabel {
+    color: #ddd;
+    font-size: 12px;
+}
+
+.userbutton:hover {
+    background: rgba(235, 255, 255, 0.2);
+}
+
+.userbuttonlabel:hover {
+    color: #eee;
+}
+
+button.buttonState1 {
+    background: rgba(235,255,255,0.5);
+}
+
+.userbuttonlabel.buttonState1 {
+    color: #000;
+}
+
+button.buttonState1:hover {
+    background: rgba(235,255,255, 0.4);
+}
+
+.userbuttonlabel.buttonState1:hover {
+    color: #eee;
+}
+
+button.buttonState2 {
+    background: rgba(0,0,0,0.3);
+}
+
+.userbuttonlabel.buttonState2 {
+    color: #eee;
+}
+
+button.buttonState2:hover {
+    background: rgba(235,255,255, 0.3);
+}
+
+.userbuttonlabel.buttonState2:hover {
+    color: #fff;
+}
+
+
+/* Images */
+
+image.deadd-noti-center.notification.image {
+    margin-left: 20px;
+}

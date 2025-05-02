@@ -1,0 +1,34 @@
+{
+    "label" : "lock",
+    "action" : "/home/muhammad/.config/wlogout/scripts/anction lock",
+    "text" : "  Lock   ",
+    "keybind" : "l"
+}
+
+{
+    "label" : "suspend",
+    "action" : "/home/muhammad/.config/wlogout/scripts/anction suspend",
+    "text" : " Suspend ",
+    "keybind" : "s"
+}
+
+{
+    "label" : "logout",
+    "action" : "/home/muhammad/.config/wlogout/scripts/anction logout",
+    "text" : " Logout  ",
+    "keybind" : "m"
+}
+
+{
+    "label" : "reboot",
+    "action" : "/home/muhammad/.config/wlogout/scripts/anction reboot",
+    "text" : " Reboot  ",
+    "keybind" : "r"
+}
+
+{
+    "label" : "shutdown",
+    "action" : "/home/muhammad/.config/wlogout/scripts/anction shutdown",
+    "text" : "Shutdown ",
+    "keybind" : "d"
+}

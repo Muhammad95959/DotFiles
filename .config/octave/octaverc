@@ -1,0 +1,3 @@
+atexit ("");
+pkg load symbolic control signal;
+# workspace_file = fullfile(getenv("HOME"), ".local/share/octave/octave-workspace");
