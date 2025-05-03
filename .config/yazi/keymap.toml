@@ -463,6 +463,10 @@ on   = [ "g", "h", "<Enter>" ]
 run  = "cd /home/muhammad"
 desc = "Cd to /home/muhammad"
 [[manager.prepend_keymap]]
+on   = [ "g", "h", "D" ]
+run  = "cd /home/muhammad/DotFiles"
+desc = "Cd to /home/muhammad/DotFiles"
+[[manager.prepend_keymap]]
 on   = [ "g", "h", "P" ]
 run  = "cd /home/muhammad/Projects"
 desc = "Cd to /home/muhammad/Projects"

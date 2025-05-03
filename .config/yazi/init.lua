@@ -60,3 +60,5 @@ require("simple-tag"):setup({
   },
 
 })
+
+require("git"):setup()

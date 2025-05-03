@@ -129,6 +129,8 @@ fetchers = [
 	{ id = "mime", name = "*", run = "mime", prio = "high" },
   { id = "simple-tag", name = "*", run = "simple-tag" },
   { id = "simple-tag", name = "*/", run = "simple-tag" },
+  { id = "git", name = "*", run = "git" },
+  { id = "git", name = "*/", run = "git" },
 ]
 spotters = [
 	{ name = "*/", run = "folder" },
