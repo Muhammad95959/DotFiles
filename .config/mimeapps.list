@@ -20,6 +20,7 @@ x-scheme-handler/mailto=brave-browser.desktop
 x-scheme-handler/postman=Postman.desktop
 application/x-msdownload=userapp-prime-run wine-1SPZ12.desktop
 x-scheme-handler/discord=vesktop.desktop
+audio/mpeg=mpv.desktop
 
 [Added Associations]
 application/pdf=io.github.b43NnUNF4vidFYFhpqaLWy2ANawtRbMtUXZY9Pf.jumpdf.desktop;org.pwmt.zathura-pdf-poppler.desktop;okularApplication_pdf.desktop;
@@ -43,3 +44,4 @@ application/vnd.openxmlformats-officedocument.presentationml.presentation=libreo
 application/vnd.oasis.opendocument.text=libreoffice-writer.desktop;
 application/vnd.oasis.opendocument.spreadsheet=libreoffice-calc.desktop;
 application/vnd.microsoft.portable-executable=wine-usercreated-1.desktop;
+audio/mpeg=mpv.desktop;
