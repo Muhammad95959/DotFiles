@@ -128,5 +128,15 @@
         "is_default_search": false,
         "run_without_argument": false,
         "added": 1744298655.228023
+    },
+    "87a343a2-7320-4da3-90e0-4c6e0cdd1af5": {
+        "id": "87a343a2-7320-4da3-90e0-4c6e0cdd1af5",
+        "name": "Github",
+        "keyword": "h",
+        "cmd": "https://github.com/search?type=repositories&q=%s",
+        "icon": "~/.config/ulauncher/icons/github.svg",
+        "is_default_search": false,
+        "run_without_argument": false,
+        "added": 1746806820.6913147
     }
 }
