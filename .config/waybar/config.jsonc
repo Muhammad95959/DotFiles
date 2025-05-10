@@ -196,6 +196,7 @@
     "format": " {icon}  ",
     "format-icons": "",
     "tooltip": false,
-    "on-click": "wlogout -b 5"
+    "on-click": "wlogout -b 5",
+    "on-click-right": "swaync-client -t"
   }
 }
