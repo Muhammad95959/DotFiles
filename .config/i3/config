@@ -103,7 +103,7 @@ bindsym $mod+n            mode "redshift"
 bindsym $mod+shift+n      exec polybar-msg action date toggle
 bindsym $mod+o            mode "scripts"
 bindsym $mod+shift+o      mode "executable_scripts"
-bindsym $mod+p            exec rofi-pass
+bindsym $mod+p            exec rofi-pass-x11
 bindsym $mod+shift+p      exec rofi -show window
 bindsym $mod+q            kill
 bindsym $mod+shift+q      exec ~/.config/rofi/scripts/powermenu/type-1/powermenu.sh
