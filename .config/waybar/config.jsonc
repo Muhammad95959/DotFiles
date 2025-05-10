@@ -42,10 +42,12 @@
   },
 
   "hyprland/workspaces": {
+    "show-special": true,
     "format": "{icon}",
     "format-icons": {
-      "active": "",
-      "default": ""
+      "special": "󰫈",
+      "default": "",
+      "active": ""
     },
     "persistent-workspaces": {
       "*": 10

@@ -97,6 +97,10 @@ window#waybar {
   padding: 0 20px;
 }
 
+#workspaces button.special {
+  color: @mauve;
+}
+
 #submap {
   background-color: @alert;
   color: @foreground;
