@@ -54,7 +54,6 @@
   "undotree": { "branch": "main", "commit": "eab459ab87dd249617b5f7187bb69e614a083047" },
   "vim-sxhkdrc": { "branch": "master", "commit": "7b8abc305ba346c3af7d57da0ebec2b2f2d3f5b0" },
   "vim-tmux-navigator": { "branch": "master", "commit": "33afa80db65113561dc53fa732b7f5e53d5ecfd0" },
-  "vim-wayland-clipboard": { "branch": "master", "commit": "2fa6178d39925eab6a33dd13583d1bd9b67d3f65" },
   "which-key.nvim": { "branch": "main", "commit": "370ec46f710e058c9c1646273e6b225acf47cbed" },
   "windsurf.nvim": { "branch": "main", "commit": "6e4a661a2d701ff615872ec5a30025a329419d5f" },
   "yazi.nvim": { "branch": "main", "commit": "8cf2c9003c3cff4ab03915855de238c734d8029b" }
