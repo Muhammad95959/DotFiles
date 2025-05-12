@@ -1,0 +1,27 @@
+[submodule ".config/zsh/fzf-tab-completion"]
+	path = .config/zsh/fzf-tab-completion
+	url = https://github.com/lincheney/fzf-tab-completion.git
+
+[submodule ".config/zsh/powerlevel10k"]
+	path = .config/zsh/powerlevel10k
+	url = https://github.com/romkatv/powerlevel10k.git
+
+[submodule ".config/zsh/zsh-autosuggestions"]
+	path = .config/zsh/zsh-autosuggestions
+	url = https://github.com/zsh-users/zsh-autosuggestions.git
+
+[submodule ".config/zsh/zsh-completions"]
+	path = .config/zsh/zsh-completions
+	url = https://github.com/zsh-users/zsh-completions.git
+
+[submodule ".config/zsh/zsh-history-substring-search"]
+	path = .config/zsh/zsh-history-substring-search
+	url = https://github.com/zsh-users/zsh-history-substring-search.git
+
+[submodule ".config/zsh/zsh-syntax-highlighting"]
+	path = .config/zsh/zsh-syntax-highlighting
+	url = https://github.com/zsh-users/zsh-syntax-highlighting.git
+
+[submodule ".config/zsh/zsh-vim-mode"]
+	path = .config/zsh/zsh-vim-mode
+	url = https://github.com/softmoth/zsh-vim-mode.git
