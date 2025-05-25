@@ -63,7 +63,7 @@ for_window [all] border pixel 2
 # for_window [all] title_window_icon padding 7px
 # border_radius 12
 
-client.focused          #cdd6f4 #cdd6f4 #24273a #a4b4ea   #cdd6f4    ### edited via script
+client.focused          #ed8796 #ed8796 #24273a #ea7183   #ed8796    ### edited via script
 client.focused_inactive #303446 #303446 #ffffff #666666   #303446
 client.unfocused        #1e1e2e #1e1e2e #777777 #333333   #555555
 
@@ -271,6 +271,7 @@ for_window [class="livecaptions"] floating enable, move absolute position 500px 
 for_window [class="copyq"] floating enable, resize set 1280 px 720 px, move absolute position center
 for_window [class="octave-cli"] floating enable, resize set 1600 px 900 px, move absolute position center
 for_window [class="scratchkitty"] floating enable, resize set 1600 px 900 px, move absolute position center, move scratchpad, scratchpad show
+for_window [class="ffplay" title="/dev/video0"] floating enable, resize set 480 px 270 px, move absolute position 1420px 790px, sticky enable, border pixel 0
 for_window [class="hiddenkitty"] move scratchpad
 assign     [class="Uget-gtk"] $ws10
 assign     [class="yt-dlp"] $ws10
@@ -325,18 +326,15 @@ mode "applications" {
     bindsym b exec brave --test-type --incognito                                                                           ,mode "default"
     bindsym c exec qalculate-gtk                                                                                           ,mode "default"
     bindsym d exec kdocker -f                                                                                              ,mode "default"
-    bindsym g exec gimp                                                                                                    ,mode "default"
-    bindsym i exec idea                                                                                                    ,mode "default"
     bindsym k exec prime-run /mnt/Disk_D/برامج/Linux/kdenlive-24.02.0_A-x86_64.AppImage                                    ,mode "default"
     bindsym l exec flatpak run net.sapples.LiveCaptions                                                                    ,mode "default"
     bindsym m exec mpv --player-operation-mode=pseudo-gui                                                                  ,mode "default"
     bindsym n exec kitty --class nvim --hold -e nvim                                                                       ,mode "default"
     bindsym o exec kitty -o font_size=18 --class octave-cli --hold -e octave-cli --silent                                  ,mode "default"
-    bindsym p exec pomatez                                                                                                 ,mode "default"
     bindsym q exec flatpak run io.github._0xzer0x.qurancompanion                                                           ,mode "default"
     bindsym s exec libreoffice /mnt/Disk_D/Muhammad/swears.odt                                                             ,mode "default"
     bindsym t exec telegram-desktop                                                                                        ,mode "default"
-    bindsym v exec virt-manager                                                                                            ,mode "default"
+    bindsym v exec ~/Scripts/webcam.sh                                                                                     ,mode "default"
     bindsym w exec /opt/brave-bin/brave --test-type --profile-directory=Default --app-id=hnpfjngllnobngcgfapefoaidbinmjnm  ,mode "default"
     bindsym shift+a exec ~/Scripts/virt_opener.sh android-x86-9.0                                                          ,mode "default"
     bindsym shift+b exec notify-send -t 5000 "$(acpi)"                                                                     ,mode "default"
@@ -344,7 +342,6 @@ mode "applications" {
     bindsym shift+m exec kitty --class pulsemixer --hold -e pulsemixer                                                     ,mode "default"
     bindsym shift+n exec ~/Scripts/wallpaper.sh                                                                            ,mode "default"
     bindsym shift+s exec notify-send "$(~/Scripts/bilal.sh -a)"                                                            ,mode "default"
-    bindsym shift+t exec mousepad                                                                                          ,mode "default"
     bindsym shift+u exec ~/Scripts/virt_opener.sh ubuntu24.04                                                              ,mode "default"
     bindsym shift+w exec ~/Scripts/virt_opener.sh win10                                                                    ,mode "default"
 
