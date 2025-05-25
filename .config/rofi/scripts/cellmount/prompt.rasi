@@ -1,0 +1,71 @@
+configuration {
+  sort:			true;
+  sorting-method:	"normal";
+  disable-history:	false;
+  scroll-method:	0;
+  window-thumbnail:	true;
+  font: "JetBrains Mono Nerd Font 13";
+}
+
+@theme "/dev/null"
+
+* {
+  bg:		#1E222A;
+  bgAlt: #252931;
+  fg: #61AFEF;
+  button: #252931;
+  background-color:	@bg;
+  text-color:		@fg;
+}
+
+mainbox { children: [ inputbar, listview ]; }
+
+window {
+  transparency:		"real";
+  width:		600px;
+  border:		15px 15px 15px 15px;
+  border-radius:	15px;
+  height:		500px;
+  border-color: @bg;
+}
+
+inputbar {
+  children:		[ prompt ];
+  expand:		false;
+  padding:		10px 10px 10px 10px;
+}
+
+prompt { 
+  enabled: true; 
+  background-color:	@bg;
+  padding:		10px;
+  border-radius:	15px;
+}
+
+listview {
+  columns:		2;
+  cycle:		true;
+  dynamic:		true;
+  layout:		vertical;
+  scrollbar:		false;
+}
+
+element {
+  orientation:		vertical;
+  margin:		3px 5px 3px 5px;
+  border-radius:	10px;
+  background-color:	@bgAlt;
+}
+
+element-text {
+  expand:		true;
+  margin:		10px 15px 10px 15px;
+  background-color:	inherit;
+  text-color:		inherit;
+}
+
+element selected {
+  background-color:	@fg;
+  text-color:		@bgAlt;
+  border-radius:	10px;
+}
