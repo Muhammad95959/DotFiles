@@ -403,6 +403,7 @@ mode "scripts" {
 }
 
 mode "executable_scripts" {
+    bindsym a exec ~/.config/rofi/scripts/cellmount/cellmount.sh                       ,mode "default"
     bindsym b exec ~/Scripts/i3_border_changer.sh                                      ,mode "default"
     bindsym c exec ~/Scripts/move_to_i3_corners.sh                                     ,mode "default"
     bindsym d exec ~/Scripts/rofi_todo/todo.sh                                         ,mode "default"
