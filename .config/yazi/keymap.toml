@@ -608,10 +608,6 @@ run = "plugin mount"
 
 ### simple-tag plugin
 [[manager.prepend_keymap]]
-on = [ "`", "i" ]
-run = "plugin simple-tag -- toggle-tag --input"
-desc = "Toggle tag(s) with value from (input box)"
-[[manager.prepend_keymap]]
-on = [ "`", "d" ]
+on   = [ "<A-Space>", "t" ]
 run = "plugin simple-tag -- toggle-tag --key=1"
 desc = "Toggle tag with fixed tag key = 1"
