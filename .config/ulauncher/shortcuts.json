@@ -9,16 +9,6 @@
         "run_without_argument": false,
         "added": 1737841534.2713768
     },
-    "ce6a512a-50ad-44d3-88db-6b5a39645e1c": {
-        "id": "ce6a512a-50ad-44d3-88db-6b5a39645e1c",
-        "name": "Stack Overflow",
-        "keyword": "s",
-        "cmd": "https://stackoverflow.com/search?q=%s",
-        "icon": "/usr/share/ulauncher/media/stackoverflow-icon.svg",
-        "is_default_search": true,
-        "run_without_argument": false,
-        "added": 1737841534.2714536
-    },
     "6cce6143-29d4-41c9-ba61-0d6b6b344f3c": {
         "id": "6cce6143-29d4-41c9-ba61-0d6b6b344f3c",
         "name": "Youtube",
@@ -58,16 +48,6 @@
         "is_default_search": true,
         "run_without_argument": false,
         "added": 1737847987.3012037
-    },
-    "0bcdd938-c1c2-4726-adf5-739cd2f935f3": {
-        "id": "0bcdd938-c1c2-4726-adf5-739cd2f935f3",
-        "name": "Amazon",
-        "keyword": "a",
-        "cmd": "https://www.amazon.com/s?k=%s",
-        "icon": "~/.config/ulauncher/icons/amazon.svg",
-        "is_default_search": false,
-        "run_without_argument": false,
-        "added": 1740069397.480439
     },
     "96e8e361-2c91-4ade-87fa-cb4d9dd92fbf": {
         "id": "96e8e361-2c91-4ade-87fa-cb4d9dd92fbf",
@@ -138,5 +118,25 @@
         "is_default_search": false,
         "run_without_argument": false,
         "added": 1746806820.6913147
+    },
+    "5fc5cdbe-aca0-48a6-bcfa-86f48111f3d9": {
+        "id": "5fc5cdbe-aca0-48a6-bcfa-86f48111f3d9",
+        "name": "Grok",
+        "keyword": "k",
+        "cmd": "https://grok.com?q=%s",
+        "icon": "~/.config/ulauncher/icons/grok.svg",
+        "is_default_search": false,
+        "run_without_argument": false,
+        "added": 1747147028.1278791
+    },
+    "9e327062-9ca2-48d1-b7c4-353d3c76d447": {
+        "id": "9e327062-9ca2-48d1-b7c4-353d3c76d447",
+        "name": "ChatGPT",
+        "keyword": "c",
+        "cmd": "https://chatgpt.com?q=%s",
+        "icon": "~/.config/ulauncher/icons/chatgpt.svg",
+        "is_default_search": false,
+        "run_without_argument": false,
+        "added": 1747160736.9752746
     }
 }
