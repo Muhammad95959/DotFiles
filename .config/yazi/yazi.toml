@@ -84,7 +84,7 @@ zathura = [
   { run = 'setsid zathura "$@" >/dev/null 2>&1 &', block = false, desc = "zathura" },
 ]
 okular = [
-  { run = 'setsid flatpak run org.kde.okular "$@" >/dev/null 2>&1 &', block = false, desc = "okular" },
+  { run = 'setsid okular "$@" >/dev/null 2>&1 &', block = false, desc = "okular" },
 ]
 pdfarranger = [
   { run = 'setsid pdfarranger "$@" >/dev/null 2>&1 &', block = false, desc = "pdfarranger" },
