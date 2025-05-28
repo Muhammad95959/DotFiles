@@ -10,7 +10,6 @@
 roficonfig=~/DotFiles/.config/rofi/scripts/cellmount/prompt.rasi
 # Always mount your phone here 
 mountpoint=$HOME/Cell
-[ -d "$mountpoint" ] || mkdir -pv "$mountpoint"
 
 # ┬─┐┌─┐┌─┐┬
 # ├┬┘│ │├┤ │
@@ -33,6 +32,7 @@ case $chk in
   rm -r "$HOME/Cell"
 	;;
 	Mount)
+  [ -d "$mountpoint" ] || mkdir -pv "$mountpoint"
 	device="$(echo "$androiddevices" | rofi -config $roficonfig -dmenu -i -hover-select -p "Choose Device")"
 	simple-mtpfs --device "$device" "$mountpoint" && echo "exit" | rofi -config $roficonfig -dmenu -i -only-match -p "Mounted Successfully" && exit
 	echo "Ok" | rofi -config $roficonfig -dmenu -i -p "Tap Allow on your phone, after that Enter."
