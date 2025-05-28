@@ -1,5 +1,5 @@
 [greenclip]
-  history_file = "/home/muhammad/.local/share/greenclip.history"
+  history_file = "~/.local/share/greenclip.history"
   enable_image_support = true
   image_cache_directory = "/tmp/greenclip"
   max_history_length = 10000

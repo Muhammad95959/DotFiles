@@ -404,12 +404,12 @@ desc = "info"
 ### My bookmarks
 [[manager.prepend_keymap]]
 on   = [ "g", "d", "<Enter>" ]
-run  = "cd /home/muhammad/Disk_D"
-desc = "Cd to /home/muhammad/Disk_D"
+run  = "cd /mnt/Disk_D"
+desc = "Cd to /mnt/Disk_D"
 [[manager.prepend_keymap]]
 on   = [ "g", "d", "a" ]
-run  = "cd /home/muhammad/Disk_D/برامج"
-desc = "Cd to /home/muhammad/Disk_D/برامج"
+run  = "cd /mnt/Disk_D/برامج"
+desc = "Cd to /mnt/Disk_D/برامج"
 [[manager.prepend_keymap]]
 on   = [ "g", "d", "b" ]
 run  = "cd /mnt/Disk_D/Backgrounds"
@@ -460,48 +460,48 @@ run  = "cd /mnt/Disk_D/نغمات"
 desc = "Cd to /mnt/Disk_D/نغمات"
 [[manager.prepend_keymap]]
 on   = [ "g", "h", "<Enter>" ]
-run  = "cd /home/muhammad"
-desc = "Cd to /home/muhammad"
+run  = "cd ~"
+desc = "Cd to ~"
 [[manager.prepend_keymap]]
 on   = [ "g", "h", "D" ]
-run  = "cd /home/muhammad/DotFiles"
-desc = "Cd to /home/muhammad/DotFiles"
+run  = "cd ~/DotFiles"
+desc = "Cd to ~/DotFiles"
 [[manager.prepend_keymap]]
 on   = [ "g", "h", "P" ]
-run  = "cd /home/muhammad/Projects"
-desc = "Cd to /home/muhammad/Projects"
+run  = "cd ~/Projects"
+desc = "Cd to ~/Projects"
 [[manager.prepend_keymap]]
 on   = [ "g", "h", "a" ]
-run  = "cd /home/muhammad/.ASProjects"
-desc = "Cd to /home/muhammad/.ASProjects"
+run  = "cd ~/.ASProjects"
+desc = "Cd to ~/.ASProjects"
 [[manager.prepend_keymap]]
 on   = [ "g", "h", "c" ]
-run  = "cd /home/muhammad/.config"
-desc = "Cd to /home/muhammad/.config"
+run  = "cd ~/.config"
+desc = "Cd to ~/.config"
 [[manager.prepend_keymap]]
 on   = [ "g", "h", "d" ]
-run  = "cd /home/muhammad/Downloads"
-desc = "Cd to /home/muhammad/Downloads"
+run  = "cd ~/Downloads"
+desc = "Cd to ~/Downloads"
 [[manager.prepend_keymap]]
 on   = [ "g", "h", "f" ]
-run  = "cd /home/muhammad/.fonts"
-desc = "Cd to /home/muhammad/.fonts"
+run  = "cd ~/.fonts"
+desc = "Cd to ~/.fonts"
 [[manager.prepend_keymap]]
 on   = [ "g", "h", "i" ]
-run  = "cd /home/muhammad/.IdeaProjects"
-desc = "Cd to /home/muhammad/.IdeaProjects"
+run  = "cd ~/.IdeaProjects"
+desc = "Cd to ~/.IdeaProjects"
 [[manager.prepend_keymap]]
 on   = [ "g", "h", "l" ]
-run  = "cd /home/muhammad/.local/share"
-desc = "Cd to /home/muhammad/.local/share"
+run  = "cd ~/.local/share"
+desc = "Cd to ~/.local/share"
 [[manager.prepend_keymap]]
 on   = [ "g", "h", "p" ]
-run  = "cd /home/muhammad/Pictures"
-desc = "Cd to /home/muhammad/Pictures"
+run  = "cd ~/Pictures"
+desc = "Cd to ~/Pictures"
 [[manager.prepend_keymap]]
 on   = [ "g", "h", "s" ]
-run  = "cd /home/muhammad/Scripts"
-desc = "Cd to /home/muhammad/Scripts"
+run  = "cd ~/Scripts"
+desc = "Cd to ~/Scripts"
 [[manager.prepend_keymap]]
 on   = [ "g", "m" ]
 run  = "cd /run/media/muhammad"

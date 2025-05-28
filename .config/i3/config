@@ -82,7 +82,7 @@ client.unfocused        #1e1e2e #1e1e2e #777777 #333333   #555555
 #           |___/                               |___/
 
 bindsym $mod+Return       exec kitty
-bindsym $mod+shift+Return exec /home/muhammad/Scripts/urofi.sh
+bindsym $mod+shift+Return exec ~/Scripts/urofi.sh
 bindsym $mod+a            mode "applications"
 bindsym $mod+b            exec brave --test-type
 bindsym $mod+shift+b      exec qutebrowser
