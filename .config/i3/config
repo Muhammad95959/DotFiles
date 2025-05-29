@@ -20,6 +20,7 @@ focus_follows_mouse no
 # |____/ \__\__,_|_|   \__|\__,_| .__/
 #                               |_|
 
+exec --no-startup-id albert
 exec --no-startup-id udiskie
 exec --no-startup-id unclutter
 exec --no-startup-id polybar -r main
@@ -40,7 +41,6 @@ exec_always --no-startup-id xinput set-prop 'Synaptics TM3336-004' 'libinput Nat
 exec_always --no-startup-id xinput set-prop 'PixArt Lenovo USB Optical Mouse' 'libinput Accel Speed' 0.3
 exec_always --no-startup-id xinput set-prop 'YICHIP Wireless Device Mouse' 'libinput Accel Speed' 1
 exec_always --no-startup-id killall volume_subscribe.sh ; sleep 1 ; ~/Scripts/volume_subscribe.sh
-exec_always --no-startup-id killall ulauncher; ulauncher --hide-window
 exec_always --no-startup-id autotiling -w 1 2 3 4 5 6 7 8 -l 2
 exec_always --no-startup-id ~/Scripts/keyboard_config.sh
 exec_always --no-startup-id ~/Scripts/layout_handler.sh
@@ -82,7 +82,7 @@ client.unfocused        #1e1e2e #1e1e2e #777777 #333333   #555555
 #           |___/                               |___/
 
 bindsym $mod+Return       exec kitty
-bindsym $mod+shift+Return exec ~/Scripts/urofi.sh
+bindsym $mod+shift+Return exec ~/Scripts/roalbert.sh
 bindsym $mod+a            mode "applications"
 bindsym $mod+b            exec brave --test-type
 bindsym $mod+shift+b      exec qutebrowser
@@ -265,8 +265,8 @@ for_window [class="flowtime"] floating enable
 for_window [class="Timeshift-gtk"] floating disable
 for_window [class="supertuxkart"] floating disable
 for_window [class="Rofi"] floating enable, border pixel 0
-for_window [title="Ulauncher Preferences"] floating enable
-for_window [title="Ulauncher - Application Launcher"] border pixel 0
+for_window [class="albert" title="Albert"] border pixel 0
+for_window [title="Settings — Albert"] border pixel 2
 for_window [class="livecaptions"] floating enable, move absolute position 500px 900px
 for_window [class="copyq"] floating enable, resize set 1280 px 720 px, move absolute position center
 for_window [class="octave-cli"] floating enable, resize set 1600 px 900 px, move absolute position center

@@ -1,0 +1,114 @@
+[
+    {
+        "fallback": true,
+        "iconPath": "file:/home/muhammad/.local/share/albert/websearch/c3fe72ec.png",
+        "id": "c3fe72ec",
+        "name": "Amazon",
+        "trigger": "e",
+        "url": "https://www.amazon.eg/s?k=%s"
+    },
+    {
+        "fallback": true,
+        "iconPath": "file:/home/muhammad/.local/share/albert/websearch/eabf582f.png",
+        "id": "eabf582f",
+        "name": "Arch Wiki",
+        "trigger": "w",
+        "url": "https://wiki.archlinux.org/index.php?search=%s"
+    },
+    {
+        "fallback": true,
+        "iconPath": "file:/home/muhammad/.local/share/albert/websearch/d0842bb9.png",
+        "id": "d0842bb9",
+        "name": "ChatGPT",
+        "trigger": "c",
+        "url": "https://chat.openai.com/?q=%s"
+    },
+    {
+        "fallback": true,
+        "iconPath": "file:/home/muhammad/.local/share/albert/websearch/6adf2e7b.png",
+        "id": "6adf2e7b",
+        "name": "Freepik",
+        "trigger": "f",
+        "url": "https://www.freepik.com/search?format=search&selection=1&orientation=landscape&query=%s"
+    },
+    {
+        "fallback": true,
+        "iconPath": "file:/home/muhammad/.local/share/albert/websearch/202ee488.png",
+        "id": "202ee488",
+        "name": "GitHub",
+        "trigger": "h",
+        "url": "https://github.com/search?utf8=✓&q=%s"
+    },
+    {
+        "fallback": true,
+        "iconPath": ":google",
+        "id": "a95d0c17",
+        "name": "Google",
+        "trigger": "g",
+        "url": "https://www.google.com/search?q=%s"
+    },
+    {
+        "fallback": true,
+        "iconPath": "file:/home/muhammad/.local/share/albert/websearch/71b76a71.png",
+        "id": "71b76a71",
+        "name": "Grok",
+        "trigger": "k",
+        "url": "https://grok.com?q=%s"
+    },
+    {
+        "fallback": true,
+        "iconPath": "file:/home/muhammad/.local/share/albert/websearch/5fe0682c.png",
+        "id": "5fe0682c",
+        "name": "Iconscout",
+        "trigger": "i",
+        "url": "https://iconscout.com/icons/%s?price=free"
+    },
+    {
+        "fallback": true,
+        "iconPath": "file:/home/muhammad/.local/share/albert/websearch/728f8eb5.png",
+        "id": "728f8eb5",
+        "name": "Jumia",
+        "trigger": "j",
+        "url": "https://www.jumia.com.eg/ar/catalog/?q=%s"
+    },
+    {
+        "fallback": true,
+        "iconPath": "file:/home/muhammad/.local/share/albert/websearch/769b2cbb.png",
+        "id": "769b2cbb",
+        "name": "MDN",
+        "trigger": "m",
+        "url": "https://developer.mozilla.org/en-US/search?q=%s"
+    },
+    {
+        "fallback": true,
+        "iconPath": "file:/home/muhammad/.local/share/albert/websearch/360b47a6.png",
+        "id": "360b47a6",
+        "name": "Noon",
+        "trigger": "n",
+        "url": "https://www.noon.com/egypt-ar/search/?q=%s"
+    },
+    {
+        "fallback": true,
+        "iconPath": "file:/home/muhammad/.local/share/albert/websearch/00bb8da5.png",
+        "id": "00bb8da5",
+        "name": "Reddit",
+        "trigger": "r",
+        "url": "https://www.reddit.com/search/?q=%s"
+    },
+    {
+        "fallback": true,
+        "iconPath": "file:/home/muhammad/.local/share/albert/websearch/38b22f9d.png",
+        "id": "38b22f9d",
+        "name": "Urban Dictionary",
+        "trigger": "u",
+        "url": "https://www.urbandictionary.com/define.php?term=%s"
+    },
+    {
+        "fallback": true,
+        "iconPath": "file:/home/muhammad/.local/share/albert/websearch/ccd2857b.png",
+        "id": "ccd2857b",
+        "name": "YouTube",
+        "trigger": "y",
+        "url": "https://www.youtube.com/results?search_query=%s"
+    }
+]
