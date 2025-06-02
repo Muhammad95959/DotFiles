@@ -1,5 +1,6 @@
 [General]
 frontend=widgetsboxmodel-ng
+hotkey=Ctrl+Shift+Alt+F12
 memoryDecay=0.5
 prioritizePerfectMatch=true
 showTray=false
@@ -70,11 +71,20 @@ enabled=false
 paths=@Invalid()
 
 [path]
-enabled=false
+enabled=true
 
 [pluginregistry]
 fuzzy=false
 global_handler_enabled=false
+
+[python]
+enabled=false
+
+[python.kill]
+enabled=false
+
+[python.x_window_switcher]
+enabled=false
 
 [system]
 enabled=false
@@ -115,7 +125,7 @@ displayScrollbar=true
 followCursor=true
 hideOnFocusLoss=true
 historySearch=true
-itemCount=10
+itemCount=5
 lightTheme=Nord Dark
 quitOnClose=false
 showCentered=true

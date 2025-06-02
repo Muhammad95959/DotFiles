@@ -105,7 +105,7 @@
     },
     {
         "fallback": true,
-        "iconPath": "file:/home/muhammad/.local/share/albert/websearch/ccd2857b.png",
+        "iconPath": ":youtube",
         "id": "ccd2857b",
         "name": "YouTube",
         "trigger": "y",
