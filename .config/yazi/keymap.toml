@@ -2,7 +2,7 @@
 # If you encounter any issues, please make an issue at https://github.com/yazi-rs/schemas.
 "$schema" = "https://yazi-rs.github.io/schemas/keymap.json"
 
-[manager]
+[mgr]
 
 keymap = [
 	{ on = "<Esc>", run = "escape",             desc = "Exit visual mode, clear selection, or cancel search" },
@@ -362,39 +362,39 @@ keymap = [
 ]
 
 ### My additions
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = "!"
 run  = 'shell "$SHELL" --block --confirm'
 desc = "Open shell here"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = "<Enter>"
 run  = "plugin smart-enter"
 desc = "Enter the child directory, or open the file"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on  = [ "<A-Space>", "d" ]
 run = '''
 	shell 'setsid dragon-drop -a -x "$@" &' --confirm
 '''
 desc = "dragon-drop"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on  = [ "<A-Space>", "w" ]
 run = '''
 	shell '[ $(echo $XDG_SESSION_TYPE) = "wayland" ] && swww img "$@" -t "fade" --transition-duration 2 || feh --no-fehbg --bg-fill "$@"' --confirm
 '''
 desc = "set background"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on  = [ "<A-Space>", "u" ]
 run = '''
 	shell 'umount "$@"' --confirm
 '''
 desc = "umount"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on  = [ "<A-Space>", "l" ]
 run = '''
 	shell '~/Scripts/calculate_videos_length.sh "$@"' --confirm
 '''
 desc = "videos-length"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on  = [ "<A-Space>", "i" ]
 run = '''
   shell 'notify-send -t 7500 "$(exiftool "$@" | grep -E "^Duration *:" || exiftool "$@" | grep -E "^Page Count *:" || exiftool "$@" | grep "^Image Size *:")"' --confirm
@@ -402,212 +402,212 @@ run = '''
 desc = "info"
 
 ### My bookmarks
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "g", "d", "<Enter>" ]
 run  = "cd /mnt/Disk_D"
 desc = "Cd to /mnt/Disk_D"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "g", "d", "a" ]
 run  = "cd /mnt/Disk_D/برامج"
 desc = "Cd to /mnt/Disk_D/برامج"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "g", "d", "b" ]
 run  = "cd /mnt/Disk_D/Backgrounds"
 desc = "Cd to /mnt/Disk_D/Backgrounds"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "g", "d", "d" ]
 run  = "cd /mnt/Disk_D/مستندات"
 desc = "Cd to /mnt/Disk_D/مستندات"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "g", "d", "e" ]
 run  = "cd /mnt/Disk_D/تعليمي"
 desc = "Cd to /mnt/Disk_D/تعليمي"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "g", "d", "g" ]
 run  = "cd /mnt/Disk_D/Engineering"
 desc = "Cd to /mnt/Disk_D/Engineering"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "g", "d", "i" ]
 run  = "cd /mnt/Disk_D/إسلاميات"
 desc = "Cd to /mnt/Disk_D/إسلاميات"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "g", "d", "l" ]
 run  = "cd /mnt/Disk_D/Muhammad/Linux_stuff"
 desc = "Cd to /mnt/Disk_D/Muhammad/Linux_stuff"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "g", "d", "m" ]
 run  = "cd /mnt/Disk_D/Muhammad"
 desc = "Cd to /mnt/Disk_D/Muhammad"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "g", "d", "n" ]
 run  = "cd /mnt/Disk_D/Muhammad/My_Documents"
 desc = "Cd to /mnt/Disk_D/Muhammad/My_Documents"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "g", "d", "p" ]
 run  = "cd '/mnt/Disk_D/Projects & Designs'"
 desc = "Cd to /mnt/Disk_D/Projects & Designs"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "g", "d", "q" ]
 run  = "cd /mnt/Disk_D/قرآن_كريم"
 desc = "Cd to /mnt/Disk_D/قرآن_كريم"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "g", "d", "r" ]
 run  = "cd /mnt/Disk_D/Muhammad/Repositories"
 desc = "Cd to /mnt/Disk_D/Muhammad/Repositories"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "g", "d", "t" ]
 run  = "cd /mnt/Disk_D/نغمات"
 desc = "Cd to /mnt/Disk_D/نغمات"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "g", "h", "<Enter>" ]
 run  = "cd ~"
 desc = "Cd to ~"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "g", "h", "D" ]
 run  = "cd ~/DotFiles"
 desc = "Cd to ~/DotFiles"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "g", "h", "P" ]
 run  = "cd ~/Projects"
 desc = "Cd to ~/Projects"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "g", "h", "a" ]
 run  = "cd ~/.ASProjects"
 desc = "Cd to ~/.ASProjects"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "g", "h", "c" ]
 run  = "cd ~/.config"
 desc = "Cd to ~/.config"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "g", "h", "d" ]
 run  = "cd ~/Downloads"
 desc = "Cd to ~/Downloads"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "g", "h", "f" ]
 run  = "cd ~/.fonts"
 desc = "Cd to ~/.fonts"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "g", "h", "i" ]
 run  = "cd ~/.IdeaProjects"
 desc = "Cd to ~/.IdeaProjects"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "g", "h", "l" ]
 run  = "cd ~/.local/share"
 desc = "Cd to ~/.local/share"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "g", "h", "p" ]
 run  = "cd ~/Pictures"
 desc = "Cd to ~/Pictures"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "g", "h", "s" ]
 run  = "cd ~/Scripts"
 desc = "Cd to ~/Scripts"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "g", "m" ]
 run  = "cd /run/media/muhammad"
 desc = "Cd to /run/media/muhammad"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "g", "s" ]
 run  = "cd '/mnt/Disk_D/Virtual Machines/Share'"
 desc = "Cd to /mnt/Disk_D/Virtual Machines/Share"
 
 ### relative-motions plugin
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on = [ "1" ]
 run = "plugin relative-motions 1"
 desc = "Move in relative steps"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on = [ "2" ]
 run = "plugin relative-motions 2"
 desc = "Move in relative steps"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on = [ "3" ]
 run = "plugin relative-motions 3"
 desc = "Move in relative steps"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on = [ "4" ]
 run = "plugin relative-motions 4"
 desc = "Move in relative steps"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on = [ "5" ]
 run = "plugin relative-motions 5"
 desc = "Move in relative steps"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on = [ "6" ]
 run = "plugin relative-motions 6"
 desc = "Move in relative steps"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on = [ "7" ]
 run = "plugin relative-motions 7"
 desc = "Move in relative steps"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on = [ "8" ]
 run = "plugin relative-motions 8"
 desc = "Move in relative steps"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on = [ "9" ]
 run = "plugin relative-motions 9"
 desc = "Move in relative steps"
 
 ### bookmarks plugin
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on = [ "m" ]
 run = "plugin bookmarks save"
 desc = "Save current position as a bookmark"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on = [ "'" ]
 run = "plugin bookmarks jump"
 desc = "Jump to a bookmark"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on = [ "b", "d" ]
 run = "plugin bookmarks delete"
 desc = "Delete a bookmark"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on = [ "b", "D" ]
 run = "plugin bookmarks delete_all"
 desc = "Delete all bookmarks"
 
 ### toggle-pane plugin
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = "T"
 run  = "plugin toggle-pane max-current"
 desc = "Show or hide the preview pane"
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = "I"
 run  = "plugin toggle-pane max-preview"
 desc = "Maximize or restore the preview pane"
 
 ### open-with-cmd plugin
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = "O"
 run  = "plugin open-with-cmd"
 desc = "Open with command"
 
 ### ouch plugin
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "<A-Space>", "a" ]
 run = "plugin ouch"
 desc = "Compress with ouch"
 
 ### what-size plugin
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "<A-Space>", "s" ]
 run  = "plugin what-size"
 desc = "Calc size of selection or cwd"
 
 ### chmod plugin
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "<A-Space>", "c" ]
 run  = "plugin chmod"
 desc = "Chmod on selected files"
 
 ### mount plugin
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on  = "M"
 run = "plugin mount"
 
 ### simple-tag plugin
-[[manager.prepend_keymap]]
+[[mgr.prepend_keymap]]
 on   = [ "<A-Space>", "t" ]
 run = "plugin simple-tag -- toggle-tag --key=1"
 desc = "Toggle tag with fixed tag key = 1"
