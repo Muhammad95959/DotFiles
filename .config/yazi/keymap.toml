@@ -587,7 +587,7 @@ desc = "Open with command"
 [[mgr.prepend_keymap]]
 on   = [ "<A-Space>", "a" ]
 run = "plugin ouch"
-desc = "Compress with ouch"
+desc = "Archive with ouch"
 
 ### what-size plugin
 [[mgr.prepend_keymap]]

@@ -31,7 +31,7 @@ exec --no-startup-id ~/Scripts/backup_zsh_history.sh
 exec --no-startup-id feh --no-fehbg --bg-fill ~/.cache/x11wall
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 exec --no-startup-id xss-lock --transfer-sleep-lock -- xfce4-screensaver-command -l
-exec --no-startup-id pactl set-source-volume alsa_input.pci-0000_00_1f.3.analog-stereo 20%
+exec --no-startup-id pactl set-source-volume alsa_input.pci-0000_00_1f.3.analog-stereo 25%
 exec --no-startup-id sudo chown $USER:$USER /sys/class/backlight/intel_backlight/brightness
 exec --no-startup-id cp ~/.config/BraveSoftware/Brave-Browser/Default/History /tmp/BraveHistory
 exec_always --no-startup-id xinput set-prop '2.4G Mouse' 'libinput Accel Speed' 0.5
@@ -265,8 +265,7 @@ for_window [class="flowtime"] floating enable
 for_window [class="Timeshift-gtk"] floating disable
 for_window [class="supertuxkart"] floating disable
 for_window [class="Rofi"] floating enable, border pixel 0
-for_window [class="albert" title="Albert"] border pixel 0
-for_window [title="Settings — Albert"] border pixel 2
+for_window [class="^albert$" title="^Albert$"] border pixel 0
 for_window [class="livecaptions"] floating enable, move absolute position 500px 900px
 for_window [class="copyq"] floating enable, resize set 1280 px 720 px, move absolute position center
 for_window [class="octave-cli"] floating enable, resize set 1600 px 900 px, move absolute position center

@@ -68,6 +68,9 @@ size=14
 
 [files]
 enabled=false
+fs_browsers_match_case_sensitive=false
+fuzzy=true
+index_file_path=true
 paths=@Invalid()
 
 [path]
@@ -78,7 +81,10 @@ fuzzy=false
 global_handler_enabled=false
 
 [python]
-enabled=false
+enabled=true
+
+[python.aur]
+enabled=true
 
 [python.kill]
 enabled=false
@@ -90,13 +96,16 @@ enabled=false
 enabled=false
 
 [timer]
-enabled=false
+enabled=true
 
 [timezones]
 enabled=false
 
 [urlhandler]
 enabled=true
+
+[vpn]
+enabled=false
 
 [websearch]
 enabled=true
@@ -111,8 +120,8 @@ displayScrollbar=true
 followCursor=true
 hideOnFocusLoss=true
 historySearch=true
-itemCount=10
-lightTheme=Default System Palette
+itemCount=5
+lightTheme=Nord
 quitOnClose=false
 showCentered=true
 systemShadow=true
