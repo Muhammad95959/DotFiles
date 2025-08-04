@@ -152,38 +152,39 @@ export FZF_DEFAULT_OPTS=" \
 ### Aliases ---------------------------------------------------------------
 
 alias d='selected=$(grep -xv "$PWD" ~/.local/share/zdirs | fzf); [[ -n $selected ]] && cd "$selected"'
-alias ff="fzf-nvim"
-alias ls="exa --icons -a --group-directories-first"
-alias ll="exa --icons -a --group-directories-first -l"
-alias ta="tmux attach"
-alias quit="pkill -KILL -u $USER"
-alias wget="wget --hsts-file=$HOME/.local/share/wget-hsts"
-alias tree="eza --tree"
-alias cmatrix="unimatrix -n -s 96 -l o"
-alias cleantmux="~/Scripts/clean_tmux.sh"
-alias nvim-custom="NVIM_APPNAME=nvim-custom nvim"
-alias nvim-new="NVIM_APPNAME=nvim-new nvim"
-alias zrefresh="source $HOME/.zshrc"
-alias zshrc="nvim $HOME/.zshrc"
-alias i3config="nvim $HOME/.config/i3/config"
-alias hyprconfig="nvim $HOME/.config/hypr/hyprland.conf"
-alias barconfig="nvim $HOME/.config/polybar/config.ini"
-alias noticenter="kill -s USR1 $(pidof deadd-notification-center)"
-alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
-alias webtemplate="cp -r /mnt/Disk_D/Muhammad/Website-Template/* ."
+alias ff='fzf-nvim'
+alias ls='exa --icons -a --group-directories-first'
+alias ll='exa --icons -a --group-directories-first -l'
+alias ta='tmux attach'
+alias os='sesh connect $(sesh list | fzf) &>/dev/null'
+alias quit='pkill -KILL -u $USER'
+alias wget='wget --hsts-file=$HOME/.local/share/wget-hsts'
+alias tree='eza --tree'
+alias cmatrix='unimatrix -n -s 96 -l o'
+alias yayf='yay -Slq | fzf -m --preview 'yay -Si {1}' | xargs -ro yay -S'
+alias nvim-custom='NVIM_APPNAME=nvim-custom nvim'
+alias nvim-new='NVIM_APPNAME=nvim-new nvim'
+alias zrefresh='source $HOME/.zshrc'
+alias zshrc='nvim $HOME/.zshrc'
+alias i3config='nvim $HOME/.config/i3/config'
+alias hyprconfig='nvim $HOME/.config/hypr/hyprland.conf'
+alias barconfig='nvim $HOME/.config/polybar/config.ini'
+alias noticenter='kill -s USR1 $(pidof deadd-notification-center)'
+alias update-grub='sudo grub-mkconfig -o /boot/grub/grub.cfg'
+alias webtemplate='cp -r /mnt/Disk_D/Muhammad/Website-Template/* .'
 alias replaceunderscore="find . -depth -name '*_*' | while read -r file; do mv "$file" "$(dirname "$file")/$(basename "$file" | tr '_' ' ')"; done"
 alias replacespace="find . -depth -name '* *' | while read -r file; do mv "$file" "$(dirname "$file")/$(basename "$file" | tr ' ' '_')"; done"
 
 if [ "$XDG_SESSION_TYPE" = "wayland" ]; then
-  alias rofi-systemd="XDG_CONFIG_HOME=$HOME/.config/rofi/wayland bash ~/.config/rofi/scripts/rofi-systemd"
+  alias rofi-systemd='XDG_CONFIG_HOME=$HOME/.config/rofi/wayland bash ~/.config/rofi/scripts/rofi-systemd'
   alias cppath="pwd | sed 's/\(^.*$\)/\"\1\"/' | wl-copy"
-  alias copycmd="tail -n 2 ~/.zhistory | head -n 1 | tr -d '\n' | wl-copy"
-  alias cbimage="wl-paste --type image/png > /tmp/clipboard.png && kitty +kitten icat /tmp/clipboard.png"
+  alias copycmd='tail -n 2 ~/.zhistory | head -n 1 | tr -d '\n' | wl-copy'
+  alias cbimage='wl-paste --type image/png > /tmp/clipboard.png && kitty +kitten icat /tmp/clipboard.png'
 else
-  alias rofi-systemd="bash ~/.config/rofi/scripts/rofi-systemd"
+  alias rofi-systemd='bash ~/.config/rofi/scripts/rofi-systemd'
   alias cppath="pwd | sed 's/\(^.*$\)/\"\1\"/' | xclip -selection clipboard"
-  alias copycmd="tail -n 2 ~/.zhistory | head -n 1 | tr -d '\n' | xclip -selection clipboard"
-  alias cbimage="xclip -selection clipboard -t image/png -o > /tmp/clipboard.png && kitty +kitten icat /tmp/clipboard.png"
+  alias copycmd='tail -n 2 ~/.zhistory | head -n 1 | tr -d '\n' | xclip -selection clipboard'
+  alias cbimage='xclip -selection clipboard -t image/png -o > /tmp/clipboard.png && kitty +kitten icat /tmp/clipboard.png'
 fi
 
 if command -v pacman &> /dev/null; then
