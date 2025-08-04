@@ -1,4 +1,5 @@
 return {
+  enabled = false,
   "Exafunction/windsurf.nvim",
   -- cond = function()
   --   local ext = vim.fn.expand("%:e")
