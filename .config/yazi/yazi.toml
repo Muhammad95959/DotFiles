@@ -23,7 +23,6 @@ max_height      = 1080
 cache_dir       = "~/.cache/yazi"
 image_filter    = "triangle"
 image_quality   = 90
-sixel_fraction  = 15
 ueberzug_scale  = 1
 ueberzug_offset = [ 0, 0, 0, 0 ]
 
@@ -34,7 +33,7 @@ edit = [
 	{ run = 'code -w %*', block = true,  desc = "code (block)",   for = "windows" },
 ]
 open = [
-	{ run = 'setsid mimeopen "$1"',         desc = "Open", for = "linux" },
+	{ run = 'mimeopen "$1"',                desc = "Open", for = "linux" },
 	{ run = 'open "$@"',                    desc = "Open", for = "macos" },
 	{ run = 'start "" "%1"', orphan = true, desc = "Open", for = "windows" },
 	{ run = 'termux-open "$1"',             desc = "Open", for = "android" },
@@ -64,7 +63,7 @@ qutebrowser = [
 ]
 # For Images
 vimiv = [
-  { run = 'setsid vimiv "$@" >/dev/null 2>&1 &', block = false, desc = "vimiv" },
+  { run = 'setsid env QT_QPA_PLATFORM=xcb vimiv "$@" >/dev/null 2>&1 &', block = false, desc = "vimiv" },
 ]
 shotwell = [
   { run = 'setsid shotwell "$@" >/dev/null 2>&1 &', block = false, desc = "shotwell" },
@@ -120,7 +119,7 @@ micro_workers    = 10
 macro_workers    = 10
 bizarre_retry    = 3
 image_alloc      = 536870912  # 512MB
-image_bound      = [ 0, 0 ]
+image_bound      = [ 10000, 10000 ]
 suppress_preload = false
 
 [plugin]
