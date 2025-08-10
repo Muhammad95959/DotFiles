@@ -1,13 +1,5 @@
 return {
-  enabled = false,
   "Exafunction/windsurf.nvim",
-  -- cond = function()
-  --   local ext = vim.fn.expand("%:e")
-  --   local disabled = { "html", "css", "js", "ts", "jsx", "tsx" }
-  --   if vim.tbl_contains(disabled, ext) then
-  --     return false
-  --   end
-  -- end,
   ft = {
     "lua",
     "python",
@@ -23,6 +15,12 @@ return {
     "yaml",
     "toml",
     "markdown",
+    "html",
+    "css",
+    "javascript",
+    "typescript",
+    "javascriptreact",
+    "typescriptreact",
   },
   config = function()
     require("codeium").setup({
@@ -30,19 +28,11 @@ return {
       virtual_text = {
         enabled = true,
         manual = false,
-        filetypes = {
-          html = false,
-          css = false,
-          javascript = false,
-          typescript = false,
-          javascriptreact = false,
-          typescriptreact = false,
-        },
         default_filetype_enabled = true,
         idle_delay = 75,
         virtual_text_priority = 65535,
         map_keys = true,
-        accept_fallback = nil,
+        accept_fallback = "<Tab>",
         key_bindings = {
           accept = "<Tab>",
           accept_word = false,
