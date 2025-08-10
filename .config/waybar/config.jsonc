@@ -10,8 +10,8 @@
     "custom/launcher",
     "hyprland/workspaces",
     "hyprland/submap",
-    "wlr/taskbar"
-    // "hyprland/window"
+    "hyprland/window"
+    // "wlr/taskbar"
   ],
   "modules-center": [
     "custom/bilal-icon",
@@ -56,7 +56,9 @@
 
   "hyprland/window": {
     "format": "{class}",
-    "separate-outputs": true
+    "separate-outputs": true,
+    "on-click-right": "hyprctl dispatch killactive",
+    "on-click-middle": "hyprctl dispatch killactive"
   },
 
   "wlr/taskbar": {
