@@ -31,7 +31,7 @@ exec --no-startup-id ~/Scripts/backup_zsh_history.sh
 exec --no-startup-id feh --no-fehbg --bg-fill ~/.cache/x11wall
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 exec --no-startup-id xss-lock --transfer-sleep-lock -- xfce4-screensaver-command -l
-exec --no-startup-id pactl set-source-volume alsa_input.pci-0000_00_1f.3.analog-stereo 25%
+exec --no-startup-id pactl set-source-volume alsa_input.pci-0000_00_1f.3.analog-stereo 30%
 exec --no-startup-id sudo chown $USER:$USER /sys/class/backlight/intel_backlight/brightness
 exec --no-startup-id cp ~/.config/BraveSoftware/Brave-Browser/Default/History /tmp/BraveHistory
 exec_always --no-startup-id xinput set-prop '2.4G Mouse' 'libinput Accel Speed' 0.5
@@ -63,7 +63,7 @@ for_window [all] border pixel 2
 # for_window [all] title_window_icon padding 7px
 # border_radius 12
 
-client.focused          #ed8796 #ed8796 #24273a #ea7183   #ed8796    ### edited via script
+client.focused          #61afef #61afef #24273a #8fc7f4   #61afef    ### edited via script
 client.focused_inactive #303446 #303446 #ffffff #666666   #303446
 client.unfocused        #1e1e2e #1e1e2e #777777 #333333   #555555
 
@@ -107,7 +107,7 @@ bindsym $mod+p            exec rofi-pass-x11
 bindsym $mod+shift+p      exec rofi -show window
 bindsym $mod+q            kill
 bindsym $mod+shift+q      exec ~/.config/rofi/scripts/powermenu/type-1/powermenu.sh
-bindsym $mod+r            exec kitty --class Yazi --hold -e yazi
+bindsym $mod+r            exec kitty --hold -e yazi
 bindsym $mod+shift+r      restart
 bindsym $mod+s            exec i3-msg scratchpad show || i3-msg move scratchpad
 bindsym $mod+shift+s      sticky toggle
