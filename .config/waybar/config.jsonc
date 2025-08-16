@@ -38,7 +38,7 @@
     "format-icons": "",
     "tooltip": false,
     "on-click": "nwg-drawer",
-    "on-click-right": "flameshot gui -r | tee ~/Pictures/screenshot_$(date +%Y-%m-%d_%H-%M-%S).png | wl-copy"
+    "on-click-right": "flameshot gui -r --pin | tee ~/Pictures/screenshot_$(date +%Y-%m-%d_%H-%M-%S).png | wl-copy"
   },
 
   "hyprland/workspaces": {

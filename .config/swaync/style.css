@@ -2,6 +2,7 @@
   all: unset;
   transition: 0.3s;
   font-size: 1.2rem;
+  font-family: "Noto Naskh Arabic";
 }
 
 .floating-notifications.background .notification-row {

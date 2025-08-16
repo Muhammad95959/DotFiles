@@ -63,7 +63,7 @@ for_window [all] border pixel 2
 # for_window [all] title_window_icon padding 7px
 # border_radius 12
 
-client.focused          #61afef #61afef #24273a #8fc7f4   #61afef    ### edited via script
+client.focused          #eed49f #eed49f #24273a #e6c073   #eed49f    ### edited via script
 client.focused_inactive #303446 #303446 #ffffff #666666   #303446
 client.unfocused        #1e1e2e #1e1e2e #777777 #333333   #555555
 
@@ -264,6 +264,7 @@ for_window [class="pomatez"] floating enable
 for_window [class="flowtime"] floating enable
 for_window [class="Timeshift-gtk"] floating disable
 for_window [class="supertuxkart"] floating disable
+for_window [class="flameshot" title="flameshot-pin"] border pixel 0
 for_window [class="Rofi"] floating enable, border pixel 0
 for_window [class="^albert$" title="^Albert$"] border pixel 0
 for_window [class="livecaptions"] floating enable, move absolute position 500px 900px
