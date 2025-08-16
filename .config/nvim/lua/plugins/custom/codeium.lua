@@ -1,27 +1,5 @@
 return {
   "Exafunction/windsurf.nvim",
-  ft = {
-    "lua",
-    "python",
-    "java",
-    "kotlin",
-    "rust",
-    "go",
-    "c",
-    "cpp",
-    "sh",
-    "zsh",
-    "json",
-    "yaml",
-    "toml",
-    "markdown",
-    "html",
-    "css",
-    "javascript",
-    "typescript",
-    "javascriptreact",
-    "typescriptreact",
-  },
   config = function()
     require("codeium").setup({
       enable_cmp_source = false,
