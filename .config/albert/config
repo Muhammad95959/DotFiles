@@ -6,6 +6,9 @@ prioritizePerfectMatch=true
 showTray=false
 telemetry=false
 
+[application]
+enabled=true
+
 [applications]
 enabled=true
 fuzzy=true
@@ -18,7 +21,8 @@ use_non_localized_name=true
 enabled=false
 
 [calculator_qalculate]
-enabled=false
+angle_unit=2
+enabled=true
 
 [chromium]
 enabled=true
@@ -77,7 +81,7 @@ paths=@Invalid()
 enabled=true
 
 [pluginregistry]
-fuzzy=false
+fuzzy=true
 global_handler_enabled=false
 
 [python]

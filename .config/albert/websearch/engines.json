@@ -97,6 +97,14 @@
     },
     {
         "fallback": true,
+        "iconPath": "file:/home/muhammad/.local/share/albert/websearch/6fbea22c.png",
+        "id": "6fbea22c",
+        "name": "Tailwind",
+        "trigger": "t",
+        "url": "https://tailwindcss.com/docs/%s"
+    },
+    {
+        "fallback": true,
         "iconPath": "file:/home/muhammad/.local/share/albert/websearch/38b22f9d.png",
         "id": "38b22f9d",
         "name": "Urban Dictionary",
