@@ -1,5 +1,4 @@
 return {
-  enabled = false,
   "zbirenbaum/copilot.lua",
   event = "VeryLazy",
   config = function()
