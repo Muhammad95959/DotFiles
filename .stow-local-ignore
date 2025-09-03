@@ -1,4 +1,5 @@
 .git
+.gitignore
 .gitmodules
 .ideavimrc
 README.md

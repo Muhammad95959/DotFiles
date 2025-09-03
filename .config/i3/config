@@ -334,7 +334,6 @@ mode "applications" {
     bindsym q exec flatpak run io.github._0xzer0x.qurancompanion                                                           ,mode "default"
     bindsym s exec libreoffice /mnt/Disk_D/Muhammad/swears.odt                                                             ,mode "default"
     bindsym t exec telegram-desktop                                                                                        ,mode "default"
-    bindsym v exec ~/Scripts/webcam.sh                                                                                     ,mode "default"
     bindsym w exec /opt/brave-bin/brave --test-type --profile-directory=Default --app-id=hnpfjngllnobngcgfapefoaidbinmjnm  ,mode "default"
     bindsym shift+a exec ~/Scripts/virt_opener.sh android-x86-9.0                                                          ,mode "default"
     bindsym shift+b exec notify-send -t 5000 "$(acpi)"                                                                     ,mode "default"
