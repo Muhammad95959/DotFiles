@@ -1,5 +1,5 @@
 return {
-  enabled = false,
+  enabled = true,
   "Exafunction/windsurf.nvim",
   config = function()
     require("codeium").setup({
@@ -21,6 +21,10 @@ return {
           prev = "<M-[>",
         },
       },
+
+      vim.keymap.set("n", "<leader>ct", function()
+        require("codeium").toggle()
+      end, { desc = "Toggle Codeium" }),
     })
   end,
 }
