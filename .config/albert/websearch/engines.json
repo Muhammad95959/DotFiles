@@ -1,7 +1,7 @@
 [
     {
         "fallback": true,
-        "iconPath": "file:/home/muhammad/.local/share/albert/websearch/c3fe72ec.png",
+        "iconPath": "/home/muhammad/.local/share/albert/websearch/c3fe72ec.png",
         "id": "c3fe72ec",
         "name": "Amazon",
         "trigger": "e",
@@ -9,15 +9,15 @@
     },
     {
         "fallback": true,
-        "iconPath": "file:/home/muhammad/.local/share/albert/websearch/eabf582f.png",
+        "iconPath": "/home/muhammad/.local/share/albert/websearch/eabf582f.png",
         "id": "eabf582f",
         "name": "Arch Wiki",
-        "trigger": "w",
+        "trigger": "a",
         "url": "https://wiki.archlinux.org/index.php?search=%s"
     },
     {
         "fallback": true,
-        "iconPath": "file:/home/muhammad/.local/share/albert/websearch/d0842bb9.png",
+        "iconPath": "/home/muhammad/.local/share/albert/websearch/d0842bb9.png",
         "id": "d0842bb9",
         "name": "ChatGPT",
         "trigger": "c",
@@ -25,7 +25,7 @@
     },
     {
         "fallback": true,
-        "iconPath": "file:/home/muhammad/.local/share/albert/websearch/6adf2e7b.png",
+        "iconPath": "/home/muhammad/.local/share/albert/websearch/6adf2e7b.png",
         "id": "6adf2e7b",
         "name": "Freepik",
         "trigger": "f",
@@ -33,10 +33,10 @@
     },
     {
         "fallback": true,
-        "iconPath": "file:/home/muhammad/.local/share/albert/websearch/202ee488.png",
+        "iconPath": "/home/muhammad/.local/share/albert/websearch/202ee488.png",
         "id": "202ee488",
         "name": "GitHub",
-        "trigger": "h",
+        "trigger": "git",
         "url": "https://github.com/search?utf8=✓&q=%s"
     },
     {
@@ -49,7 +49,7 @@
     },
     {
         "fallback": true,
-        "iconPath": "file:/home/muhammad/.local/share/albert/websearch/71b76a71.png",
+        "iconPath": "/home/muhammad/.local/share/albert/websearch/71b76a71.png",
         "id": "71b76a71",
         "name": "Grok",
         "trigger": "k",
@@ -57,7 +57,7 @@
     },
     {
         "fallback": true,
-        "iconPath": "file:/home/muhammad/.local/share/albert/websearch/5fe0682c.png",
+        "iconPath": "/home/muhammad/.local/share/albert/websearch/5fe0682c.png",
         "id": "5fe0682c",
         "name": "Iconscout",
         "trigger": "i",
@@ -65,7 +65,7 @@
     },
     {
         "fallback": true,
-        "iconPath": "file:/home/muhammad/.local/share/albert/websearch/728f8eb5.png",
+        "iconPath": "/home/muhammad/.local/share/albert/websearch/728f8eb5.png",
         "id": "728f8eb5",
         "name": "Jumia",
         "trigger": "j",
@@ -73,7 +73,7 @@
     },
     {
         "fallback": true,
-        "iconPath": "file:/home/muhammad/.local/share/albert/websearch/769b2cbb.png",
+        "iconPath": "/home/muhammad/.local/share/albert/websearch/769b2cbb.png",
         "id": "769b2cbb",
         "name": "MDN",
         "trigger": "m",
@@ -81,7 +81,15 @@
     },
     {
         "fallback": true,
-        "iconPath": "file:/home/muhammad/.local/share/albert/websearch/360b47a6.png",
+        "iconPath": "/home/muhammad/.local/share/albert/websearch/9d50724c.png",
+        "id": "9d50724c",
+        "name": "NPM",
+        "trigger": "npm",
+        "url": "https://www.npmjs.com/search?q=%s"
+    },
+    {
+        "fallback": true,
+        "iconPath": "/home/muhammad/.local/share/albert/websearch/360b47a6.png",
         "id": "360b47a6",
         "name": "Noon",
         "trigger": "n",
@@ -89,7 +97,7 @@
     },
     {
         "fallback": true,
-        "iconPath": "file:/home/muhammad/.local/share/albert/websearch/00bb8da5.png",
+        "iconPath": "/home/muhammad/.local/share/albert/websearch/00bb8da5.png",
         "id": "00bb8da5",
         "name": "Reddit",
         "trigger": "r",
@@ -97,7 +105,7 @@
     },
     {
         "fallback": true,
-        "iconPath": "file:/home/muhammad/.local/share/albert/websearch/6fbea22c.png",
+        "iconPath": "/home/muhammad/.local/share/albert/websearch/6fbea22c.png",
         "id": "6fbea22c",
         "name": "Tailwind",
         "trigger": "t",
@@ -105,7 +113,7 @@
     },
     {
         "fallback": true,
-        "iconPath": "file:/home/muhammad/.local/share/albert/websearch/38b22f9d.png",
+        "iconPath": "/home/muhammad/.local/share/albert/websearch/38b22f9d.png",
         "id": "38b22f9d",
         "name": "Urban Dictionary",
         "trigger": "u",
@@ -113,7 +121,15 @@
     },
     {
         "fallback": true,
-        "iconPath": ":youtube",
+        "iconPath": "/home/muhammad/.local/share/albert/websearch/a30731f7.png",
+        "id": "a30731f7",
+        "name": "Wikipedia",
+        "trigger": "w",
+        "url": "https://en.wikipedia.org/wiki/Special:Search?search=%s"
+    },
+    {
+        "fallback": true,
+        "iconPath": "/home/muhammad/.local/share/albert/websearch/ccd2857b.png",
         "id": "ccd2857b",
         "name": "YouTube",
         "trigger": "y",
