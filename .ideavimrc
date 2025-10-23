@@ -88,6 +88,8 @@ map <leader>n <Action>(RenameElement)
 map <leader>r <Action>(Run)
 map <leader>s :source ~/.ideavimrc<CR>
 map <leader>w <Action>(EditorToggleUseSoftWraps)
+map <A-l> :action NextTab<CR>
+map <A-h> :action PreviousTab<CR>
 
 """ Online help -----------------------------
 "" -- Map IDE actions to IdeaVim -- https://jb.gg/abva4t
