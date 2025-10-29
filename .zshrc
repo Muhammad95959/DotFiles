@@ -139,10 +139,11 @@ fi
 
 ### Environment variables -------------------------------------------------
 
+export PATH="$HOME/.local/bin:$PATH"
 export MANPAGER='nvim +Man!'
 export TERMCMD=kitty
 export EDITOR=nvim
-export BAT_THEME="Catppuccin Mocha"
+export BAT_THEME="OneHalfDark"
 export FZF_DEFAULT_OPTS=" \
 --border=rounded --height=~99% --reverse \
 --color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 \
@@ -158,6 +159,7 @@ alias ll='exa --icons -a --group-directories-first -l'
 alias ta='tmux attach'
 alias os='sesh connect $(sesh list | fzf) &>/dev/null'
 alias quit='pkill -KILL -u $USER'
+alias softreboot='sudo systemctl soft-reboot'
 alias wget='wget --hsts-file=$HOME/.local/share/wget-hsts'
 alias tree='eza --tree'
 alias cmatrix='unimatrix -n -s 96 -l o'
@@ -168,6 +170,7 @@ alias zrefresh='source $HOME/.zshrc'
 alias zshrc='nvim $HOME/.zshrc'
 alias pgcli='echo -ne "\e[2 q" && pgcli'
 alias litecli='echo -ne "\e[2 q" && litecli'
+alias musicremover='~/Scripts/video_music_remover.sh'
 alias i3config='nvim $HOME/.config/i3/config'
 alias hyprconfig='nvim $HOME/.config/hypr/hyprland.conf'
 alias barconfig='nvim $HOME/.config/polybar/config.ini'
@@ -180,12 +183,12 @@ alias replacespace="find . -depth -name '* *' | while read -r file; do mv "$file
 if [ "$XDG_SESSION_TYPE" = "wayland" ]; then
   alias rofi-systemd='XDG_CONFIG_HOME=$HOME/.config/rofi/wayland bash ~/.config/rofi/scripts/rofi-systemd'
   alias cppath="pwd | sed 's/\(^.*$\)/\"\1\"/' | wl-copy"
-  alias copycmd='tail -n 2 ~/.zhistory | head -n 1 | tr -d '\n' | wl-copy'
+  alias copycmd='tail -n 2 ~/.zhistory | head -n 1 | tr -d "\n" | wl-copy'
   alias cbimage='wl-paste --type image/png > /tmp/clipboard.png && kitty +kitten icat /tmp/clipboard.png'
 else
   alias rofi-systemd='bash ~/.config/rofi/scripts/rofi-systemd'
   alias cppath="pwd | sed 's/\(^.*$\)/\"\1\"/' | xclip -selection clipboard"
-  alias copycmd='tail -n 2 ~/.zhistory | head -n 1 | tr -d '\n' | xclip -selection clipboard'
+  alias copycmd='tail -n 2 ~/.zhistory | head -n 1 | tr -d "\n" | xclip -selection clipboard'
   alias cbimage='xclip -selection clipboard -t image/png -o > /tmp/clipboard.png && kitty +kitten icat /tmp/clipboard.png'
 fi
 
