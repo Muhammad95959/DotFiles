@@ -93,6 +93,10 @@ enabled=true
 [python.kill]
 enabled=false
 
+[python.translators]
+enabled=true
+lang=ar
+
 [python.x_window_switcher]
 enabled=false
 
@@ -119,13 +123,13 @@ global_handler_enabled=true
 alwaysOnTop=true
 clearOnHide=true
 clientShadow=true
-darkTheme=Default System Palette
-displayScrollbar=true
+darkTheme=Smaller Arc Dark Grey
+displayScrollbar=false
 followCursor=true
 hideOnFocusLoss=true
 historySearch=true
 itemCount=5
-lightTheme=Nord
+lightTheme=Smaller Arc Dark Grey
 quitOnClose=false
 showCentered=true
 systemShadow=true
@@ -133,12 +137,13 @@ systemShadow=true
 [widgetsboxmodel-ng]
 alwaysOnTop=true
 clearOnHide=true
-darkTheme=
-displayScrollbar=true
+darkTheme=Arc Dark
+debug=false
+displayScrollbar=false
 followCursor=true
 hideOnFocusLoss=true
 historySearch=true
 itemCount=5
-lightTheme=Nord Dark
+lightTheme=Arc Dark
 quitOnClose=false
 showCentered=true
