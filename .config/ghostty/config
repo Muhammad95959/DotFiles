@@ -1,5 +1,0 @@
-theme = catppuccin-mocha
-background-opacity = 0.8
-cursor-style = bar
-gtk-titlebar = false
-gtk-adwaita = false
