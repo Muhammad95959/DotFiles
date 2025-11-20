@@ -18,13 +18,13 @@
     "clock"
   ],
   "modules-right": [
-    "tray",
+    "network#bandwidth",
     "hyprland/language",
     "cpu",
     "wireplumber",
-    "backlight",
     "battery",
     "network",
+    "tray",
     "custom/powermenu"
   ],
 
@@ -35,7 +35,7 @@
     "format-icons": "",
     "tooltip": false,
     "on-click": "nwg-drawer",
-    "on-click-right": "flameshot gui"
+    "on-click-right": "hyprctl dispatch movecursor 0 1080 && flameshot gui"
   },
 
   "hyprland/workspaces": {
@@ -46,7 +46,7 @@
       "active": "󱓻"
     },
     "persistent-workspaces": {
-      "*": 5
+      "*": 9
     }
   },
 
@@ -69,40 +69,42 @@
 
   "custom/sep": {
     "format": "{icon}",
-    "format-icons": "  ",
+    "format-icons": "  ",
     "tooltip": false,
     "restart-interval": 0
   },
 
   "clock": {
-    "format": "{:L%A %H:%M %p}",
+    "format": "{:L%A %I:%M %p}",
     "format-alt": "{:L%d %B %Y}",
     "tooltip": false
   },
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  "tray": {
-    "icon-size": 14,
-    "spacing": 10
+  "network#bandwidth": {
+    "interval": 1,
+    "format": "⇣⇡ <span color='#e9e9eaaa'>{bandwidthTotalBytes}</span>",
+    "format-disconnected": "",
+    "tooltip": false
   },
 
   "hyprland/language": {
-    "format": "<span font='11'>󰌌</span> <span color='#ffffffbb'>{shortDescription}</span>",
+    "format": "<span font='10.5'>󰌌</span> <span color='#e9e9eaaa'>{shortDescription}</span>",
     "on-click": "hyprctl switchxkblayout all next"
   },
 
   "cpu": {
     "interval": 2,
-    "format": "<span font='11'></span> <span color='#ffffffbb'>{usage:02}%</span>",
+    "format": "<span font='10.5'></span> <span color='#e9e9eaaa'>{usage:02}%</span>",
     "on-click": "kitty -e --hold btm",
     "tooltip": false
   },
 
   "wireplumber": {
     "scroll-step": 5,
-    "format": "<span font='11'>{icon}</span> <span color='#ffffffbb'>{volume:02}%</span>",
-    "format-muted": "<span font='11'></span> <span color='#ffffffbb'>{volume:02}%</span>",
+    "format": "<span font='10.5'>{icon}</span> <span color='#e9e9eaaa'>{volume:02}%</span>",
+    "format-muted": "<span font='10.5'></span> <span color='#e9e9eaaa'>{volume:02}%</span>",
     "format-icons": {
       "default": ["", "", ""]
     },
@@ -112,31 +114,29 @@
     "tooltip": false
   },
 
-  "backlight": {
-    "scroll-step": 5,
-    "format": "<span font='11'>{icon}</span> <span color='#ffffffbb'>{percent:02}%</span>",
-    "format-icons": "",
-    "tooltip": false
-  },
-
   "battery": {
     "interval": 10,
     "states": {
       "warning": 20,
       "critical": 10
     },
-    "format": "<span font='11'>{icon}</span> <span color='#ffffffbb'>{capacity:02}%</span>",
-    "format-full": "<span font='11'>{icon}</span> <span color='#ffffffbb'>{capacity:02}%</span>",
-    "format-charging": "<span font='11'>󱐋  {icon}</span> <span color='#ffffffbb'>{capacity:02}%</span>",
+    "format": "<span font='10.5'>{icon}</span> <span color='#e9e9eaaa'>{capacity:02}%</span>",
+    "format-full": "<span font='10.5'>{icon}</span> <span color='#e9e9eaaa'>{capacity:02}%</span>",
+    "format-charging": "<span font='10.5'>󱐋  {icon}</span> <span color='#e9e9eaaa'>{capacity:02}%</span>",
     "format-icons": ["", "", "", "", "", "", "", "", ""]
   },
 
   "network": {
     "interval": 10,
-    "format": "<span font='11'>{icon}</span> <span color='#ffffffbb'>{signalStrength:02}%</span>",
-    "format-disconnected": "<span font='11'>󰤮</span> 00%",
+    "format": "<span font='10.5'>{icon}</span> <span color='#e9e9eaaa'>{signalStrength:02}%</span>",
+    "format-disconnected": "<span font='10.5'>󰤮</span> 00%",
     "tooltip-format-wifi": "{essid} ({frequency} GHz)\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
     "format-icons": ["󰤯", "󰤯", "󰤟", "󰤢", "󰤥", "󰤨"]
+  },
+
+  "tray": {
+    "icon-size": 14,
+    "spacing": 10
   },
 
   "custom/powermenu": {

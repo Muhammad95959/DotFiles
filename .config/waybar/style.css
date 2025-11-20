@@ -4,6 +4,8 @@
     RobotoMono Nerd Font;
   min-height: 0;
   font-size: 12px;
+  font-weight: bold;
+  color: #e9e9ea;
 }
 
 window#waybar {
@@ -33,13 +35,15 @@ window#waybar {
   min-width: 9px;
 }
 
-#workspaces button.empty {
-  opacity: 0.5;
-}
-
 #workspaces button.urgent {
   background-color: #e60053;
   padding: 0 20px;
+}
+
+#workspaces button.empty,
+#wireplumber.muted,
+#network.disconnected {
+  opacity: 0.5;
 }
 
 #submap {
@@ -49,13 +53,20 @@ window#waybar {
   margin-right: 12px;
 }
 
-#custom-bilal,
-#clock {
-  font-weight: bold;
+#battery.critical {
+  color: #e60053;
+}
+
+#battery.charging {
+  color: inherit;
 }
 
 #custom-launcher,
 #custom-powermenu,
 tooltip label {
   font-size: 14px;
+}
+
+#custom-sep {
+  font-size: 18px;
 }
