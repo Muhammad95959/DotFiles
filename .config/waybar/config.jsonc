@@ -4,29 +4,26 @@
   // "width": 1900,
   "margin-top": 0,
   "layer": "top",
-  "height": 20,
+  "height": 24,
   "spacing": 0,
   "modules-left": [
     "custom/launcher",
     "hyprland/workspaces",
     "hyprland/submap",
     "hyprland/window"
-    // "wlr/taskbar"
   ],
   "modules-center": [
-    "custom/bilal-icon",
-    "custom/bilal"
+    "custom/bilal",
+    "custom/sep",
+    "clock"
   ],
   "modules-right": [
     "tray",
-    "network#bandwidth",
     "hyprland/language",
     "cpu",
-    "memory",
     "wireplumber",
     "backlight",
     "battery",
-    "clock",
     "network",
     "custom/powermenu"
   ],
@@ -46,11 +43,10 @@
     "format": "{icon}",
     "format-icons": {
       "special": "󰫈",
-      "default": "",
-      "active": ""
+      "active": "󱓻"
     },
     "persistent-workspaces": {
-      "*": 9
+      "*": 5
     }
   },
 
@@ -61,28 +57,7 @@
     "on-click-middle": "hyprctl dispatch killactive"
   },
 
-  "wlr/taskbar": {
-    "format": "{icon}",
-    "icon-size": 12,
-    "active-first": false,
-    "tooltip-format": "{title}",
-    "on-click": "minimize-raise",
-    "on-click-middle": "close",
-    "on-click-right": "close",
-    "ignore-list": [
-      "Notification"
-    ]
-  },
-
 //////////////////////////////////////////////////////////////////////////////////////////////////////
-
-  "custom/bilal-icon": {
-    "format": "{icon}",
-    "format-icons": "",
-    "on-click": "notify-send \"$(~/Scripts/bilal.sh -a)\"",
-    "tooltip": false,
-    "restart-interval": 0
-  },
 
   "custom/bilal": {
     "format": "{0}",
@@ -92,6 +67,19 @@
     "restart-interval": 30
   },
 
+  "custom/sep": {
+    "format": "{icon}",
+    "format-icons": "  ",
+    "tooltip": false,
+    "restart-interval": 0
+  },
+
+  "clock": {
+    "format": "{:L%A %H:%M %p}",
+    "format-alt": "{:L%d %B %Y}",
+    "tooltip": false
+  },
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
   "tray": {
@@ -99,44 +87,23 @@
     "spacing": 10
   },
 
-  "network#bandwidth": {
-    "interval": 1,
-    "format": "<span font='10'>󰇚</span> <span color='#fff'>{bandwidthTotalBytes}</span>",
-    "format-disconnected": "",
-    "tooltip": false
-  },
-
   "hyprland/language": {
-    "format": "<span font='10'>󰌌</span> <span color='#fff'>{shortDescription}</span>"
+    "format": "<span font='11'>󰌌</span> <span color='#ffffffbb'>{shortDescription}</span>",
+    "on-click": "hyprctl switchxkblayout all next"
   },
 
   "cpu": {
     "interval": 2,
-    "format": "<span font='11'></span> <span color='#fff'>{usage}%</span>",
-    "tooltip": false
-  },
-
-  "memory": {
-    "interval": 2,
-    "format": "<span font='11'>󰆼</span> <span color='#fff'>{}%</span>",
+    "format": "<span font='11'></span> <span color='#ffffffbb'>{usage:02}%</span>",
+    "on-click": "kitty -e --hold btm",
     "tooltip": false
   },
 
   "wireplumber": {
     "scroll-step": 5,
-    "format": "<span font='11'>{icon}</span> <span color='#fff'>{volume}%</span>",
-    "format-bluetooth": "<span font='11'> {icon}</span> <span color='#fff'>{volume}%</span>",
-    "format-bluetooth-muted": "<span font='11'> </span> <span color='#fff'>muted</span>",
-    "format-muted": "<span font='11'></span> <span color='#fff'>muted</span>",
-    "format-source": "<span font='11'></span> <span color='#fff'>{volume}%</span>",
-    "format-source-muted": "",
+    "format": "<span font='11'>{icon}</span> <span color='#ffffffbb'>{volume:02}%</span>",
+    "format-muted": "<span font='11'></span> <span color='#ffffffbb'>{volume:02}%</span>",
     "format-icons": {
-      "headphone": "",
-      "hands-free": "",
-      "headset": "",
-      "phone": "",
-      "portable": "",
-      "car": "",
       "default": ["", "", ""]
     },
     "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
@@ -147,7 +114,7 @@
 
   "backlight": {
     "scroll-step": 5,
-    "format": "<span font='11'>{icon}</span> <span color='#fff'>{percent}%</span>",
+    "format": "<span font='11'>{icon}</span> <span color='#ffffffbb'>{percent:02}%</span>",
     "format-icons": "",
     "tooltip": false
   },
@@ -158,39 +125,17 @@
       "warning": 20,
       "critical": 10
     },
-    "format": "<span font='11'>{icon}</span> <span color='#fff'>{capacity}%</span>",
-    "format-full": "<span font='11'>{icon}</span> <span color='#fff'>{capacity}%</span>",
-    "format-charging": "<span color='#f38ba8' font='11'>󱐋  </span><span font='11'>{icon}</span> <span color='#fff'>{capacity}%</span>",
+    "format": "<span font='11'>{icon}</span> <span color='#ffffffbb'>{capacity:02}%</span>",
+    "format-full": "<span font='11'>{icon}</span> <span color='#ffffffbb'>{capacity:02}%</span>",
+    "format-charging": "<span font='11'>󱐋  {icon}</span> <span color='#ffffffbb'>{capacity:02}%</span>",
     "format-icons": ["", "", "", "", "", "", "", "", ""]
-  },
-
-  "clock": {
-    "interval": 1,
-    "format": "<span font='11'></span> {:%I:%M <span color='#fff'>%p}</span>",
-    "format-alt": "<span font='11'>󰃶</span> {:%Y-%m-%d  <span color='#fff'>%H:%M:%S}</span>",
-    "tooltip-format": "<tt><small>{calendar}</small></tt>",
-    "calendar": {
-      "mode"          : "month",
-      "mode-mon-col"  : 3,
-      "on-scroll"     : 1,
-      "format": {
-        "months":     "<span color='#ffead3'><b>{}</b></span>",
-        "days":       "<span color='#ecc6d9'><b>{}</b></span>",
-        "weeks":      "<span color='#99ffdd'><b>W{}</b></span>",
-        "weekdays":   "<span color='#ffcc66'><b>{}</b></span>",
-        "today":      "<span color='#ff6699'><b><u>{}</u></b></span>"
-      }
-    },
-    "actions":  {
-      "on-click-right": "mode"
-    }
   },
 
   "network": {
     "interval": 10,
-    "format": "<span font='11'>{icon}</span> {essid} <span color='#fff'>{signalStrength}%</span>",
-    "tooltip-format": "{ifname} via {gwaddr}",
-    "format-disconnected": "<span font='11'>󰤭</span> disconnected",
+    "format": "<span font='11'>{icon}</span> <span color='#ffffffbb'>{signalStrength:02}%</span>",
+    "format-disconnected": "<span font='11'>󰤮</span> 00%",
+    "tooltip-format-wifi": "{essid} ({frequency} GHz)\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
     "format-icons": ["󰤯", "󰤯", "󰤟", "󰤢", "󰤥", "󰤨"]
   },
 
