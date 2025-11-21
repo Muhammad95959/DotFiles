@@ -38,7 +38,6 @@ window {
     anchor:                      center;
     fullscreen:                  false;
     width:                       500px;
-    height:                      600px;
     x-offset:                    0px;
     y-offset:                    0px;
 
@@ -127,7 +126,7 @@ button selected {
 listview {
     enabled:                     true;
     columns:                     1;
-    lines:                       5;
+    lines:                       6;
     cycle:                       true;
     dynamic:                     true;
     scrollbar:                   false;

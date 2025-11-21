@@ -8,7 +8,7 @@ configuration {
 @import                          "colors/catppuccin.rasi"
 
 * {
-    font:   "JetBrains Mono Nerd Font 11";
+    font:   "JetBrains Mono Nerd Font 11.5";
 
     background-color:   transparent;
     text-color:         @foreground;

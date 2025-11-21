@@ -22,7 +22,6 @@ window {
     anchor:                      center;
     fullscreen:                  false;
     width:                       1200px;
-    height:                      800px;
     x-offset:                    0px;
     y-offset:                    0px;
 
@@ -91,7 +90,7 @@ dummy {
 listview {
     enabled:                     true;
     columns:                     5;
-    lines:                       1;
+    lines:                       2;
     cycle:                       true;
     dynamic:                     true;
     scrollbar:                   false;
