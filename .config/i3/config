@@ -29,6 +29,7 @@ exec --no-startup-id greenclip daemon
 exec --no-startup-id xhost +si:localuser:$USER
 exec --no-startup-id ~/Scripts/backup_zsh_history.sh
 exec --no-startup-id feh --no-fehbg --bg-fill ~/.cache/x11wall
+exec --no-startup-id pactl set-source-volume "rnnoise_source" 100%
 exec --no-startup-id /usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1
 exec --no-startup-id xss-lock --transfer-sleep-lock -- xfce4-screensaver-command -l
 exec --no-startup-id pactl set-source-volume alsa_input.pci-0000_00_1f.3.analog-stereo 30%
@@ -416,7 +417,6 @@ mode "executable_scripts" {
     bindsym y workspace $ws9; exec kitty --class yt-dlp -e ~/Scripts/yt-dlp_script.sh ,mode "default"
     bindsym z exec ~/Scripts/zathura_history.sh                                        ,mode "default"
     bindsym shift+m exec ~/Scripts/url_to_mpv.sh                                       ,mode "default"
-    bindsym shift+w exec ~/Scripts/myWebsites.sh                                       ,mode "default"
 
     bindsym Escape mode "default"
     bindsym $mod+shift+o mode "default"
