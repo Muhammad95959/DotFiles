@@ -185,6 +185,7 @@ if [ "$XDG_SESSION_TYPE" = "wayland" ]; then
   alias cppath="pwd | sed 's/\(^.*$\)/\"\1\"/' | wl-copy"
   alias copycmd='tail -n 2 ~/.zhistory | head -n 1 | tr -d "\n" | wl-copy'
   alias cbimage='wl-paste --type image/png > /tmp/clipboard.png && kitty +kitten icat /tmp/clipboard.png'
+  alias clipdel='cliphist list | rofi -dmenu -theme ~/.config/rofi/wayland/rofi/config.rasi -p "Delete Entry:" | cliphist delete'
 else
   alias rofi-systemd='bash ~/.config/rofi/scripts/rofi-systemd'
   alias cppath="pwd | sed 's/\(^.*$\)/\"\1\"/' | xclip -selection clipboard"
