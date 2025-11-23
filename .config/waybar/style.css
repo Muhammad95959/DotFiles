@@ -21,6 +21,7 @@ window#waybar {
 #battery,
 #network,
 #custom-bilal,
+#custom-sep,
 #clock {
   padding: 0 5px;
 }
@@ -65,8 +66,4 @@ window#waybar {
 #custom-powermenu,
 tooltip label {
   font-size: 14px;
-}
-
-#custom-sep {
-  font-size: 18px;
 }

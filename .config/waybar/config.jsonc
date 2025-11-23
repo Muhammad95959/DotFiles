@@ -13,9 +13,9 @@
     "hyprland/window"
   ],
   "modules-center": [
-    "custom/bilal",
+    "clock",
     "custom/sep",
-    "clock"
+    "custom/bilal"
   ],
   "modules-right": [
     "network#bandwidth",
@@ -45,6 +45,7 @@
       "special": "󰫈",
       "active": "󱓻"
     },
+    "ignore-workspaces": ["special:minimized"],
     "persistent-workspaces": {
       "*": 9
     }
@@ -59,25 +60,25 @@
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
 
-  "custom/bilal": {
-    "format": "{0}",
-    "exec": "~/Scripts/bilal.sh -r",
-    "on-click": "notify-send \"$(~/Scripts/bilal.sh -a)\"",
-    "tooltip": false,
-    "restart-interval": 30
+  "clock": {
+    "format": "{:%I:%M %p}",
+    "format-alt": "{:L%d %B %Y}",
+    "tooltip": false
   },
 
   "custom/sep": {
     "format": "{icon}",
-    "format-icons": "  ",
+    "format-icons": "❯",
     "tooltip": false,
     "restart-interval": 0
   },
 
-  "clock": {
-    "format": "{:L%A %I:%M %p}",
-    "format-alt": "{:L%d %B %Y}",
-    "tooltip": false
+  "custom/bilal": {
+    "format": "{0}",
+    "exec": "~/Scripts/bilal.sh -r",
+    "on-click": "notify-send -t 10000 \"$(~/Scripts/bilal.sh -a)\"",
+    "tooltip": false,
+    "restart-interval": 30
   },
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
