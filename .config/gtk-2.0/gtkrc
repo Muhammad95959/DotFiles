@@ -2,8 +2,8 @@
 # Any customization should be done in ~/.gtkrc-2.0.mine instead.
 
 include "/home/muhammad/.gtkrc-2.0.mine"
-gtk-theme-name="Arc-Dark"
-gtk-icon-theme-name="Tela-circle-dark"
+gtk-theme-name="Tokyonight-Grey-Dark"
+gtk-icon-theme-name="Tela-circle-nord-dark"
 gtk-font-name="Inter 11"
 gtk-cursor-theme-name="Dracula-cursors"
 gtk-cursor-theme-size=24

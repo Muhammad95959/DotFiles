@@ -137,13 +137,13 @@ systemShadow=true
 [widgetsboxmodel-ng]
 alwaysOnTop=true
 clearOnHide=true
-darkTheme=Arc Dark
+darkTheme=Tokyonight Dark
 debug=false
 displayScrollbar=false
 followCursor=true
 hideOnFocusLoss=true
 historySearch=true
 itemCount=5
-lightTheme=Arc Dark
+lightTheme=Tokyonight Dark
 quitOnClose=false
 showCentered=true
