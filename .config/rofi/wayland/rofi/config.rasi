@@ -17,7 +17,7 @@ configuration {
 }
 
 /*****----- Global Properties -----*****/
-@import                          "colors/catppuccin.rasi"
+@import                          "colors/tokyonight.rasi"
 
 * {
     border-colour:               var(selected);

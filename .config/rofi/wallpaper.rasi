@@ -8,7 +8,7 @@
  **/
 
 /*****----- Global Properties -----*****/
-@import                          "colors/catppuccin.rasi"
+@import                          "colors/tokyonight.rasi"
 
 * {
     font:                        "JetBrains Mono Nerd Font 10";
