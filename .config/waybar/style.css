@@ -4,8 +4,7 @@
     RobotoMono Nerd Font;
   min-height: 0;
   font-size: 12px;
-  font-weight: bold;
-  color: #e9e9ea;
+  color: #e1e2e7;
 }
 
 window#waybar {
@@ -13,22 +12,39 @@ window#waybar {
   transition-duration: 0.5s;
 }
 
-#tray,
+#window,
+#clock,
+#custom-sep,
+#custom-bilal,
+#network.bandwidth,
+#language,
+#cpu,
 #language,
 #cpu,
 #wireplumber,
 #backlight,
 #battery,
+#network {
+  font-weight: bold;
+}
+
+#tray,
+#language,
+#cpu,
+#wireplumber,
+#battery,
 #network,
 #custom-bilal,
-#custom-sep,
 #clock {
   padding: 0 5px;
 }
 
+#custom-sep {
+  padding: 0 3px;
+}
+
 #workspaces {
-  margin-left: 12px;
-  margin-right: 12px;
+  padding: 0 12px;
 }
 
 #workspaces button {

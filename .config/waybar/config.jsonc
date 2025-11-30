@@ -55,7 +55,11 @@
     "format": "{class}",
     "separate-outputs": true,
     "on-click-right": "hyprctl dispatch killactive",
-    "on-click-middle": "hyprctl dispatch killactive"
+    "on-click-middle": "hyprctl dispatch killactive",
+    "rewrite": {
+      "brave-hnpfjngllnobngcgfapefoaidbinmjnm-Default": "whatsapp-web",
+      "brave-translate.google.com.eg__-Default": "brave-translate"
+    }
   },
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -85,27 +89,27 @@
 
   "network#bandwidth": {
     "interval": 1,
-    "format": "⇣⇡ <span color='#e9e9eaaa'>{bandwidthTotalBytes}</span>",
+    "format": "⇣⇡ <span color='#e1e2e7aa'>{bandwidthTotalBytes}</span>",
     "format-disconnected": "",
     "tooltip": false
   },
 
   "hyprland/language": {
-    "format": "<span font='10.5'>󰌌</span> <span color='#e9e9eaaa'>{shortDescription}</span>",
+    "format": "<span font-weight='normal' font='10.5'>󰌌</span> <span color='#e1e2e7aa'>{shortDescription}</span>",
     "on-click": "hyprctl switchxkblayout all next"
   },
 
   "cpu": {
     "interval": 2,
-    "format": "<span font='10.5'></span> <span color='#e9e9eaaa'>{usage:02}%</span>",
+    "format": "<span font-weight='normal' font='10.5'></span> <span color='#e1e2e7aa'>{usage:02}%</span>",
     "on-click": "kitty -e --hold btm",
     "tooltip": false
   },
 
   "wireplumber": {
     "scroll-step": 5,
-    "format": "<span font='10.5'>{icon}</span> <span color='#e9e9eaaa'>{volume:02}%</span>",
-    "format-muted": "<span font='10.5'></span> <span color='#e9e9eaaa'>{volume:02}%</span>",
+    "format": "<span font-weight='normal' font='10.5'>{icon}</span> <span color='#e1e2e7aa'>{volume:02}%</span>",
+    "format-muted": "<span font-weight='normal' font='10.5'></span> <span color='#e1e2e7aa'>{volume:02}%</span>",
     "format-icons": {
       "default": ["", "", ""]
     },
@@ -121,16 +125,16 @@
       "warning": 20,
       "critical": 10
     },
-    "format": "<span font='10.5'>{icon}</span> <span color='#e9e9eaaa'>{capacity:02}%</span>",
-    "format-full": "<span font='10.5'>{icon}</span> <span color='#e9e9eaaa'>{capacity:02}%</span>",
-    "format-charging": "<span font='10.5'>󱐋  {icon}</span> <span color='#e9e9eaaa'>{capacity:02}%</span>",
+    "format": "<span font-weight='normal' font='10.5'>{icon}</span> <span color='#e1e2e7aa'>{capacity:02}%</span>",
+    "format-full": "<span font-weight='normal' font='10.5'>{icon}</span> <span color='#e1e2e7aa'>{capacity:02}%</span>",
+    "format-charging": "<span font-weight='normal' font='10.5'>󱐋  {icon}</span> <span color='#e1e2e7aa'>{capacity:02}%</span>",
     "format-icons": ["", "", "", "", "", "", "", "", ""]
   },
 
   "network": {
     "interval": 10,
-    "format": "<span font='10.5'>{icon}</span> <span color='#e9e9eaaa'>{signalStrength:02}%</span>",
-    "format-disconnected": "<span font='10.5'>󰤮</span> 00%",
+    "format": "<span font-weight='normal' font='10.5'>{icon}</span> <span color='#e1e2e7aa'>{signalStrength:02}%</span>",
+    "format-disconnected": "<span font-weight='normal' font='10.5'>󰤮</span> 00%",
     "tooltip-format-wifi": "{essid} ({frequency} GHz)\n⇣{bandwidthDownBytes}  ⇡{bandwidthUpBytes}",
     "format-icons": ["󰤯", "󰤯", "󰤟", "󰤢", "󰤥", "󰤨"]
   },
@@ -144,7 +148,6 @@
     "format": " {icon}  ",
     "format-icons": "",
     "tooltip": false,
-    "on-click": "wlogout -b 5",
-    "on-click-right": "swaync-client -t"
+    "on-click": "wlogout -b 5"
   }
 }
