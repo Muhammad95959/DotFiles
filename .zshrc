@@ -160,7 +160,6 @@ alias ta='tmux attach'
 alias os='sesh connect $(sesh list | fzf) &>/dev/null'
 alias quit='pkill -KILL -u $USER'
 alias softreboot='sudo systemctl soft-reboot'
-alias wget='wget --hsts-file=$HOME/.local/share/wget-hsts'
 alias tree='eza --tree'
 alias cmatrix='unimatrix -n -s 96 -l o'
 alias yayf='yay -Slq | fzf -m --preview "yay -Si {1}" | xargs -ro yay -S'
@@ -232,19 +231,16 @@ fzf-nvim() {
     -o -path ~/.android \
     -o -path ~/.cache \
     -o -path ~/.npm \
+    -o -path ~/.local \
     -o -path ~/.config/BraveSoftware \
     -o -path ~/.config/Microsoft \
+    -o -path ~/.config/Postman \
     -o -path ~/.config/chromium \
     -o -path ~/.config/content_shell \
     -o -path ~/.config/thorium \
-    -o -path ~/.local/share/JetBrains \
-    -o -path ~/.local/share/android \
-    -o -path ~/.local/share/cargo \
-    -o -path ~/.local/share/gradle \
-    -o -path ~/.local/share/nvim \
-    -o -path ~/.local/share/nvim-custom \
-    -o -path ~/.local/share/pyenv \
-    -o -path ~/.local/share/tldr \
+    -o -path ~/.config/vesktop \
+    -o -path /mnt/Disk_D/Muhammad/Repositories/Tela-circle-icon-theme \
+    -o -path /mnt/Disk_D/Muhammad/Repositories/Tokyonight-GTK-Theme \
     -o -path /mnt/Disk_D/Muhammad/Android_Studio/ASProjects \) \
     -prune -o -type f -print \
     | fzf --preview 'bat --style=numbers --color=always --line-range :500 {}')

@@ -337,7 +337,7 @@ mode "applications" {
     bindsym shift+c exec gpick -p                                                                                          ,mode "default"
     bindsym shift+m exec kitty --class pulsemixer --hold -e pulsemixer                                                     ,mode "default"
     bindsym shift+n exec ~/Scripts/wallpaper.sh                                                                            ,mode "default"
-    bindsym shift+s exec notify-send "$(~/Scripts/bilal.sh -a)"                                                            ,mode "default"
+    bindsym shift+s exec notify-send -t 10000 "$(~/Scripts/bilal.sh -a)"                                                            ,mode "default"
     bindsym shift+u exec ~/Scripts/virt_opener.sh ubuntu24.04                                                              ,mode "default"
     bindsym shift+w exec ~/Scripts/virt_opener.sh win10                                                                    ,mode "default"
 

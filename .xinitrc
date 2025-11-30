@@ -1,3 +1,3 @@
 ERRFILE="$HOME/.cache/X11/xsession-errors"
-exec dk
+exec i3
 [ -f ~/.xprofile ] && . ~/.xprofile
