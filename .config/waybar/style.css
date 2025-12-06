@@ -70,6 +70,10 @@ window#waybar {
   margin-right: 12px;
 }
 
+#battery.warning {
+  color: #ff9e64;
+}
+
 #battery.critical {
   color: #e60053;
 }

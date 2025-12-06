@@ -379,7 +379,7 @@ desc = "dragon-drop"
 [[mgr.prepend_keymap]]
 on  = [ "<A-Space>", "w" ]
 run = '''
-	shell '[ $(echo $XDG_SESSION_TYPE) = "wayland" ] && swww img "$@" -t "fade" --transition-duration 2 || feh --no-fehbg --bg-fill "$@"' --confirm
+	shell '[ $(echo $XDG_SESSION_TYPE) = "wayland" ] && swww img "$@" -t "none" --transition-duration 0 || feh --no-fehbg --bg-fill "$@"' --confirm
 '''
 desc = "set background"
 [[mgr.prepend_keymap]]
