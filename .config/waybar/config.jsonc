@@ -53,6 +53,7 @@
 
   "hyprland/window": {
     "format": "{class}",
+    "tooltip-format": "{title}",
     "separate-outputs": true,
     "on-click-right": "hyprctl dispatch killactive",
     "on-click-middle": "hyprctl dispatch killactive",
@@ -66,8 +67,7 @@
 
   "clock": {
     "format": "{:%I:%M %p}",
-    "format-alt": "{:L%d %B %Y}",
-    "tooltip": false
+    "tooltip-format": "{:L%d %B %Y}"
   },
 
   "custom/sep": {
@@ -80,7 +80,7 @@
   "custom/bilal": {
     "format": "{0}",
     "exec": "~/Scripts/bilal.sh -r",
-    "on-click": "notify-send -t 10000 \"$(~/Scripts/bilal.sh -a)\"",
+    "on-click": "notify-send -t 30000 \"$(~/Scripts/bilal.sh -a)\"",
     "tooltip": false,
     "restart-interval": 30
   },
