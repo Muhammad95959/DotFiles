@@ -143,7 +143,7 @@ export PATH="$HOME/.local/bin:$PATH"
 export MANPAGER='nvim +Man!'
 export TERMCMD=kitty
 export EDITOR=nvim
-export BAT_THEME="OneHalfDark"
+export BAT_THEME="Catppuccin Mocha"
 export FZF_DEFAULT_OPTS=" \
 --border=rounded --height=~99% --reverse \
 --color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 \
@@ -185,6 +185,7 @@ if [ "$XDG_SESSION_TYPE" = "wayland" ]; then
   alias copycmd='tail -n 2 ~/.zhistory | head -n 1 | tr -d "\n" | wl-copy'
   alias cbimage='wl-paste --type image/png > /tmp/clipboard.png && kitty +kitten icat /tmp/clipboard.png'
   alias clipdel='cliphist list | rofi -dmenu -theme ~/.config/rofi/wayland/rofi/config.rasi -p "Delete Entry:" | cliphist delete'
+  alias clipimage='~/Scripts/cliphist_rofi_img.sh'
 else
   alias rofi-systemd='bash ~/.config/rofi/scripts/rofi-systemd'
   alias cppath="pwd | sed 's/\(^.*$\)/\"\1\"/' | xclip -selection clipboard"
