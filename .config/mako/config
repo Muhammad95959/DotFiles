@@ -32,3 +32,6 @@ invisible=true
 
 [mode=do-not-disturb app-name=notify-send]
 invisible=false
+
+[app-name=power]
+group-by=app-name
