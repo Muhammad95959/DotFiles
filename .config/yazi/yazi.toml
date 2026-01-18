@@ -34,7 +34,7 @@ edit = [
 	{ run = "code -w %s",       desc = "code (block)", for = "windows", block = true },
 ]
 play = [
-	{ run = "xdg-open %s1",                desc = "Play", for = "linux" },
+	{ run = "mimeopen %s1",                desc = "Play", for = "linux" },
 	{ run = "open %s",                     desc = "Play", for = "macos" },
 	{ run = 'start "" %s1', orphan = true, desc = "Play", for = "windows" },
 	{ run = "termux-open %s1",             desc = "Play", for = "android" },
@@ -42,13 +42,13 @@ play = [
 	# { run = "mediainfo %s1 & pause", block = true, desc = "Show media info", for = "windows" },
 ]
 open = [
-	{ run = "xdg-open %s1",    desc = "Open", for = "linux" },
+	{ run = "mimeopen %s1",    desc = "Open", for = "linux" },
 	{ run = "open %s",         desc = "Open", for = "macos" },
 	{ run = 'start "" %s1',    desc = "Open", for = "windows", orphan = true },
 	{ run = "termux-open %s1", desc = "Open", for = "android" },
 ]
 reveal = [
-	{ run = "xdg-open %d1",         desc = "Reveal", for = "linux" },
+	{ run = "mimeopen %d1",         desc = "Reveal", for = "linux" },
 	{ run = "open -R %s1",          desc = "Reveal", for = "macos" },
 	{ run = "explorer /select,%s1", desc = "Reveal", for = "windows", orphan = true },
 	{ run = "termux-open %d1",      desc = "Reveal", for = "android" },
