@@ -47,7 +47,6 @@ require("simple-tag"):setup({
   linemode_order = 500,
   colors = {
 	  reversed = true,
-    ["1"] = "",
     ["2"] = "yellow",
     ["3"] = "red",
 	  ["$"] = "green",
