@@ -3,12 +3,12 @@ return {
   dependencies = "nvim-lua/plenary.nvim",
   keys = { { "<A-Space>u", "<cmd>lua require('undotree').toggle()<cr>", desc = "Toggle UndoTree" } },
   opts = {
-    float_diff = false, -- using float window previews diff, set this `true` will disable layout option
-    layout = "left_left_bottom", -- "left_bottom", "left_left_bottom"
-    position = "left", -- "right", "bottom"
+    float_diff = true,
+    position = "left",
     ignore_filetype = { "undotree", "undotreeDiff", "qf", "TelescopePrompt", "spectre_panel", "tsplayground" },
     window = {
-      winblend = 30,
+      winblend = 0,
+      border = "rounded",
     },
     keymaps = {
       ["j"] = "move_next",

@@ -1,16 +1,24 @@
 return {
   "hrsh7th/nvim-cmp",
-  opts = {
-    experimental = {
+  opts = function(_, opts)
+    local cmp = require("cmp")
+
+    opts.experimental = {
       ghost_text = false,
-    },
-    window = {
-      completion = require("cmp").config.window.bordered({
-        winhighlight = "Normal:Pmenu,FloatBorder:Pmenu,CursorLine:PmenuSel,Search:None",
+    }
+
+    opts.window = {
+      completion = cmp.config.window.bordered({
+        border = "rounded",           -- ← most popular choice nowadays
+        winhighlight = "Normal:NormalFloat,FloatBorder:FloatBorder,CursorLine:PmenuSel,Search:None",
       }),
-      documentation = require("cmp").config.window.bordered({
-        winhighlight = "Normal:Pmenu,FloatBorder:Pmenu,CursorLine:PmenuSel,Search:None",
+
+      documentation = cmp.config.window.bordered({
+        border = "rounded",
+        winhighlight = "Normal:NormalFloat,FloatBorder:FloatBorder,Search:None",
       }),
-    },
-  },
+    }
+
+    return opts
+  end,
 }
