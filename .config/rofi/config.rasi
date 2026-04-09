@@ -53,7 +53,7 @@ window {
     fullscreen:                  false;
     width:                       100%;
     x-offset:                    0px;
-    y-offset:                    0px;
+    y-offset:                    -24px;
 
     enabled:                     true;
     margin:                      0px;
