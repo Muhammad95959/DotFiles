@@ -162,7 +162,7 @@ alias quit='pkill -KILL -u $USER'
 alias softreboot='sudo systemctl soft-reboot'
 alias tree='eza --tree'
 alias cmatrix='unimatrix -n -s 96 -l o'
-alias yayf='yay -Slq | fzf -m --preview "yay -Si {1}" | xargs -ro yay -S'
+alias paruf='paru -Slq | fzf -m --preview "paru -Si {1} | bat --color=always --plain" | xargs -ro paru -S'
 alias nvim-custom='NVIM_APPNAME=nvim-custom nvim'
 alias nvim-new='NVIM_APPNAME=nvim-new nvim'
 alias zrefresh='source $HOME/.zshrc'
@@ -199,6 +199,14 @@ if command -v pacman &> /dev/null; then
     && pacman -Qme | awk '{print \$1}' \
     > /mnt/Disk_D/Muhammad/Repositories/Arch-Backup/ArchAurPackages.txt"
 fi
+
+### pnpm setup ------------------------------------------------------------
+
+export PNPM_HOME="/home/muhammad/.local/share/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
 
 ### zoxide setup ----------------------------------------------------------
 
