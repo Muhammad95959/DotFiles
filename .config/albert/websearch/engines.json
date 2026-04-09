@@ -25,6 +25,14 @@
     },
     {
         "fallback": true,
+        "iconPath": "/home/muhammad/.local/share/albert/websearch/1189a6bd.png",
+        "id": "1189a6bd",
+        "name": "Claude",
+        "trigger": "l",
+        "url": "https://claude.ai/new?q=%s"
+    },
+    {
+        "fallback": true,
         "iconPath": "/home/muhammad/.local/share/albert/websearch/6adf2e7b.png",
         "id": "6adf2e7b",
         "name": "Freepik",
@@ -94,6 +102,14 @@
         "name": "Noon",
         "trigger": "n",
         "url": "https://www.noon.com/egypt-ar/search/?q=%s"
+    },
+    {
+        "fallback": true,
+        "iconPath": "/home/muhammad/.local/share/albert/websearch/79c8ba0e.png",
+        "id": "79c8ba0e",
+        "name": "Perplexity",
+        "trigger": "p",
+        "url": "https://www.perplexity.ai/search/?q=%s"
     },
     {
         "fallback": true,
