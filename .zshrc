@@ -137,6 +137,22 @@ if test "$TERM" = "xterm-kitty"; then
   fi
 fi
 
+# paru completions
+_paru_all_packages() {
+  local cache_file="$HOME/.cache/aur/packages.txt"
+  local -a aur_matches repo_matches installed_matches
+  local cur="${words[CURRENT]}"
+  if [[ "${words[1]}" == paru ]] && [[ "${words[(I)-R*]}" -ne 0 ]]; then
+    installed_matches=(${(f)"$(pacman -Qq 2>/dev/null | grep -i "^$cur")"})
+    compadd -a installed_matches
+    return
+  fi
+  aur_matches=(${(f)"$(grep -i "^$cur" "$cache_file" 2>/dev/null)"})
+  repo_matches=(${(f)"$(pacman -Slq 2>/dev/null | grep -i "^$cur")"})
+  compadd -a repo_matches aur_matches
+}
+compdef _paru_all_packages paru
+
 ### Environment variables -------------------------------------------------
 
 export PATH="$HOME/.local/bin:$PATH"
@@ -162,7 +178,6 @@ alias quit='pkill -KILL -u $USER'
 alias softreboot='sudo systemctl soft-reboot'
 alias tree='eza --tree'
 alias cmatrix='unimatrix -n -s 96 -l o'
-alias paruf='paru -Slq | fzf -m --preview "paru -Si {1} | bat --color=always --plain" | xargs -ro paru -S'
 alias nvim-custom='NVIM_APPNAME=nvim-custom nvim'
 alias nvim-new='NVIM_APPNAME=nvim-new nvim'
 alias zrefresh='source $HOME/.zshrc'
@@ -178,20 +193,15 @@ alias update-grub='sudo grub-mkconfig -o /boot/grub/grub.cfg'
 alias webtemplate='cp -r /mnt/Disk_D/Muhammad/Website-Template/* .'
 alias replaceunderscore="find . -depth -name '*_*' | while read -r file; do mv "$file" "$(dirname "$file")/$(basename "$file" | tr '_' ' ')"; done"
 alias replacespace="find . -depth -name '* *' | while read -r file; do mv "$file" "$(dirname "$file")/$(basename "$file" | tr ' ' '_')"; done"
-
-if [ "$XDG_SESSION_TYPE" = "wayland" ]; then
-  alias rofi-systemd='XDG_CONFIG_HOME=$HOME/.config/rofi/wayland bash ~/.config/rofi/scripts/rofi-systemd'
-  alias cppath="pwd | sed 's/\(^.*$\)/\"\1\"/' | wl-copy"
-  alias copycmd='tail -n 2 ~/.zhistory | head -n 1 | tr -d "\n" | wl-copy'
-  alias cbimage='wl-paste --type image/png > /tmp/clipboard.png && kitty +kitten icat /tmp/clipboard.png'
-  alias clipdel='cliphist list | rofi -dmenu -theme ~/.config/rofi/wayland/rofi/config.rasi -p "Delete Entry:" | cliphist delete'
-  alias clipimage='~/Scripts/cliphist_rofi_img.sh'
-else
-  alias rofi-systemd='bash ~/.config/rofi/scripts/rofi-systemd'
-  alias cppath="pwd | sed 's/\(^.*$\)/\"\1\"/' | xclip -selection clipboard"
-  alias copycmd='tail -n 2 ~/.zhistory | head -n 1 | tr -d "\n" | xclip -selection clipboard'
-  alias cbimage='xclip -selection clipboard -t image/png -o > /tmp/clipboard.png && kitty +kitten icat /tmp/clipboard.png'
-fi
+alias rofi-systemd='bash ~/.config/rofi/scripts/rofi-systemd'
+alias cppath="pwd | sed 's/\(^.*$\)/\"\1\"/' | wl-copy"
+alias copycmd='tail -n 2 ~/.zhistory | head -n 1 | tr -d "\n" | wl-copy'
+alias cbimage='wl-paste --type image/png > /tmp/clipboard.png && kitty +kitten icat /tmp/clipboard.png'
+alias clipdel='cliphist list | rofi -dmenu -p "Delete Entry:" | cliphist delete'
+alias clipimage='~/Scripts/cliphist_rofi_img.sh'
+alias paruf='(pacman -Slq; cat ~/.cache/aur/packages.txt) | sort -u \
+  | fzf -m --preview "paru -Si {1} | bat --color=always --plain" \
+  | xargs -ro paru -S'
 
 if command -v pacman &> /dev/null; then
   alias pkgsbackup="pacman -Qne | awk '{print \$1}' \
