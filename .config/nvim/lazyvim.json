@@ -4,6 +4,7 @@
     "lazyvim.plugins.extras.dap.core",
     "lazyvim.plugins.extras.formatting.prettier",
     "lazyvim.plugins.extras.lang.clangd",
+    "lazyvim.plugins.extras.lang.docker",
     "lazyvim.plugins.extras.lang.dotnet",
     "lazyvim.plugins.extras.lang.git",
     "lazyvim.plugins.extras.lang.json",
