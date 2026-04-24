@@ -159,7 +159,7 @@ export PATH="$HOME/.local/bin:$PATH"
 export MANPAGER='nvim +Man!'
 export TERMCMD=kitty
 export EDITOR=nvim
-export BAT_THEME="Catppuccin Mocha"
+export BAT_THEME="tokyonight_moon"
 export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS \
   --ansi \
   --height=~99% \
