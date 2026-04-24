@@ -160,11 +160,29 @@ export MANPAGER='nvim +Man!'
 export TERMCMD=kitty
 export EDITOR=nvim
 export BAT_THEME="Catppuccin Mocha"
-export FZF_DEFAULT_OPTS=" \
---border=rounded --height=~99% --reverse \
---color=bg+:#313244,bg:#1e1e2e,spinner:#f5e0dc,hl:#f38ba8 \
---color=fg:#cdd6f4,header:#f38ba8,info:#cba6f7,pointer:#f5e0dc \
---color=marker:#f5e0dc,fg+:#cdd6f4,prompt:#cba6f7,hl+:#f38ba8"
+export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS \
+  --ansi \
+  --height=~99% \
+  --highlight-line \
+  --info=inline-right \
+  --layout=reverse \
+  --border=rounded \
+  --color=bg+:#2d3f76 \
+  --color=border:#589ed7 \
+  --color=fg:#c8d3f5 \
+  --color=gutter:#1e2030 \
+  --color=header:#ff966c \
+  --color=hl+:#65bcff \
+  --color=hl:#65bcff \
+  --color=info:#545c7e \
+  --color=marker:#ff007c \
+  --color=pointer:#ff007c \
+  --color=prompt:#65bcff \
+  --color=query:#c8d3f5:regular \
+  --color=scrollbar:#589ed7 \
+  --color=separator:#ff966c \
+  --color=spinner:#ff007c \
+"
 
 ### Aliases ---------------------------------------------------------------
 
@@ -205,9 +223,9 @@ alias paruf='(pacman -Slq; cat ~/.cache/aur/packages.txt) | sort -u \
 
 if command -v pacman &> /dev/null; then
   alias pkgsbackup="pacman -Qne | awk '{print \$1}' \
-    > /mnt/Disk_D/Muhammad/Repositories/Arch-Backup/ArchNativePackages.txt \
+    > /mnt/Disk_D/Muhammad/Repositories/Arch-Backup/native-packages.txt \
     && pacman -Qme | awk '{print \$1}' \
-    > /mnt/Disk_D/Muhammad/Repositories/Arch-Backup/ArchAurPackages.txt"
+    > /mnt/Disk_D/Muhammad/Repositories/Arch-Backup/aur-packages.txt"
 fi
 
 ### pnpm setup ------------------------------------------------------------
