@@ -191,22 +191,16 @@ alias ff='fzf-nvim'
 alias ls='exa --icons -a --group-directories-first'
 alias ll='exa --icons -a --group-directories-first -l'
 alias ta='tmux attach'
-alias os='sesh connect $(sesh list | fzf) &>/dev/null'
 alias quit='pkill -KILL -u $USER'
 alias softreboot='sudo systemctl soft-reboot'
 alias tree='eza --tree'
 alias cmatrix='unimatrix -n -s 96 -l o'
-alias nvim-custom='NVIM_APPNAME=nvim-custom nvim'
-alias nvim-new='NVIM_APPNAME=nvim-new nvim'
 alias zrefresh='source $HOME/.zshrc'
 alias zshrc='nvim $HOME/.zshrc'
 alias pgcli='echo -ne "\e[2 q" && pgcli'
 alias litecli='echo -ne "\e[2 q" && litecli'
 alias musicremover='~/Scripts/video_music_remover.sh'
-alias i3config='nvim $HOME/.config/i3/config'
 alias hyprconfig='nvim $HOME/.config/hypr/hyprland.conf'
-alias barconfig='nvim $HOME/.config/polybar/config.ini'
-alias noticenter='kill -s USR1 $(pidof deadd-notification-center)'
 alias update-grub='sudo grub-mkconfig -o /boot/grub/grub.cfg'
 alias webtemplate='cp -r /mnt/Disk_D/Muhammad/Website-Template/* .'
 alias replaceunderscore="find . -depth -name '*_*' | while read -r file; do mv "$file" "$(dirname "$file")/$(basename "$file" | tr '_' ' ')"; done"
@@ -220,6 +214,22 @@ alias clipimage='~/Scripts/cliphist_rofi_img.sh'
 alias paruf='(pacman -Slq; cat ~/.cache/aur/packages.txt) | sort -u \
   | fzf -m --preview "paru -Si {1} | bat --color=always --plain" \
   | xargs -ro paru -S'
+alias seshi='sesh connect "$(
+  sesh list --icons | fzf-tmux \
+    --no-sort --ansi \
+    --border-label " sesh " \
+    --prompt "⚡  " \
+    --header "  ^a all ^t tmux ^g configs ^x zoxide ^d tmux kill ^f find" \
+    --bind "tab:down,btab:up" \
+    --bind "ctrl-a:change-prompt(⚡  )+reload(sesh list --icons)" \
+    --bind "ctrl-t:change-prompt(🪟  )+reload(sesh list -t --icons)" \
+    --bind "ctrl-g:change-prompt(⚙️  )+reload(sesh list -c --icons)" \
+    --bind "ctrl-x:change-prompt(📁  )+reload(sesh list -z --icons)" \
+    --bind "ctrl-f:change-prompt(🔎  )+reload(fd -H -d 2 -t d -E .Trash . ~)" \
+    --bind "ctrl-d:execute(tmux kill-session -t {2..})+change-prompt(⚡  )+reload(sesh list --icons)" \
+    --preview-window "right:55%" \
+    --preview "sesh preview {}"
+)"'
 
 if command -v pacman &> /dev/null; then
   alias pkgsbackup="pacman -Qne | awk '{print \$1}' \
