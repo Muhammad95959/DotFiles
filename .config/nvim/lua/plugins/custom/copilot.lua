@@ -3,7 +3,7 @@ return {
   "zbirenbaum/copilot.lua",
   event = "VeryLazy",
   config = function()
-    local copilot_auto_trigger_enabled = false
+    local copilot_auto_trigger_enabled = true
     require("copilot").setup({
       suggestion = {
         enabled = true,
