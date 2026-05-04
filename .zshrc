@@ -187,7 +187,6 @@ export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS \
 ### Aliases ---------------------------------------------------------------
 
 alias d='selected=$(grep -xv "$PWD" ~/.local/share/zdirs | fzf); [[ -n $selected ]] && cd "$selected"'
-alias ff='fzf-nvim'
 alias ls='exa --icons -a --group-directories-first'
 alias ll='exa --icons -a --group-directories-first -l'
 alias ta='tmux attach'
@@ -215,7 +214,7 @@ alias paruf='(pacman -Slq; cat ~/.cache/aur/packages.txt) | sort -u \
   | fzf -m --preview "paru -Si {1} | bat --color=always --plain" \
   | xargs -ro paru -S'
 alias seshi='sesh connect "$(
-  sesh list --icons | fzf-tmux \
+  sesh list --icons | fzf-tmux -p 85%,70% \
     --no-sort --ansi \
     --border-label " sesh " \
     --prompt "⚡  " \
@@ -270,26 +269,9 @@ yz() {
 ### fzf setup -------------------------------------------------------------
 
 # fzf function for searching and opening files using nvim
-fzf-nvim() {
+function ff() {
   local selected_file
-  selected_file=$(find ~ /mnt/Disk_D/Muhammad /mnt/Disk_D/Engineering \( \
-    -path '*/.git/*' \
-    -o -path '*/node_modules/*' \
-    -o -path ~/.android \
-    -o -path ~/.cache \
-    -o -path ~/.npm \
-    -o -path ~/.local \
-    -o -path ~/.config/BraveSoftware \
-    -o -path ~/.config/Microsoft \
-    -o -path ~/.config/Postman \
-    -o -path ~/.config/chromium \
-    -o -path ~/.config/content_shell \
-    -o -path ~/.config/thorium \
-    -o -path ~/.config/vesktop \
-    -o -path /mnt/Disk_D/Muhammad/Repositories/Tela-circle-icon-theme \
-    -o -path /mnt/Disk_D/Muhammad/Repositories/Tokyonight-GTK-Theme \
-    -o -path /mnt/Disk_D/Muhammad/Android_Studio/ASProjects \) \
-    -prune -o -type f -print \
+  selected_file=$(fd -H -d 6 -t f -E .Trash -E .git . ~/.config ~/DotFiles ~/Projects ~/Scripts /mnt/Disk_D/Engineering /mnt/Disk_D/Muhammad \
     | fzf --preview 'bat --style=numbers --color=always --line-range :500 {}')
   if [ -n "$selected_file" ]; then
     cd $(dirname "$selected_file") 
