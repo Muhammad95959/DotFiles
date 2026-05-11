@@ -1,6 +1,7 @@
-# A TOML linter such as https://taplo.tamasfe.dev/ can use this schema to validate your config.
+# A TOML linter such as https://github.com/tombi-toml/tombi can use this schema to validate your config.
 # If you encounter any issues, please make an issue at https://github.com/yazi-rs/schemas.
-"$schema" = "https://yazi-rs.github.io/schemas/yazi.json"
+
+#:schema https://yazi-rs.github.io/schemas/yazi.json
 
 [mgr]
 ratio          = [ 1, 4, 4 ]
@@ -13,7 +14,7 @@ linemode       = "size"
 show_hidden    = true
 show_symlink   = true
 scrolloff      = 5
-mouse_events   = [ "click", "scroll" ]
+mouse_events   = [ "click", "scroll", "drag" ]
 title_format   = "Yazi: {cwd}"
 
 [preview]
@@ -34,9 +35,9 @@ edit = [
 	{ run = "code -w %s",       desc = "code (block)", for = "windows", block = true },
 ]
 play = [
-	{ run = "mimeopen %s1",                desc = "Play", for = "linux" },
+	{ run = "mimeopen %s1",                desc = "Play", for = "linux", orphan = true },
 	{ run = "open %s",                     desc = "Play", for = "macos" },
-	{ run = 'start "" %s1', orphan = true, desc = "Play", for = "windows" },
+	{ run = 'start "" %s1',                desc = "Play", for = "windows", orphan = true },
 	{ run = "termux-open %s1",             desc = "Play", for = "android" },
 	# { run = "mediainfo %s1; echo 'Press enter to exit'; read _", block = true, desc = "Show media info", for = "unix" },
 	# { run = "mediainfo %s1 & pause", block = true, desc = "Show media info", for = "windows" },
@@ -63,7 +64,7 @@ download = [
 ]
 # For HTML
 brave = [
-  { run = 'setsid brave --test-type "$@" >/dev/null 2>&1 &', block = false, desc = "brave" },
+  { run = 'setsid brave-origin-beta --test-type "$@" >/dev/null 2>&1 &', block = false, desc = "brave-origin" },
 ]
 qutebrowser = [
   { run = 'setsid qutebrowser "$@" >/dev/null 2>&1 &', block = false, desc = "qutebrowser" },
@@ -133,16 +134,19 @@ suppress_preload = false
 
 [plugin]
 fetchers = [
-	# Mimetype
-	{ id = "mime", url = "*/",         run = "mime.dir", prio = "high" },
-	{ id = "mime", url = "local://*",  run = "mime.local", prio = "high" },
-	{ id = "mime", url = "remote://*", run = "mime.remote", prio = "high" },
-  { id = "simple-tag", url = "*", run = "simple-tag" },
-  { id = "simple-tag", url = "*/", run = "simple-tag" },
-  { id = "git", url = "*", run = "git" },
-  { id = "git", url = "*/", run = "git" },
+	# MIME-type
+	{ url = "*/",         run = "mime.dir",    prio = "high", group = "mime" },
+	{ url = "local://*",  run = "mime.local",  prio = "high", group = "mime" },
+	{ url = "remote://*", run = "mime.remote", prio = "high", group = "mime" },
+  { id = "simple-tag", url = "*", run = "simple-tag", group = "default" },
+  { id = "simple-tag", url = "*/", run = "simple-tag", group = "default" },
+  { id = "git", url = "*", run = "git", group = "default" },
+  { id = "git", url = "*/", run = "git", group = "default" },
 ]
 spotters = [
+	# Multi-file
+	{ mime = "multi/*", run = "multi" },
+	# Folder
 	{ url = "*/", run = "folder" },
 	# Code
 	{ mime = "text/*", run = "code" },
@@ -276,7 +280,7 @@ overwrite_offset = [ 0, 0, 50, 15 ]
 
 # quit
 quit_title  = "Quit?"
-quit_body   = "The following tasks are still running, are you sure you want to quit?"
+quit_body   = "There are unfinished tasks, quit anyway?\n(Open task manager with default key 'w')"
 quit_origin = "center"
 quit_offset = [ 0, 0, 50, 15 ]
 

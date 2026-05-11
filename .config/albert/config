@@ -28,7 +28,9 @@ enabled=true
 enabled=true
 fuzzy=true
 global_handler_enabled=true
+match_hostname=false
 profile_path=/home/muhammad/.config/BraveSoftware/Brave-Browser/Default
+show_favicons=false
 trigger="b "
 
 [clipboard]

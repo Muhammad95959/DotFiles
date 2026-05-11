@@ -1,6 +1,7 @@
-# A TOML linter such as https://taplo.tamasfe.dev/ can use this schema to validate your config.
-# If you encounter any issues, please make an issue at https://github.com/yazi-rs/schemas.
-"$schema" = "https://yazi-rs.github.io/schemas/keymap.json"
+# A TOML linter such as https://github.com/tombi-toml/tombi can use this schema to validate your config.
+# If you encounter any problems, please make an issue at https://github.com/yazi-rs/schemas.
+
+#:schema https://yazi-rs.github.io/schemas/keymap.json
 
 [mgr]
 
@@ -390,7 +391,7 @@ desc = "dragon-drop"
 [[mgr.prepend_keymap]]
 on  = [ "<A-Space>", "w" ]
 run = '''
-	shell 'awww img "$@" -t "none" --transition-duration 0 || feh --no-fehbg --bg-fill "$@"' --confirm
+	shell 'awww img "$@" -t "none" --transition-duration 0' --confirm
 '''
 desc = "set background"
 [[mgr.prepend_keymap]]
