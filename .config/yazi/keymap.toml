@@ -409,7 +409,7 @@ desc = "videos-length"
 [[mgr.prepend_keymap]]
 on  = [ "<A-Space>", "i" ]
 run = '''
-  shell 'notify-send -t 7500 "$(exiftool "$@" | grep -E "^Duration *:" || exiftool "$@" | grep -E "^Page Count *:" || exiftool "$@" | grep "^Image Size *:")"' --confirm
+  shell 'notify-send -t 30000 "$(exiftool "$@" | grep -E "^Duration *:" || exiftool "$@" | grep -E "^Page Count *:" || exiftool "$@" | grep "^Image Size *:")"' --confirm
 '''
 desc = "info"
 

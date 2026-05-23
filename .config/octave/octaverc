@@ -1,3 +1,6 @@
 atexit ("");
 pkg load symbolic control signal communications;
-# workspace_file = fullfile(getenv("HOME"), ".local/share/octave/octave-workspace");
+
+crash_dumps_octave_core(false);
+
+Vsavefile = "~/.cache/octave/octave-workspace";
