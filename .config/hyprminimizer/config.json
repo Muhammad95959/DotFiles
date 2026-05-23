@@ -1,0 +1,18 @@
+{
+  "specialWorkspace": "minimized",
+  "restoreLauncher": "rofi",
+  "restoreLauncherArgs": "-theme ~/.config/rofi/arc_rounded.rasi -dmenu -p \"Restore window:\"",
+  "maxMinimizedWindows": 50,
+  "excludeWindowClasses": [
+    "waybar",
+    "mako",
+    "hyprlock"
+  ],
+  "useDBusTray": true,
+  "dbusServiceName": "org.hyprminimizer",
+  "stackBaseDirectory": "/tmp",
+  "restoreToCurrentWorkspace": true,
+  "iconPack": {
+    "kitty": "terminal"
+  }
+}
