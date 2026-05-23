@@ -35,7 +35,7 @@
     "format-icons": "",
     "tooltip": false,
     "on-click": "nwg-drawer",
-    "on-click-right": "hyprctl dispatch movecursor 0 1080 && flameshot gui"
+    "on-click-right": "hyprctl dispatch 'hl.dsp.cursor.move({ x = 0, y = 1080 })' && flameshot gui"
   },
 
   "hyprland/workspaces": {
@@ -55,8 +55,8 @@
     "format": "{class}",
     "tooltip-format": "{title}",
     "separate-outputs": true,
-    "on-click-right": "hyprctl dispatch killactive",
-    "on-click-middle": "hyprctl dispatch killactive",
+    "on-click-right": "hyprctl dispatch 'hl.dsp.window.close()'",
+    "on-click-middle": "hyprctl dispatch 'hl.dsp.window.close()'",
     "rewrite": {
       "brave-hnpfjngllnobngcgfapefoaidbinmjnm-Default": "whatsapp-web",
       "brave-translate.google.com.eg__-Default": "brave-translate"
