@@ -13,6 +13,9 @@
   "stackBaseDirectory": "/tmp",
   "restoreToCurrentWorkspace": true,
   "iconPack": {
-    "kitty": "terminal"
+    "kitty": "terminal",
+    "brave-translate.google.com.eg__-Default": "google-translate",
+    "chrome-translate.google.com.eg__-Default": "google-translate",
+    "chrome-web.whatsapp.com__-Default": "whatsapp"
   }
 }
