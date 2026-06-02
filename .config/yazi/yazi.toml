@@ -140,8 +140,8 @@ fetchers = [
 	{ url = "remote://*", run = "mime.remote", prio = "high", group = "mime" },
   { id = "simple-tag", url = "*", run = "simple-tag", group = "default" },
   { id = "simple-tag", url = "*/", run = "simple-tag", group = "default" },
-  { id = "git", url = "*", run = "git", group = "default" },
-  { id = "git", url = "*/", run = "git", group = "default" },
+  { id = "git", url = "*", run = "git", group = "git" },
+  { id = "git", url = "*/", run = "git", group = "git" },
 ]
 spotters = [
 	# Multi-file

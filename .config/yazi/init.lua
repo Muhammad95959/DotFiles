@@ -4,15 +4,15 @@ Status:children_add(function()
 		return ""
 	end
 
-	return ui.Line {
+	return ui.Line({
 		ui.Span(ya.user_name(h.cha.uid) or tostring(h.cha.uid)):fg("magenta"),
 		":",
 		ui.Span(ya.group_name(h.cha.gid) or tostring(h.cha.gid)):fg("magenta"),
 		" ",
-	}
+	})
 end, 500, Status.RIGHT)
 
-require("zoxide"):setup { update_db = true }
+require("zoxide"):setup({ update_db = true })
 
 require("relative-motions"):setup({ show_numbers = "relative_absolute", show_motion = true })
 
@@ -42,24 +42,19 @@ require("smart-enter"):setup({
 })
 
 require("simple-tag"):setup({
-  ui_mode = "icon",
-  hints_disabled = false,
-  linemode_order = 500,
-  colors = {
-	  reversed = true,
-    ["2"] = "yellow",
-    ["3"] = "red",
-	  ["$"] = "green",
-    ["*"] = "magenta",
-  },
-  icons = {
-    ["1"] = " ",
-		["2"] = "󰚋 ",
-    ["3"] = " ",
-    ["$"] = " ",
-		["*"] = "* ",
-  },
-
+	ui_mode = "icon",
+	hints_disabled = false,
+	linemode_order = 500,
+	colors = {
+		reversed = true,
+    ["*"] = "#e60053"
+	},
+	icons = {
+    ["*"] = "* ",
+		["1"] = " ",
+		["2"] = "󰸞 ",
+		["3"] = "󰃅 ",
+	},
 })
 
-require("git"):setup()
+require("git"):setup({ order = 1500 })

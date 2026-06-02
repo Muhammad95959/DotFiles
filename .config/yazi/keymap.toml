@@ -623,3 +623,7 @@ run = "plugin mount"
 on   = [ "<A-Space>", "t" ]
 run = "plugin simple-tag -- toggle-tag --key=1"
 desc = "Toggle tag with fixed tag key = 1"
+[[mgr.prepend_keymap]]
+on   = [ "<A-Space>", "T" ]
+run  = "plugin simple-tag -- toggle-tag"
+desc = "Toggle tag (choose interactively)"
