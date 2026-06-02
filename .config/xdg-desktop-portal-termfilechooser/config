@@ -1,0 +1,5 @@
+[filechooser]
+cmd=/home/muhammad/.config/xdg-desktop-portal-termfilechooser/yazi-wrapper.sh
+default_dir=$HOME
+open_mode=suggested
+save_mode=last
