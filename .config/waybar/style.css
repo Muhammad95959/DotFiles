@@ -66,8 +66,8 @@ window#waybar {
 #submap {
   background-color: #e60053;
   color: white;
-  padding: 0 12px;
-  margin-right: 12px;
+  padding: 0 8px 2px 8px;
+  margin-right: 14px;
 }
 
 #battery.warning {

@@ -1,13 +1,3 @@
-### Tmux ------------------------------------------------------------------
-
-# if command -v tmux &> /dev/null && [ -z "$TMUX" ]; then
-#   if [ "$(pgrep -x kitty | wc -l)" -le 1 ]; then
-#     (tmux attach-session || tmux new-session) &> /dev/null
-#   else
-#     tmux new-session &> /dev/null
-#   fi
-# fi
-
 ### Prompt and cursor setup -----------------------------------------------
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
@@ -19,10 +9,6 @@ fi
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
-
-# Enable colors and change prompt
-# autoload -U colors && colors
-# PS1="%B%{$fg[red]%}[%{$fg[yellow]%}%n%{$fg[green]%}@%{$fg[blue]%}%M %{$fg[magenta]%}%~%{$fg[red]%}]%{$fg[cyan]%}$%b "
 
 # Change cursor shape for different vi modes.
 function zle-keymap-select {
@@ -43,6 +29,10 @@ zle-line-init() {
 zle -N zle-line-init
 echo -ne '\e[5 q' # Use beam shape cursor on startup.
 preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
+
+# # Enable colors and change prompt
+# autoload -U colors && colors
+# PS1="%B%{$fg[red]%}[%{$fg[yellow]%}%n%{$fg[green]%}@%{$fg[blue]%}%M %{$fg[magenta]%}%~%{$fg[red]%}]%{$fg[cyan]%}$%b "
 
 ### Plugins ---------------------------------------------------------------
 
@@ -210,27 +200,11 @@ alias copycmd='tail -n 2 ~/.zhistory | head -n 1 | tr -d "\n" | wl-copy'
 alias cbimage='wl-paste --type image/png > /tmp/clipboard.png && kitty +kitten icat /tmp/clipboard.png'
 alias clipdel='cliphist list | rofi -dmenu -p "Delete Entry:" | cliphist delete'
 alias clipimage='~/Scripts/cliphist_rofi_img.sh'
-alias paruf='(pacman -Slq; cat ~/.cache/aur/packages.txt) | sort -u \
-  | fzf -m --preview "paru -Si {1} | bat --color=always --plain" \
-  | xargs -ro paru -S'
-alias seshi='sesh connect "$(
-  sesh list --icons | fzf-tmux -p 85%,70% \
-    --no-sort --ansi \
-    --border-label " sesh " \
-    --prompt "⚡  " \
-    --header "  ^a all ^t tmux ^g configs ^x zoxide ^d tmux kill ^f find" \
-    --bind "tab:down,btab:up" \
-    --bind "ctrl-a:change-prompt(⚡  )+reload(sesh list --icons)" \
-    --bind "ctrl-t:change-prompt(🪟  )+reload(sesh list -t --icons)" \
-    --bind "ctrl-g:change-prompt(⚙️  )+reload(sesh list -c --icons)" \
-    --bind "ctrl-x:change-prompt(📁  )+reload(sesh list -z --icons)" \
-    --bind "ctrl-f:change-prompt(🔎  )+reload(fd -H -d 2 -t d -E .Trash . ~)" \
-    --bind "ctrl-d:execute(tmux kill-session -t {2..})+change-prompt(⚡  )+reload(sesh list --icons)" \
-    --preview-window "right:55%" \
-    --preview "sesh preview {}"
-)"'
 
 if command -v pacman &> /dev/null; then
+  alias paruf='(pacman -Slq; cat ~/.cache/aur/packages.txt) | sort -u \
+    | fzf -m --preview "paru -Si {1} | bat --color=always --plain" \
+    | xargs -ro paru -S'
   alias pkgsbackup="pacman -Qne | awk '{print \$1}' \
     > /mnt/Disk_D/Muhammad/Repositories/Arch-Backup/native-packages.txt \
     && pacman -Qme | awk '{print \$1}' \
@@ -281,6 +255,27 @@ function ff() {
 
 # fzf integration with zsh
 [ -x "$(command -v fzf)" ] && eval "$(fzf --zsh)"
+
+### sesh command ----------------------------------------------------------
+
+function seshi() {
+  sesh connect "$(
+    sesh list --icons | fzf-tmux -p 85%,70% \
+      --no-sort --ansi \
+      --border-label " sesh " \
+      --prompt "⚡  " \
+      --header "  ^a all ^t tmux ^g configs ^x zoxide ^d tmux kill ^f find" \
+      --bind "tab:down,btab:up" \
+      --bind "ctrl-a:change-prompt(⚡  )+reload(sesh list --icons)" \
+      --bind "ctrl-t:change-prompt(🪟  )+reload(sesh list -t --icons)" \
+      --bind "ctrl-g:change-prompt(⚙️  )+reload(sesh list -c --icons)" \
+      --bind "ctrl-x:change-prompt(📁  )+reload(sesh list -z --icons)" \
+      --bind "ctrl-f:execute(fd -H -d 2 -t d -E .Trash . ~)" \
+      --bind "ctrl-d:execute(tmux kill-session -t {2..})+change-prompt(⚡  )+reload(sesh list --icons)" \
+      --preview-window "right:55%" \
+      --preview "sesh preview {}"
+  )"
+}
 
 ### yazi wrapper ----------------------------------------------------------
 
