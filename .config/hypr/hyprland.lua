@@ -30,6 +30,7 @@ local brightnessGet = "$(brightnessctl info | awk -F '[%(]' '/%/ {print $2}')"
 local scratchpad_window    = nil
 local last_tiled_window    = {}
 local last_floating_window = {}
+local wshowkeys_active     = false
 local smart_gaps           = true
 
 -------------------
@@ -43,7 +44,6 @@ hl.on("hyprland.start", function()
   hl.exec_cmd("hypridle")
   hl.exec_cmd("awww-daemon")
   hl.exec_cmd("nwg-drawer -r")
-  hl.exec_cmd("sudo ydotoold")
   hl.exec_cmd("swayosd-server")
   hl.exec_cmd("xhost +si:localuser:$USER")
   hl.exec_cmd("sleep 1 && /usr/bin/albert")
@@ -55,8 +55,6 @@ hl.on("hyprland.start", function()
   hl.exec_cmd("python ~/Scripts/panel_shadow/panel-shadow.py")
   hl.exec_cmd("/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1")
   hl.exec_cmd("pactl set-source-volume alsa_input.pci-0000_00_1f.3.analog-stereo 30%")
-  hl.exec_cmd("cp /home/muhammad/.config/net.imput.helium/Default/History /tmp/HeliumHistory")
-  hl.exec_cmd("cp ~/.config/BraveSoftware/Brave-Origin-Beta/Default/History /tmp/BraveHistory")
   hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
   hl.exec_cmd("brave-origin-beta --test-type --app=file:///home/muhammad/Projects/new-tab-page/index.html")
 end)
@@ -182,8 +180,8 @@ hl.config({
 })
 
 -- Animations
-hl.curve("easeOut",  { type = "bezier", points = { {0.46, 1.0}, {0.29, 1} } })
-hl.curve("easeClose",{ type = "bezier", points = { {0.08, 0.92}, {0, 1}   } })
+hl.curve("easeOut",   { type = "bezier", points = { {0.46, 1.0}, {0.29, 1} } })
+hl.curve("easeClose", { type = "bezier", points = { {0.08, 0.92}, {0, 1}   } })
 
 hl.animation({ leaf = "windows",    enabled = true, speed = 3, bezier = "easeOut",   style = "slide" })
 hl.animation({ leaf = "windowsOut", enabled = true, speed = 6, bezier = "easeClose", style = "slide" })
@@ -260,12 +258,12 @@ hl.window_rule({ match = { class = "^flameshot$" }, float = true, border_size = 
 hl.window_rule({ match = { class = "^octave-cli.*$" }, float = true, size = "1600 900" })
 hl.window_rule({ match = { class = "^xdg-desktop-portal-gtk$" }, float = true, size = "960 600" })
 hl.window_rule({ match = { class = "^net%.sapples%.LiveCaptions$" }, float = true, move = "500 900" })
+hl.window_rule({ match = { class = "^termfilechooser$" }, float = true, center = true, size = "1280 720" })
 hl.window_rule({ match = { class = "^hiddenkitty.*$" }, float = true, no_initial_focus = true, move = "3000 3000" })
 hl.window_rule({ match = { class = "^org%.telegram%.desktop$", title = "^Media viewer$" }, float = true, fullscreen = true })
 hl.window_rule({ match = { class = "^explorer.exe$", title = "^WineDesktop - Wine Desktop$" }, float = true, center = true })
 hl.window_rule({ match = { class = "^brave-translate.google.com.eg__-Default$" }, float = true, size = "740 960", opacity = 0.8 })
 hl.window_rule({ match = { class = "^chrome-translate.google.com.eg__-Default$" }, float = true, size = "740 960", opacity = 0.8 })
-hl.window_rule({ match = { class = "^one.alynx.showmethekey$", title = "^Floating Window - Show Me The Key$" }, float = true, size = "1800 120", move = "60 900" })
 
 -- Layer rules
 hl.layer_rule({ match = { namespace = "nwg-drawer" },   blur = true })
@@ -282,6 +280,150 @@ local function roalbert()
     hl.dispatch(hl.dsp.exec_cmd("rofi -show drun -theme ~/.config/rofi/launcher.rasi"))
   else
     hl.dispatch(hl.dsp.exec_cmd("/usr/bin/albert toggle || /usr/bin/albert"))
+  end
+end
+
+local function wshowkeys()
+  if wshowkeys_active then
+    wshowkeys_active = false
+    hl.dispatch(hl.dsp.exec_cmd("killall wshowkeys"))
+    hl.dispatch(hl.dsp.exec_cmd("notify-send -t 1500 'wshowkeys' '󱎘   Disabled'"))
+  else
+    wshowkeys_active = true
+    hl.dispatch(hl.dsp.exec_cmd("killall wshowkeys; wshowkeys -a bottom -t 1000 -f '#e1e2e7ff' -b '#1a1b26aa'"))
+    hl.dispatch(hl.dsp.exec_cmd("notify-send -t 1500 'wshowkeys' '   Enabled'"))
+  end
+end
+
+local function move_window(direction)
+  local w = hl.get_active_window()
+  if w == nil then return end
+  if w.floating then
+    local dirs = {
+      l = { x = -20, y = 0 },
+      r = { x = 20,  y = 0 },
+      u = { x = 0,   y = -20 },
+      d = { x = 0,   y = 20 },
+    }
+    local d = dirs[direction]
+    hl.dispatch(hl.dsp.window.move({ x = d.x, y = d.y, relative = true }))
+  else
+    hl.dispatch(hl.dsp.window.move({ direction = direction, group_aware = true }))
+  end
+end
+
+local function restore_minimized()
+  local minimized = {}
+  for _, win in ipairs(hl.get_windows()) do
+    if win.workspace ~= nil and win.workspace.name == "special:minimized" then
+      table.insert(minimized, win)
+    end
+  end
+  if #minimized > 1 then
+    hl.dispatch(hl.dsp.exec_cmd("hyprminimizer menu"))
+  else
+    hl.dispatch(hl.dsp.exec_cmd("hyprminimizer restore-last"))
+  end
+end
+
+local function set_gaps(delta)
+  local gaps_out = hl.get_config("general.gaps_out")
+  local current_out = gaps_out.top or gaps_out
+  local new_out = math.max(0, current_out + delta)
+  local new_in = math.max(0, math.floor(new_out / 2))
+  hl.config({
+    general = {
+      gaps_in = new_in,
+      gaps_out = new_out,
+    }
+  })
+end
+
+local function toggle_gaps()
+  local gaps_out = hl.get_config("general.gaps_out")
+  local current_out = gaps_out.top or gaps_out
+  local current_in = hl.get_config("general.gaps_in")
+  local current_in_val = current_in.top or current_in
+  if current_out > 0 or current_in_val > 0 then
+    hl.config({
+      general = {
+        gaps_in = 0,
+        gaps_out = 0,
+      }
+    })
+  else
+    hl.config({
+      general = {
+        gaps_in = 4,
+        gaps_out = 8,
+      }
+    })
+  end
+end
+
+local function toggle_smart_gaps()
+  smart_gaps = not smart_gaps
+  if smart_gaps then
+    hl.workspace_rule({ workspace = "w[tv1]s[false]", gaps_out = 0, gaps_in = 0 })
+    hl.workspace_rule({ workspace = "f[1]s[false]",   gaps_out = 0, gaps_in = 0 })
+    hl.window_rule({ match = { float = false, workspace = "w[tv1]s[false]" }, border_size = 0, rounding = 0 })
+    hl.window_rule({ match = { float = false, workspace = "f[1]s[false]"   }, border_size = 0, rounding = 0 })
+  else
+    hl.workspace_rule({ workspace = "w[tv1]s[false]", gaps_out = 8, gaps_in = 4 })
+    hl.workspace_rule({ workspace = "f[1]s[false]",   gaps_out = 8, gaps_in = 4 })
+    hl.window_rule({ match = { float = false, workspace = "w[tv1]s[false]" }, border_size = 2, rounding = 4 })
+    hl.window_rule({ match = { float = false, workspace = "f[1]s[false]"   }, border_size = 2, rounding = 4 })
+  end
+end
+
+local function toggle_floating()
+  scratchpad_window = nil
+  hl.dispatch(hl.dsp.window.float({ action = "toggle" }))
+  local w = hl.get_active_window()
+  if w == nil then return end
+  if w.floating then
+    hl.dispatch(hl.dsp.window.center())
+    hl.dispatch(hl.dsp.window.bring_to_top())
+    local resizeClasses = { kitty = true, helium = true, ["brave-origin-beta"] = true }
+    if resizeClasses[w.class] then
+      hl.dispatch(hl.dsp.window.resize({ x = 1600, y = 900, relative = false }))
+      hl.dispatch(hl.dsp.window.center())
+    end
+  end
+end
+
+local function toggle_focus_float()
+  local function is_window_valid(saved, floating)
+    if saved == nil then return false end
+    for _, win in ipairs(hl.get_windows()) do
+      if win.address == saved.address then
+        return win.floating == floating
+      end
+    end
+    return false
+  end
+  local w = hl.get_active_window()
+  if w == nil then return end
+  local ws = hl.get_active_workspace()
+  if ws == nil or ws.id < 0 then return end
+  local id = ws.id
+  if w.floating then
+    last_floating_window[id] = w
+    if is_window_valid(last_tiled_window[id], false) then
+      hl.dispatch(hl.dsp.focus({ window = last_tiled_window[id] }))
+    else
+      last_tiled_window[id] = nil
+      hl.dispatch(hl.dsp.focus({ window = "tiled" }))
+    end
+  else
+    last_tiled_window[id] = w
+    if is_window_valid(last_floating_window[id], true) then
+      hl.dispatch(hl.dsp.focus({ window = last_floating_window[id] }))
+    else
+      last_floating_window[id] = nil
+      hl.dispatch(hl.dsp.focus({ window = "floating" }))
+    end
+    hl.dispatch(hl.dsp.window.bring_to_top())
   end
 end
 
@@ -344,138 +486,6 @@ local function scratchpad()
   hl.dispatch(hl.dsp.window.move({ workspace = "special:scratchpad", follow = false }))
 end
 
-local function restore_minimized()
-  local minimized = {}
-  for _, win in ipairs(hl.get_windows()) do
-    if win.workspace ~= nil and win.workspace.name == "special:minimized" then
-      table.insert(minimized, win)
-    end
-  end
-  if #minimized > 1 then
-    hl.dispatch(hl.dsp.exec_cmd("hyprminimizer menu"))
-  else
-    hl.dispatch(hl.dsp.exec_cmd("hyprminimizer restore-last"))
-  end
-end
-
-local function set_gaps(delta)
-  local gaps_out = hl.get_config("general.gaps_out")
-  local current_out = gaps_out.top or gaps_out
-  local new_out = math.max(0, current_out + delta)
-  local new_in = math.max(0, math.floor(new_out / 2))
-  hl.config({
-    general = {
-      gaps_in = new_in,
-      gaps_out = new_out,
-    }
-  })
-end
-
-local function toggle_gaps()
-  local gaps_out = hl.get_config("general.gaps_out")
-  local current_out = gaps_out.top or gaps_out
-  local current_in = hl.get_config("general.gaps_in")
-  local current_in_val = current_in.top or current_in
-  if current_out > 0 or current_in_val > 0 then
-    hl.config({
-      general = {
-        gaps_in = 0,
-        gaps_out = 0,
-      }
-    })
-  else
-    hl.config({
-      general = {
-        gaps_in = 4,
-        gaps_out = 8,
-      }
-    })
-  end
-end
-
-local function toggle_focus_float()
-  local function is_window_valid(saved, floating)
-    if saved == nil then return false end
-    for _, win in ipairs(hl.get_windows()) do
-      if win.address == saved.address then
-        return win.floating == floating
-      end
-    end
-    return false
-  end
-  local w = hl.get_active_window()
-  if w == nil then return end
-  local ws = hl.get_active_workspace()
-  if ws == nil or ws.id < 0 then return end
-  local id = ws.id
-  if w.floating then
-    last_floating_window[id] = w
-    if is_window_valid(last_tiled_window[id], false) then
-      hl.dispatch(hl.dsp.focus({ window = last_tiled_window[id] }))
-    else
-      last_tiled_window[id] = nil
-      hl.dispatch(hl.dsp.focus({ window = "tiled" }))
-    end
-  else
-    last_tiled_window[id] = w
-    if is_window_valid(last_floating_window[id], true) then
-      hl.dispatch(hl.dsp.focus({ window = last_floating_window[id] }))
-    else
-      last_floating_window[id] = nil
-      hl.dispatch(hl.dsp.focus({ window = "floating" }))
-    end
-    hl.dispatch(hl.dsp.window.bring_to_top())
-  end
-end
-
-local function toggle_floating()
-  scratchpad_window = nil
-  hl.dispatch(hl.dsp.window.float({ action = "toggle" }))
-  local w = hl.get_active_window()
-  if w == nil then return end
-  if w.floating then
-    hl.dispatch(hl.dsp.window.center())
-    hl.dispatch(hl.dsp.window.bring_to_top())
-    local resizeClasses = { kitty = true, helium = true, ["brave-origin-beta"] = true }
-    if resizeClasses[w.class] then
-      hl.dispatch(hl.dsp.window.resize({ x = 1600, y = 900, relative = false }))
-      hl.dispatch(hl.dsp.window.center())
-    end
-  end
-end
-
-local function move_window(direction)
-  local w = hl.get_active_window()
-  if w == nil then return end
-  if w.floating then
-    local dirs = {
-      l = { x = -20, y = 0 },
-      r = { x = 20,  y = 0 },
-      u = { x = 0,   y = -20 },
-      d = { x = 0,   y = 20 },
-    }
-    local d = dirs[direction]
-    hl.dispatch(hl.dsp.window.move({ x = d.x, y = d.y, relative = true }))
-  else
-    hl.dispatch(hl.dsp.window.move({ direction = direction, group_aware = true }))
-  end
-end
-
-local function toggle_smart_gaps()
-  smart_gaps = not smart_gaps
-  if smart_gaps then
-    hl.workspace_rule({ workspace = "w[tv1]s[false]", gaps_out = 0, gaps_in = 0 })
-    hl.workspace_rule({ workspace = "f[1]s[false]",   gaps_out = 0, gaps_in = 0 })
-    hl.window_rule({ match = { float = false, workspace = "w[tv1]s[false]" }, border_size = 0, rounding = 0 })
-    hl.window_rule({ match = { float = false, workspace = "f[1]s[false]"   }, border_size = 0, rounding = 0 })
-  else
-    hl.workspace_rule({ workspace = "w[tv1]s[false]", gaps_out = 8, gaps_in = 4 })
-    hl.workspace_rule({ workspace = "f[1]s[false]",   gaps_out = 8, gaps_in = 4 })
-    hl.window_rule({ match = { float = false, workspace = "w[tv1]s[false]" }, border_size = 2, rounding = 4 })
-    hl.window_rule({ match = { float = false, workspace = "f[1]s[false]"   }, border_size = 2, rounding = 4 })
-  end
-end
-
 -----------------
 ---- SUBMAPS ----
 -----------------
@@ -521,6 +531,7 @@ hl.define_submap("applications", function()
   hl.bind("SHIFT + b", hl.dsp.exec_cmd(reset .. "notify-send -t 5000 \"$(acpi)\""))
   hl.bind("SHIFT + c", hl.dsp.exec_cmd(reset .. "hyprpicker -a"))
   hl.bind("SHIFT + d", restore_minimized) hl.bind("SHIFT + d", hl.dsp.submap("reset"))
+  hl.bind("SHIFT + k", wshowkeys) hl.bind("SHIFT + k", hl.dsp.submap("reset"))
   hl.bind("SHIFT + m", hl.dsp.exec_cmd(reset .. "kitty --class pulsemixer --hold -e pulsemixer"))
   hl.bind("SHIFT + n", hl.dsp.exec_cmd(reset .. "~/Scripts/wallpaper.sh"))
   hl.bind("SHIFT + s", hl.dsp.exec_cmd(reset .. "notify-send -t 30000 \"$(~/Scripts/bilal.sh -a)\""))
