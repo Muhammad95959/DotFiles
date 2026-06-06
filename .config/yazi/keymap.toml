@@ -460,8 +460,8 @@ run  = "cd '/mnt/Disk_D/Projects & Designs'"
 desc = "Cd to /mnt/Disk_D/Projects & Designs"
 [[mgr.prepend_keymap]]
 on   = [ "g", "d", "q" ]
-run  = "cd /mnt/Disk_D/قرآن_كريم"
-desc = "Cd to /mnt/Disk_D/قرآن_كريم"
+run  = "cd /mnt/Disk_D/'قرآن كريم'"
+desc = "Cd to /mnt/Disk_D/قرآن كريم"
 [[mgr.prepend_keymap]]
 on   = [ "g", "d", "r" ]
 run  = "cd /mnt/Disk_D/Muhammad/Repositories"

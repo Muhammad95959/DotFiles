@@ -98,7 +98,8 @@
 
   "hyprland/language": {
     "format": "<span font-weight='normal' font='10.5'>󰌌</span> <span color='#e1e2e7aa'>{shortDescription}</span>",
-    "on-click": "hyprctl switchxkblayout all next"
+    "on-click": "hyprctl switchxkblayout all next",
+    "keyboard-name": "kanata"
   },
 
   "cpu": {
