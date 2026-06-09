@@ -149,12 +149,13 @@ hl.config({
   },
 
   misc = {
-    disable_hyprland_logo     = true,
-    layers_hog_keyboard_focus = false,
-    enable_swallow            = true,
-    swallow_regex             = "^(kitty)$",
-    swallow_exception_regex   = "^(.*)(Yazi|nvim|tmux|gopreload)(.*)$",
-    enable_anr_dialog         = false,
+    disable_hyprland_logo      = true,
+    enable_anr_dialog          = false,
+    enable_swallow             = true,
+    initial_workspace_tracking = 0,
+    layers_hog_keyboard_focus  = false,
+    swallow_exception_regex    = "^(.*)(Yazi|nvim|tmux|gopreload)(.*)$",
+    swallow_regex              = "^(kitty)$",
   },
 
   cursor = {
@@ -377,18 +378,17 @@ local function toggle_smart_gaps()
 end
 
 local function toggle_floating()
-  scratchpad_window = nil
-  hl.dispatch(hl.dsp.window.float({ action = "toggle" }))
   local w = hl.get_active_window()
-  if w == nil then return end
-  if w.floating then
+  if scratchpad_window == w then scratchpad_window = nil end
+  hl.dispatch(hl.dsp.window.float({ action = "toggle" }))
+  w = hl.get_active_window()
+  if w == nil or not w.floating then return end
+  hl.dispatch(hl.dsp.window.center())
+  hl.dispatch(hl.dsp.window.bring_to_top())
+  local resizeClasses = { kitty = true, helium = true, ["brave-origin-beta"] = true }
+  if resizeClasses[w.class] then
+    hl.dispatch(hl.dsp.window.resize({ x = 1600, y = 900, relative = false }))
     hl.dispatch(hl.dsp.window.center())
-    hl.dispatch(hl.dsp.window.bring_to_top())
-    local resizeClasses = { kitty = true, helium = true, ["brave-origin-beta"] = true }
-    if resizeClasses[w.class] then
-      hl.dispatch(hl.dsp.window.resize({ x = 1600, y = 900, relative = false }))
-      hl.dispatch(hl.dsp.window.center())
-    end
   end
 end
 
