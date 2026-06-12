@@ -45,7 +45,7 @@
       "special": "󰫈",
       "active": "󱓻"
     },
-    "ignore-workspaces": ["special:minimized", "special:bored"],
+    "ignore-workspaces": ["special:minimized", "special:hidden"],
     "persistent-workspaces": {
       "*": 9
     }
