@@ -1,0 +1,3 @@
+GOCACHE=/home/muhammad/.cache/go/build
+GOMODCACHE=/home/muhammad/.cache/go/mod
+GOPATH=/home/muhammad/.local/share/go
