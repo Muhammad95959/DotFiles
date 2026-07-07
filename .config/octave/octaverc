@@ -1,6 +1,4 @@
 atexit ("");
-pkg load symbolic control signal communications;
-
 crash_dumps_octave_core(false);
-
 Vsavefile = "~/.cache/octave/octave-workspace";
+pkg load symbolic control signal communications;
