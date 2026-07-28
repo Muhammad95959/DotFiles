@@ -21,7 +21,7 @@
 )
 
 (defsrc
-  caps tab \
+  nonusbslash caps tab \
   h j k l
   y u i o
   t p s d ; x c v m , .
@@ -29,7 +29,7 @@
 )
 
 (deflayer base
-  @caps-mod @tab-mod @bslsh-mod
+  lshift @caps-mod @tab-mod @bslsh-mod
   _ _ _ _
   _ _ _ _
   _ _ _ _ _ _ _ _ _ _ _
@@ -37,7 +37,7 @@
 )
 
 (deflayer layer1
-  caps tab \
+  lshift caps tab \
   left down up right
   home pgdn pgup end
   @dupl play prtsc del caps bridown briup @slctl mute voldown volup
