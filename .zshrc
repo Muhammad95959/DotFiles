@@ -117,7 +117,7 @@ zstyle ':completion:*' accept-exact '*(N)'
 zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path ~/.cache/zsh/cache
 zmodload zsh/complist
-compinit
+compinit -u
 _comp_options+=(globdots) # Include hidden files
 
 # load kitty completions if in kitty
@@ -177,8 +177,8 @@ export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS \
 ### Aliases ---------------------------------------------------------------
 
 alias d='selected=$(grep -xv "$PWD" ~/.local/share/zdirs | fzf); [[ -n $selected ]] && cd "$selected"'
-alias ls='exa --icons -a --group-directories-first'
-alias ll='exa --icons -a --group-directories-first -l'
+alias ls='eza --icons -a --group-directories-first'
+alias ll='eza --icons -a --group-directories-first -l'
 alias ta='tmux attach'
 alias quit='pkill -KILL -u $USER'
 alias softreboot='sudo systemctl soft-reboot'

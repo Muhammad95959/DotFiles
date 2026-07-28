@@ -14,8 +14,8 @@ hl.config({
 ---- MONITORS ----
 ------------------
 
-hl.monitor({ output = "",      mode = "preferred",    position = "auto", scale = "auto" })
 hl.monitor({ output = "eDP-1", mode = "1920x1080@60", position = "auto", scale = 1 })
+hl.monitor({ output = "HDMI-A-1", mirror = "eDP-1" })
 
 ----------------------
 ---- MY VARIABLES ----
@@ -57,6 +57,7 @@ hl.on("hyprland.start", function()
   hl.exec_cmd("pactl set-source-volume alsa_input.pci-0000_00_1f.3.analog-stereo 30%")
   hl.exec_cmd("dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP")
   hl.exec_cmd("brave-origin --test-type --app=file:///home/muhammad/Projects/new-tab-page/index.html")
+  hl.exec_cmd("aria2c -d '/home/muhammad/Downloads' --enable-rpc --rpc-listen-all --rpc-allow-origin-all --rpc-listen-port=6800")
 end)
 
 -------------------------------
@@ -239,6 +240,7 @@ hl.window_rule({ match = { float = true }, animation = "fade" })
 
 hl.window_rule({ match = { class = "^arandr$" }, float = true })
 hl.window_rule({ match = { class = "^timeshift-gtk$" }, float = true })
+hl.window_rule({ match = { class = "^nl.hjdskes.gcolor3$" }, float = true })
 hl.window_rule({ match = { class = "^nl%.hjdskes%.gcolor3$" }, float = true })
 hl.window_rule({ match = { class = "^hyprland-share-picker$" }, float = true })
 hl.window_rule({ match = { class = "^thunar$", title = "^Rename.*$" }, float = true })
@@ -247,10 +249,8 @@ hl.window_rule({ match = { class = "^thunar$", title = "^File Operation Progress
 hl.window_rule({ match = { class = "^com-jetbrains-toolbox-entry-ToolboxEntry$" }, tile = true })
 hl.window_rule({ match = { title = "^WhatsApp Web$" }, tile = true })
 
-hl.window_rule({ match = { title = "^uGet - New Download$" }, center = true })
-
 hl.window_rule({ match = { class = "^yt-dlp$" }, workspace = 9 })
-hl.window_rule({ match = { class = "^uget-gtk$" }, workspace = "9 silent" })
+hl.window_rule({ match = { title = "^meet.google.com is sharing your screen.$" }, workspace = "9 silent" })
 hl.window_rule({ match = { class = "^brave-__home_muhammad_Projects_new-tab-page_index.html-Default$" }, workspace = "special:hidden silent" })
 hl.window_rule({ match = { class = "^chrome-__home_muhammad_Projects_new-tab-page_index.html-Default$" }, workspace = "special:hidden silent" })
 
@@ -259,6 +259,7 @@ hl.window_rule({ match = { class = "^flameshot$" }, float = true, border_size = 
 hl.window_rule({ match = { class = "^octave-cli.*$" }, float = true, size = "1600 900" })
 hl.window_rule({ match = { class = "^xdg-desktop-portal-gtk$" }, float = true, size = "960 600" })
 hl.window_rule({ match = { class = "^net%.sapples%.LiveCaptions$" }, float = true, move = "500 900" })
+hl.window_rule({ match = { class = "^Waydroid$" }, float = true, size = "468 1014", move = "1428 45" })
 hl.window_rule({ match = { class = "^termfilechooser$" }, float = true, center = true, size = "1280 720" })
 hl.window_rule({ match = { class = "^hiddenkitty.*$" }, float = true, no_initial_focus = true, move = "3000 3000" })
 hl.window_rule({ match = { class = "^org%.telegram%.desktop$", title = "^Media viewer$" }, float = true, fullscreen = true })
@@ -294,6 +295,57 @@ local function wshowkeys()
     hl.dispatch(hl.dsp.exec_cmd("killall wshowkeys; wshowkeys -a bottom -t 1000 -f '#e1e2e7ff' -b '#1a1b26aa'"))
     hl.dispatch(hl.dsp.exec_cmd("notify-send -t 1500 'wshowkeys' '   Enabled'"))
   end
+end
+
+local function brave_translate()
+  local w = hl.get_active_window()
+  if w ~= nil and (w.class == "brave-translate.google.com.eg__-Default" or w.class == "chrome-translate.google.com.eg__-Default") then
+    hl.exec_cmd("hyprminimizer minimize " .. w.address)
+  else
+    local found = false
+    local ws = hl.get_active_workspace()
+    for _, win in ipairs(hl.get_windows()) do
+      if win.class == "brave-translate.google.com.eg__-Default" or win.class == "chrome-translate.google.com.eg__-Default" then
+        found = true
+        hl.dispatch(hl.dsp.window.move({ workspace = ws, window = win, follow = true }))
+        hl.dispatch(hl.dsp.window.bring_to_top({ window = win }))
+        hl.dispatch(hl.dsp.focus({ window = win }))
+        break
+      end
+    end
+    if not found then
+      hl.exec_cmd("~/Scripts/brave_translate.sh")
+    end
+    hl.exec_cmd("hyprminimizer cleanup")
+  end
+end
+
+local function waydroid()
+  local handle = io.popen("waydroid status 2>/dev/null")
+  if not handle then
+    hl.exec_cmd("notify-send 'waydroid' 'failed to run waydroid status'")
+    return
+  end
+  local output = handle:read("*a")
+  handle:close()
+  local session_running = output ~= nil and output:match("Session:%s*RUNNING") ~= nil
+  if session_running then
+    hl.exec_cmd("waydroid session stop")
+    hl.exec_cmd("notify-send 'waydroid' 'session stopped'")
+    return
+  end
+  hl.exec_cmd("waydroid session start")
+  hl.exec_cmd([[sh -c '
+    notify-send -r 91231 -t 10000 "waydroid" "starting session..."
+    for i in $(seq 1 10); do
+      if waydroid status 2>/dev/null | grep -q "Session:.*RUNNING"; then
+        waydroid show-full-ui &
+        exit 0
+      fi
+      sleep 1
+    done
+    notify-send -r 91231 -t 3000 "waydroid" "session did not start within 10s"
+  ' &]])
 end
 
 local function move_window(direction)
@@ -508,14 +560,12 @@ hl.define_submap("hyprsunset", function()
   hl.bind(mod .. " + CTRL + q", hl.dsp.submap("reset"))
 end)
 
--- Applications submap
-hl.define_submap("applications", function()
+-- Apps submap
+hl.define_submap("apps", function()
   hl.bind("a", hl.dsp.exec_cmd(reset .. "audacious"))
   hl.bind("b", hl.dsp.exec_cmd(reset .. "/usr/bin/brave-origin --test-type --incognito"))
   hl.bind("c", hl.dsp.exec_cmd(reset .. "qalculate-gtk"))
-  hl.bind("d", hl.dsp.exec_cmd(reset .. "hyprminimizer"))
-  hl.bind("g", hl.dsp.exec_cmd(reset .. "gimp"))
-  hl.bind("i", hl.dsp.exec_cmd(reset .. "idea"))
+  hl.bind("h", hl.dsp.exec_cmd(reset .. "kitty --hold -e nvim ~/.config/hypr/hyprland.lua"))
   hl.bind("k", hl.dsp.exec_cmd(reset .. "prime-run kdenlive"))
   hl.bind("l", hl.dsp.exec_cmd(reset .. "flatpak run net.sapples.LiveCaptions"))
   hl.bind("m", hl.dsp.exec_cmd(reset .. "mpv --player-operation-mode=pseudo-gui"))
@@ -525,17 +575,13 @@ hl.define_submap("applications", function()
   hl.bind("s", hl.dsp.exec_cmd(reset .. "libreoffice /mnt/Disk_D/Muhammad/swears.odt"))
   hl.bind("t", hl.dsp.exec_cmd(reset .. "telegram-desktop"))
   hl.bind("w", hl.dsp.exec_cmd(reset .. "/usr/bin/brave-origin --test-type --app-id=hnpfjngllnobngcgfapefoaidbinmjnm"))
-  hl.bind("SHIFT + a", hl.dsp.exec_cmd(reset .. "~/Scripts/virt_opener.sh android-x86-9.0"))
   hl.bind("SHIFT + b", hl.dsp.exec_cmd(reset .. "notify-send -t 5000 \"$(acpi)\""))
   hl.bind("SHIFT + c", hl.dsp.exec_cmd(reset .. "hyprpicker -a"))
-  hl.bind("SHIFT + d", restore_minimized) hl.bind("SHIFT + d", hl.dsp.submap("reset"))
   hl.bind("SHIFT + k", wshowkeys) hl.bind("SHIFT + k", hl.dsp.submap("reset"))
   hl.bind("SHIFT + m", hl.dsp.exec_cmd(reset .. "kitty --class pulsemixer --hold -e pulsemixer"))
   hl.bind("SHIFT + n", hl.dsp.exec_cmd(reset .. "~/Scripts/wallpaper.sh"))
   hl.bind("SHIFT + s", hl.dsp.exec_cmd(reset .. "notify-send -t 30000 \"$(~/Scripts/bilal.sh -a)\""))
   hl.bind("SHIFT + t", hl.dsp.exec_cmd(reset .. "blanket"))
-  hl.bind("SHIFT + u", hl.dsp.exec_cmd(reset .. "~/Scripts/virt_opener.sh ubuntu24.04"))
-  hl.bind("SHIFT + w", hl.dsp.exec_cmd(reset .. "~/Scripts/virt_opener.sh win10"))
 
   hl.bind("ESCAPE",             hl.dsp.submap("reset"))
   hl.bind(mod .. " + CTRL + q", hl.dsp.submap("reset"))
@@ -543,18 +589,6 @@ end)
 
 -- Scripts submap
 hl.define_submap("scripts", function()
-  hl.bind("h", hl.dsp.exec_cmd(reset .. "kitty --hold -e nvim ~/.config/hypr/hyprland.lua"))
-  hl.bind("k", hl.dsp.exec_cmd(reset .. "kitty --hold -e nvim ~/.config/kitty/kitty.conf"))
-  hl.bind("m", hl.dsp.exec_cmd(reset .. "kitty --hold -e nvim ~/.config/mpv/mpv.conf"))
-  hl.bind("w", hl.dsp.exec_cmd(reset .. "kitty --hold -e nvim ~/.config/waybar/config.jsonc"))
-  hl.bind("z", hl.dsp.exec_cmd(reset .. "kitty --hold -e nvim ~/.config/zathura/zathurarc"))
-
-  hl.bind("ESCAPE",             hl.dsp.submap("reset"))
-  hl.bind(mod .. " + CTRL + q", hl.dsp.submap("reset"))
-end)
-
--- Executable scripts submap
-hl.define_submap("executable_scripts", function()
   hl.bind("c", hl.dsp.exec_cmd(reset .. "~/Scripts/hyprland_move_to_corners.sh"))
   hl.bind("d", hl.dsp.exec_cmd(reset .. "~/Scripts/rofi_todo/todo.sh"))
   hl.bind("g", hl.dsp.exec_cmd(reset .. "~/Scripts/google_translate.sh"))
@@ -565,6 +599,7 @@ hl.define_submap("executable_scripts", function()
   hl.bind("m", hl.dsp.exec_cmd(reset .. "~/Scripts/mpv_history.sh"))
   hl.bind("r", hl.dsp.exec_cmd(reset .. "~/Scripts/hyprland_resize.sh"))
   hl.bind("s", toggle_smart_gaps) hl.bind("s", hl.dsp.submap("reset"))
+  hl.bind("v", hl.dsp.exec_cmd(reset .. "~/Scripts/virt_opener.sh"))
   hl.bind("w", hl.dsp.exec_cmd(reset .. "~/Scripts/brave_bookmarks.sh"))
   hl.bind("y", hl.dsp.exec_cmd(reset .. "kitty --class yt-dlp -e ~/Scripts/yt-dlp_script.sh"))
   hl.bind("z", hl.dsp.exec_cmd(reset .. "~/Scripts/zathura_history.sh"))
@@ -623,10 +658,10 @@ hl.bind(mod .. " + RETURN",         hl.dsp.exec_cmd("kitty"))
 hl.bind(mod .. " + SPACE",          toggle_focus_float)
 hl.bind(mod .. " + COMMA",          hl.dsp.group.prev())
 hl.bind(mod .. " + PERIOD",         hl.dsp.group.next())
-hl.bind(mod .. " + a",              hl.dsp.submap("applications"))
+hl.bind(mod .. " + a",              hl.dsp.submap("apps"))
 hl.bind(mod .. " + b",              hl.dsp.exec_cmd("/usr/bin/brave-origin --test-type"))
 hl.bind(mod .. " + c",              hl.dsp.exec_cmd("cliphist list | rofi -dmenu -i -p Clipboard: | cliphist decode | wl-copy"))
-hl.bind(mod .. " + d",              hl.dsp.exec_cmd("thunar"))
+hl.bind(mod .. " + d",              hl.dsp.exec_cmd("hyprminimizer"))
 hl.bind(mod .. " + e",              hl.dsp.group.lock_active())
 hl.bind(mod .. " + f",              hl.dsp.window.fullscreen())
 hl.bind(mod .. " + g",              function() set_gaps(10) end, { repeating = true })
@@ -638,8 +673,9 @@ hl.bind(mod .. " + p",              hl.dsp.exec_cmd("rofi-pass"))
 hl.bind(mod .. " + q",              hl.dsp.window.close())
 hl.bind(mod .. " + r",              hl.dsp.exec_cmd("kitty --hold -e yazi"))
 hl.bind(mod .. " + s",              scratchpad)
-hl.bind(mod .. " + t",              hl.dsp.exec_cmd("confetti"))
+hl.bind(mod .. " + t",              brave_translate)
 hl.bind(mod .. " + w",              hl.dsp.group.toggle())
+hl.bind(mod .. " + y",              waydroid)
 
 -- hl.bind(mod .. " + SHIFT + RETURN", hl.dsp.exec_cmd("/usr/bin/albert toggle || /usr/bin/albert"))
 hl.bind(mod .. " + SHIFT + RETURN", roalbert)
@@ -647,14 +683,14 @@ hl.bind(mod .. " + SHIFT + SPACE",  toggle_floating)
 hl.bind(mod .. " + SHIFT + COMMA",  hl.dsp.group.move_window({ forward = false }))
 hl.bind(mod .. " + SHIFT + PERIOD", hl.dsp.group.move_window({ forward = true }))
 hl.bind(mod .. " + SHIFT + c",      hl.dsp.exec_cmd("makoctl dismiss -a"))
-hl.bind(mod .. " + SHIFT + d",      hl.dsp.exec_cmd("rofi -modi nerdy -show nerdy -theme ~/.config/rofi/emoji_dropdown.rasi -theme-str 'window {y-offset: -24px;}'"))
-hl.bind(mod .. " + SHIFT + g",      function() set_gaps(-10) end, { repeating = true })
-hl.bind(mod .. " + SHIFT + o",      hl.dsp.submap("executable_scripts"))
+hl.bind(mod .. " + SHIFT + d",      restore_minimized)
 hl.bind(mod .. " + SHIFT + f",      toggle_gaps)
+hl.bind(mod .. " + SHIFT + g",      function() set_gaps(-10) end, { repeating = true })
+hl.bind(mod .. " + SHIFT + n",      hl.dsp.exec_cmd("rofi -modi nerdy -show nerdy -theme ~/.config/rofi/emoji_dropdown.rasi -theme-str 'window {y-offset: -24px;}'"))
 hl.bind(mod .. " + SHIFT + p",      hl.dsp.exec_cmd("rofi -show window -theme-str 'window {y-offset: -24px;}'"))
 hl.bind(mod .. " + SHIFT + q",      hl.dsp.exec_cmd("~/.config/rofi/scripts/powermenu/type-1/powermenu.sh"))
 hl.bind(mod .. " + SHIFT + r",      hl.dsp.exec_cmd("hyprctl reload && killall waybar; waybar"))
-hl.bind(mod .. " + SHIFT + t",      hl.dsp.exec_cmd("~/Scripts/brave_translate.sh"))
+hl.bind(mod .. " + SHIFT + t",      hl.dsp.exec_cmd("confetti"))
 hl.bind(mod .. " + SHIFT + v",      hl.dsp.submap("passthrough"))
 hl.bind(mod .. " + SHIFT + w",      hl.dsp.exec_cmd([[awww img "$(find "/mnt/Disk_D/Backgrounds" -maxdepth 1 -name '*.jpg' -o -name '*.png' | shuf -n1)" --transition-type "none" --transition-duration 0]]), { repeating = true })
 
