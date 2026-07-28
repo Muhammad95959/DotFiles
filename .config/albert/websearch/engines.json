@@ -1,7 +1,7 @@
 [
     {
         "fallback": true,
-        "iconPath": "/home/muhammad/.local/share/albert/websearch/c3fe72ec.png",
+        "iconPath": "/home/muhammad/DotFiles/.config/albert/websearch/icons/amazon.svg",
         "id": "c3fe72ec",
         "name": "Amazon",
         "trigger": "e",
@@ -9,7 +9,7 @@
     },
     {
         "fallback": true,
-        "iconPath": "/home/muhammad/.local/share/albert/websearch/eabf582f.png",
+        "iconPath": "/home/muhammad/DotFiles/.config/albert/websearch/icons/archlinux.svg",
         "id": "eabf582f",
         "name": "Arch Wiki",
         "trigger": "a",
@@ -17,7 +17,7 @@
     },
     {
         "fallback": true,
-        "iconPath": "/home/muhammad/.local/share/albert/websearch/d0842bb9.png",
+        "iconPath": "/home/muhammad/DotFiles/.config/albert/websearch/icons/chatgpt.svg",
         "id": "d0842bb9",
         "name": "ChatGPT",
         "trigger": "c",
@@ -25,7 +25,7 @@
     },
     {
         "fallback": true,
-        "iconPath": "/home/muhammad/.local/share/albert/websearch/1189a6bd.png",
+        "iconPath": "/home/muhammad/DotFiles/.config/albert/websearch/icons/claude.svg",
         "id": "1189a6bd",
         "name": "Claude",
         "trigger": "l",
@@ -33,7 +33,7 @@
     },
     {
         "fallback": true,
-        "iconPath": "/home/muhammad/.local/share/albert/websearch/6adf2e7b.png",
+        "iconPath": "/home/muhammad/DotFiles/.config/albert/websearch/icons/freepik.svg",
         "id": "6adf2e7b",
         "name": "Freepik",
         "trigger": "f",
@@ -41,7 +41,7 @@
     },
     {
         "fallback": true,
-        "iconPath": "/home/muhammad/.local/share/albert/websearch/202ee488.png",
+        "iconPath": "/home/muhammad/DotFiles/.config/albert/websearch/icons/github.svg",
         "id": "202ee488",
         "name": "GitHub",
         "trigger": "git",
@@ -57,7 +57,7 @@
     },
     {
         "fallback": true,
-        "iconPath": "/home/muhammad/.local/share/albert/websearch/71b76a71.png",
+        "iconPath": "/home/muhammad/DotFiles/.config/albert/websearch/icons/grok.svg",
         "id": "71b76a71",
         "name": "Grok",
         "trigger": "k",
@@ -65,7 +65,7 @@
     },
     {
         "fallback": true,
-        "iconPath": "/home/muhammad/.local/share/albert/websearch/5fe0682c.png",
+        "iconPath": "/home/muhammad/DotFiles/.config/albert/websearch/icons/iconscout.svg",
         "id": "5fe0682c",
         "name": "Iconscout",
         "trigger": "i",
@@ -73,7 +73,7 @@
     },
     {
         "fallback": true,
-        "iconPath": "/home/muhammad/.local/share/albert/websearch/728f8eb5.png",
+        "iconPath": "/home/muhammad/DotFiles/.config/albert/websearch/icons/jumia.svg",
         "id": "728f8eb5",
         "name": "Jumia",
         "trigger": "j",
@@ -81,7 +81,7 @@
     },
     {
         "fallback": true,
-        "iconPath": "/home/muhammad/.local/share/albert/websearch/769b2cbb.png",
+        "iconPath": "/home/muhammad/DotFiles/.config/albert/websearch/icons/mdn.svg",
         "id": "769b2cbb",
         "name": "MDN",
         "trigger": "m",
@@ -89,7 +89,7 @@
     },
     {
         "fallback": true,
-        "iconPath": "/home/muhammad/.local/share/albert/websearch/9d50724c.png",
+        "iconPath": "/home/muhammad/DotFiles/.config/albert/websearch/icons/npm.svg",
         "id": "9d50724c",
         "name": "NPM",
         "trigger": "npm",
@@ -97,7 +97,7 @@
     },
     {
         "fallback": true,
-        "iconPath": "/home/muhammad/.local/share/albert/websearch/360b47a6.png",
+        "iconPath": "/home/muhammad/DotFiles/.config/albert/websearch/icons/noon.svg",
         "id": "360b47a6",
         "name": "Noon",
         "trigger": "n",
@@ -105,7 +105,7 @@
     },
     {
         "fallback": true,
-        "iconPath": "/home/muhammad/.local/share/albert/websearch/79c8ba0e.png",
+        "iconPath": "/home/muhammad/DotFiles/.config/albert/websearch/icons/perplexity.svg",
         "id": "79c8ba0e",
         "name": "Perplexity",
         "trigger": "p",
@@ -113,7 +113,7 @@
     },
     {
         "fallback": true,
-        "iconPath": "/home/muhammad/.local/share/albert/websearch/00bb8da5.png",
+        "iconPath": "/home/muhammad/DotFiles/.config/albert/websearch/icons/reddit.svg",
         "id": "00bb8da5",
         "name": "Reddit",
         "trigger": "r",
@@ -121,7 +121,7 @@
     },
     {
         "fallback": true,
-        "iconPath": "/home/muhammad/.local/share/albert/websearch/6fbea22c.png",
+        "iconPath": "/home/muhammad/DotFiles/.config/albert/websearch/icons/tailwind.svg",
         "id": "6fbea22c",
         "name": "Tailwind",
         "trigger": "t",
@@ -129,7 +129,7 @@
     },
     {
         "fallback": true,
-        "iconPath": "/home/muhammad/.local/share/albert/websearch/38b22f9d.png",
+        "iconPath": "/home/muhammad/DotFiles/.config/albert/websearch/icons/Urban-Dictionary.svg",
         "id": "38b22f9d",
         "name": "Urban Dictionary",
         "trigger": "u",
@@ -137,7 +137,7 @@
     },
     {
         "fallback": true,
-        "iconPath": "/home/muhammad/.local/share/albert/websearch/a30731f7.png",
+        "iconPath": "/home/muhammad/DotFiles/.config/albert/websearch/icons/wikipedia.svg",
         "id": "a30731f7",
         "name": "Wikipedia",
         "trigger": "w",
@@ -145,7 +145,7 @@
     },
     {
         "fallback": true,
-        "iconPath": "/home/muhammad/.local/share/albert/websearch/ccd2857b.png",
+        "iconPath": "/home/muhammad/DotFiles/.config/albert/websearch/icons/youtube.svg",
         "id": "ccd2857b",
         "name": "YouTube",
         "trigger": "y",
