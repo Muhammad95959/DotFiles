@@ -205,9 +205,9 @@ if command -v pacman &> /dev/null; then
     | fzf -m --preview "paru -Si {1} | bat --color=always --plain" \
     | xargs -ro paru -S'
   alias pkgsbackup="pacman -Qne | awk '{print \$1}' \
-    > /mnt/Disk_D/Muhammad/Repositories/Arch-Backup/native-packages.txt \
+    > $HOME/Arch-Setup/native-packages.txt \
     && pacman -Qme | awk '{print \$1}' \
-    > /mnt/Disk_D/Muhammad/Repositories/Arch-Backup/aur-packages.txt"
+    > $HOME/Arch-Setup/aur-packages.txt"
 fi
 
 ### pnpm setup ------------------------------------------------------------
@@ -244,7 +244,7 @@ yz() {
 # fzf function for searching and opening files using nvim
 function ff() {
   local selected_file
-  selected_file=$(fd -H -d 6 -t f -E .Trash -E .git . ~/.config ~/DotFiles ~/Projects ~/Scripts /mnt/Disk_D/Engineering /mnt/Disk_D/Muhammad \
+  selected_file=$(fd -H -d 6 -t f -E .Trash -E .git . ~/.config ~/DotFiles ~/Projects ~/Scripts ~/Arch-Setup /mnt/Disk_D/References /mnt/Disk_D/Engineering \
     | fzf --preview 'bat --style=numbers --color=always --line-range :500 {}')
   if [ -n "$selected_file" ]; then
     cd $(dirname "$selected_file") 
@@ -288,9 +288,9 @@ function yy() {
 
 ### audio-separator wrapper -----------------------------------------------
 
-function audio-separator() {
-  bin_path="/mnt/Disk_D/برامج/Linux/python312/bin/audio-separator"
-  models_path="/mnt/Disk_D/Muhammad/Audio-Separator-Models"
+function audiosep() {
+  bin_path="$HOME/.local/share/pipx/venvs/audio-separator/bin/audio-separator"
+  models_path="$HOME/.local/share/pipx/venvs/audio-separator/models"
   model=$(ls "$models_path" | sed -E '/(yaml$|json$)/d' | fzf)
   [ -z "$model" ] && return 1
   for file in "$@"; do
