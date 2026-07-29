@@ -423,10 +423,6 @@ on   = [ "g", "d", "a" ]
 run  = "cd /mnt/Disk_D/برامج"
 desc = "Cd to /mnt/Disk_D/برامج"
 [[mgr.prepend_keymap]]
-on   = [ "g", "d", "b" ]
-run  = "cd /mnt/Disk_D/Backgrounds"
-desc = "Cd to /mnt/Disk_D/Backgrounds"
-[[mgr.prepend_keymap]]
 on   = [ "g", "d", "d" ]
 run  = "cd /mnt/Disk_D/مستندات"
 desc = "Cd to /mnt/Disk_D/مستندات"
@@ -443,29 +439,25 @@ on   = [ "g", "d", "i" ]
 run  = "cd /mnt/Disk_D/إسلاميات"
 desc = "Cd to /mnt/Disk_D/إسلاميات"
 [[mgr.prepend_keymap]]
-on   = [ "g", "d", "l" ]
-run  = "cd /mnt/Disk_D/Muhammad/Linux_stuff"
-desc = "Cd to /mnt/Disk_D/Muhammad/Linux_stuff"
-[[mgr.prepend_keymap]]
 on   = [ "g", "d", "m" ]
 run  = "cd /mnt/Disk_D/Muhammad"
 desc = "Cd to /mnt/Disk_D/Muhammad"
 [[mgr.prepend_keymap]]
 on   = [ "g", "d", "n" ]
-run  = "cd /mnt/Disk_D/Muhammad/My_Documents"
-desc = "Cd to /mnt/Disk_D/Muhammad/My_Documents"
+run  = "cd /mnt/Disk_D/Design"
+desc = "Cd to /mnt/Disk_D/Desig"
 [[mgr.prepend_keymap]]
-on   = [ "g", "d", "p" ]
-run  = "cd '/mnt/Disk_D/Projects & Designs'"
-desc = "Cd to /mnt/Disk_D/Projects & Designs"
+on   = [ "g", "d", "o" ]
+run  = "cd /mnt/Disk_D/OS Images"
+desc = "Cd to /mnt/Disk_D/OS Images"
 [[mgr.prepend_keymap]]
 on   = [ "g", "d", "q" ]
 run  = "cd /mnt/Disk_D/'قرآن كريم'"
 desc = "Cd to /mnt/Disk_D/قرآن كريم"
 [[mgr.prepend_keymap]]
 on   = [ "g", "d", "r" ]
-run  = "cd /mnt/Disk_D/Muhammad/Repositories"
-desc = "Cd to /mnt/Disk_D/Muhammad/Repositories"
+run  = "cd /mnt/Disk_D/References"
+desc = "Cd to /mnt/Disk_D/Reference"
 [[mgr.prepend_keymap]]
 on   = [ "g", "d", "t" ]
 run  = "cd /mnt/Disk_D/نغمات"
@@ -475,17 +467,13 @@ on   = [ "g", "h", "<Enter>" ]
 run  = "cd ~"
 desc = "Cd to ~"
 [[mgr.prepend_keymap]]
-on   = [ "g", "h", "D" ]
-run  = "cd ~/DotFiles"
-desc = "Cd to ~/DotFiles"
-[[mgr.prepend_keymap]]
-on   = [ "g", "h", "P" ]
-run  = "cd ~/Projects"
-desc = "Cd to ~/Projects"
-[[mgr.prepend_keymap]]
 on   = [ "g", "h", "a" ]
-run  = "cd ~/.ASProjects"
-desc = "Cd to ~/.ASProjects"
+run  = "cd ~/Arch-Setup"
+desc = "Cd to ~/Arch-Setup"
+[[mgr.prepend_keymap]]
+on   = [ "g", "h", "b" ]
+run  = "cd ~/Backgrounds"
+desc = "Cd to ~/Backgrounds"
 [[mgr.prepend_keymap]]
 on   = [ "g", "h", "c" ]
 run  = "cd ~/.config"
@@ -499,29 +487,25 @@ on   = [ "g", "h", "f" ]
 run  = "cd ~/.fonts"
 desc = "Cd to ~/.fonts"
 [[mgr.prepend_keymap]]
-on   = [ "g", "h", "i" ]
-run  = "cd ~/.IdeaProjects"
-desc = "Cd to ~/.IdeaProjects"
-[[mgr.prepend_keymap]]
 on   = [ "g", "h", "l" ]
 run  = "cd ~/.local/share"
 desc = "Cd to ~/.local/share"
 [[mgr.prepend_keymap]]
 on   = [ "g", "h", "p" ]
-run  = "cd ~/Pictures"
-desc = "Cd to ~/Pictures"
+run  = "cd ~/Projects"
+desc = "Cd to ~/Projects"
 [[mgr.prepend_keymap]]
 on   = [ "g", "h", "s" ]
 run  = "cd ~/Scripts"
 desc = "Cd to ~/Scripts"
 [[mgr.prepend_keymap]]
+on   = [ "g", "h", "t" ]
+run  = "cd ~/DotFiles"
+desc = "Cd to ~/DotFiles"
+[[mgr.prepend_keymap]]
 on   = [ "g", "m" ]
 run  = "cd /run/media/muhammad"
 desc = "Cd to /run/media/muhammad"
-[[mgr.prepend_keymap]]
-on   = [ "g", "s" ]
-run  = "cd '/mnt/Disk_D/Virtual Machines/Share'"
-desc = "Cd to /mnt/Disk_D/Virtual Machines/Share"
 
 ### relative-motions plugin
 [[mgr.prepend_keymap]]
