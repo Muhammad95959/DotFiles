@@ -10,7 +10,7 @@ local o = {
     -- Display only the latest file from each directory
     hide_same_dir = false,
     -- Runs automatically when --idle
-    auto_run_idle = true,
+    auto_run_idle = false,
     -- Write watch later for current file when switching
     write_watch_later = true,
     -- Display menu bind
@@ -365,9 +365,20 @@ end
 function play_last()
     local lists = read_log_table()
     if not lists or not lists[1] then
+        display_list()
         return
     end
-    mp.commandv("loadfile", lists[#lists].path, "replace")
+    local last = lists[#lists]
+    if not is_protocol(last.path) then
+        local f = io.open(last.path, "r")
+        if f then
+            f:close()
+        else
+            display_list()
+            return
+        end
+    end
+    mp.commandv("loadfile", last.path, "replace")
 end
 
 -- Open the recent submenu for uosc
@@ -461,8 +472,8 @@ end
 
 local function run_idle()
     mp.observe_property("idle-active", "bool", function(_, v)
-        if o.auto_run_idle and v and not uosc_available then
-            display_list()
+        if v and not uosc_available then
+            play_last()
         end
     end)
 end
