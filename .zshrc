@@ -43,6 +43,7 @@ source ~/.config/zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source ~/.config/zsh/zsh-history-substring-search/zsh-history-substring-search.zsh
 source ~/.config/zsh/zsh-completions/zsh-completions.plugin.zsh
 source ~/.config/zsh/fzf-tab-completion/zsh/fzf-zsh-completion.sh
+source ~/.config/zsh/zsh-auto-notify/auto-notify.plugin.zsh
 source ~/.config/zsh/dircycle.plugin.zsh
 
 ### VI mode ---------------------------------------------------------------
@@ -145,7 +146,7 @@ compdef _paru_all_packages paru
 
 ### Environment variables -------------------------------------------------
 
-export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.local/bin:$HOME/.local/share/pnpm/bin:$PATH"
 export MANPAGER='nvim +Man!'
 export TERMCMD=kitty
 export EDITOR=nvim
@@ -173,6 +174,7 @@ export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS \
   --color=separator:#ff966c \
   --color=spinner:#ff007c \
 "
+AUTO_NOTIFY_IGNORE+=("yazi" "yy" "fzf" "ff" "btm" "lazygit" "litecli" "pgcli")
 
 ### Aliases ---------------------------------------------------------------
 
@@ -299,4 +301,19 @@ function audiosep() {
     fi
   done
   notify-send -t 7500 "Audio Separation Completed"
+}
+
+### opencode wrapper - clean up bun cache ----------------------------------
+
+function opencode() {
+  (
+    sleep 5
+    if [ -d "$HOME/.bun" ]; then
+      non_pile=$(find "$HOME/.bun" -type f ! -name '*.pile' 2>/dev/null | wc -l)
+      if [ "$non_pile" -eq 0 ]; then
+        rm -rf "$HOME/.bun"
+      fi
+    fi
+  ) &!
+  /usr/bin/opencode "$@"
 }

@@ -8,6 +8,11 @@
 	url = https://github.com/romkatv/powerlevel10k.git
   ignore = all
 
+[submodule ".config/zsh/zsh-auto-notify"]
+	path = .config/zsh/zsh-auto-notify
+	url = https://github.com/MichaelAquilina/zsh-auto-notify
+  ignore = all
+
 [submodule ".config/zsh/zsh-autosuggestions"]
 	path = .config/zsh/zsh-autosuggestions
 	url = https://github.com/zsh-users/zsh-autosuggestions.git
