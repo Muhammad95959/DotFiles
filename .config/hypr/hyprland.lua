@@ -690,7 +690,7 @@ hl.bind(mod .. " + SHIFT + q",      hl.dsp.exec_cmd("~/.config/rofi/scripts/powe
 hl.bind(mod .. " + SHIFT + r",      hl.dsp.exec_cmd("hyprctl reload && killall waybar; waybar"))
 hl.bind(mod .. " + SHIFT + t",      hl.dsp.exec_cmd("confetti"))
 hl.bind(mod .. " + SHIFT + v",      hl.dsp.submap("passthrough"))
-hl.bind(mod .. " + SHIFT + w",      hl.dsp.exec_cmd([[awww img "$(find "/mnt/Disk_D/Backgrounds" -maxdepth 1 -name '*.jpg' -o -name '*.png' | shuf -n1)" --transition-type "none" --transition-duration 0]]), { repeating = true })
+hl.bind(mod .. " + SHIFT + w",      hl.dsp.exec_cmd([[awww img "$(find "/home/muhammad/Backgrounds" -maxdepth 1 -name '*.jpg' -o -name '*.png' | shuf -n1)" --transition-type "none" --transition-duration 0]]), { repeating = true })
 
 hl.bind(mod .. " + CTRL + a",       hl.dsp.exec_cmd("~/Scripts/new_english.sh"))
 

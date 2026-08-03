@@ -423,10 +423,6 @@ on   = [ "g", "d", "a" ]
 run  = "cd /mnt/Disk_D/برامج"
 desc = "Cd to /mnt/Disk_D/برامج"
 [[mgr.prepend_keymap]]
-on   = [ "g", "d", "d" ]
-run  = "cd /mnt/Disk_D/مستندات"
-desc = "Cd to /mnt/Disk_D/مستندات"
-[[mgr.prepend_keymap]]
 on   = [ "g", "d", "e" ]
 run  = "cd /mnt/Disk_D/تعليمي"
 desc = "Cd to /mnt/Disk_D/تعليمي"
@@ -439,16 +435,20 @@ on   = [ "g", "d", "i" ]
 run  = "cd /mnt/Disk_D/إسلاميات"
 desc = "Cd to /mnt/Disk_D/إسلاميات"
 [[mgr.prepend_keymap]]
+on   = [ "g", "d", "l" ]
+run  = "cd /mnt/Disk_D/المكتبة"
+desc = "Cd to /mnt/Disk_D/المكتبة"
+[[mgr.prepend_keymap]]
 on   = [ "g", "d", "m" ]
 run  = "cd /mnt/Disk_D/Muhammad"
 desc = "Cd to /mnt/Disk_D/Muhammad"
 [[mgr.prepend_keymap]]
 on   = [ "g", "d", "n" ]
 run  = "cd /mnt/Disk_D/Design"
-desc = "Cd to /mnt/Disk_D/Desig"
+desc = "Cd to /mnt/Disk_D/Design"
 [[mgr.prepend_keymap]]
 on   = [ "g", "d", "o" ]
-run  = "cd /mnt/Disk_D/OS Images"
+run  = "cd /mnt/Disk_D/'OS Images'"
 desc = "Cd to /mnt/Disk_D/OS Images"
 [[mgr.prepend_keymap]]
 on   = [ "g", "d", "q" ]
