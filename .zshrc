@@ -174,7 +174,21 @@ export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS \
   --color=separator:#ff966c \
   --color=spinner:#ff007c \
 "
-AUTO_NOTIFY_IGNORE+=("yazi" "yy" "fzf" "ff" "btm" "lazygit" "litecli" "pgcli")
+AUTO_NOTIFY_IGNORE+=( \
+  "btm" \
+  "ff" \
+  "fzf" \
+  "lazygit" \
+  "litecli" \
+  "live-server" \
+  "opencode" \
+  "pgcli" \
+  "rofi" \
+  "tmux" \
+  "unimatrix" \
+  "yazi" \
+  "yy" \
+)
 
 ### Aliases ---------------------------------------------------------------
 
@@ -226,7 +240,7 @@ if command -v zoxide &> /dev/null; then
   eval "$(zoxide init zsh --cmd cd)"
 fi
 
-# Add a `y` function to zsh that opens ranger either at the given directory or
+# Add a `y` function to zsh that opens yazi either at the given directory or
 # at the one zoxide suggests
 yz() {
   if [ "$1" != "" ]; then

@@ -675,7 +675,6 @@ hl.bind(mod .. " + t",              brave_translate)
 hl.bind(mod .. " + w",              hl.dsp.group.toggle())
 hl.bind(mod .. " + y",              waydroid)
 
--- hl.bind(mod .. " + SHIFT + RETURN", hl.dsp.exec_cmd("/usr/bin/albert toggle || /usr/bin/albert"))
 hl.bind(mod .. " + SHIFT + RETURN", roalbert)
 hl.bind(mod .. " + SHIFT + SPACE",  toggle_floating)
 hl.bind(mod .. " + SHIFT + COMMA",  hl.dsp.group.move_window({ forward = false }))
