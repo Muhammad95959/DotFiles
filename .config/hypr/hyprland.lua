@@ -756,4 +756,4 @@ hl.bind(mod .. " + mouse:272", hl.dsp.window.drag(),   { mouse = true })
 hl.bind(mod .. " + mouse:273", hl.dsp.window.resize(), { mouse = true })
 
 -- Lid switch
-hl.bind("switch:on:Lid Switch", hl.dsp.exec_cmd("hyprlock"), { locked = true })
+hl.bind("switch:on:Lid Switch", hl.dsp.exec_cmd("hyprlock --no-fade-in --immediate-render"), { locked = true })

@@ -17,7 +17,7 @@ hibernate)
   systemctl hibernate
   ;;
 lock)
-  hyprlock
+  hyprlock --no-fade-in --immediate-render
   ;;
 *)
   echo "error"

@@ -92,7 +92,7 @@ case ${chosen} in
   elif [[ -x '/usr/bin/xfce4-screensaver' && "$XDG_SESSION_TYPE" = "x11" ]]; then
     xfce4-screensaver-command -l
   elif [[ -x '/usr/bin/hyprlock' && "$XDG_SESSION_TYPE" = "wayland" ]]; then
-    hyprlock
+    hyprlock --no-fade-in --immediate-render
   fi
   ;;
 "$suspend")
