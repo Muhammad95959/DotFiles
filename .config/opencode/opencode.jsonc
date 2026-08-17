@@ -1,4 +1,71 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": ["@mohak34/opencode-notifier@latest"]
+  "plugin": ["@mohak34/opencode-notifier@latest"],
+  "mcp": {
+    "stitch": {
+      "type": "remote",
+      "url": "https://stitch.googleapis.com/mcp",
+      "enabled": true,
+      "headers": {
+        "X-Goog-Api-Key": "{file:~/.config/opencode/api_keys/stitch}",
+      },
+    },
+  },
+  "provider": {
+    "cloudflare-workers-ai": {
+      "options": {
+        "baseURL": "https://api.cloudflare.com/client/v4/accounts/{file:~/.config/opencode/api_keys/cloudflare_account_id}/ai/v1",
+        "apiKey": "{file:~/.config/opencode/api_keys/cloudflare_workers_ai}",
+      },
+    },
+    "google": {
+      "options": {
+        "apiKey": "{file:~/.config/opencode/api_keys/google_ai_studio}",
+      },
+    },
+    "kilo": {
+      "options": {
+        "apiKey": "{file:~/.config/opencode/api_keys/kilo}",
+      },
+    },
+    "llm7": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "https://api.llm7.io/v1",
+        "apiKey": "{file:~/.config/opencode/api_keys/llm7}",
+      },
+      "models": {
+        "minimax-m2.7": {},
+        "gpt-oss:20b": {},
+        "codestral-latest": {},
+        "gemini-3.1-flash-lite": {},
+        "mistral-Nemo-Instruct-2407": {},
+      },
+    },
+    "mistral": {
+      "options": {
+        "apiKey": "{file:~/.config/opencode/api_keys/mistral}",
+      },
+    },
+    "nvidia": {
+      "options": {
+        "apiKey": "{file:~/.config/opencode/api_keys/nvidia_nim}",
+      },
+    },
+    "ollama-cloud": {
+      "options": {
+        "apiKey": "{file:~/.config/opencode/api_keys/ollama_cloud}",
+      },
+    },
+    "openrouter": {
+      "options": {
+        "apiKey": "{file:~/.config/opencode/api_keys/openrouter}",
+      },
+    },
+    "zai": {
+      "options": {
+        "apiKey": "{file:~/.config/opencode/api_keys/zai}",
+      },
+    },
+  },
 }
