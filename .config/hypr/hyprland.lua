@@ -257,7 +257,7 @@ hl.window_rule({ match = { class = "^flameshot$" }, float = true, border_size = 
 hl.window_rule({ match = { class = "^octave-cli.*$" }, float = true, size = "1600 900" })
 hl.window_rule({ match = { class = "^xdg-desktop-portal-gtk$" }, float = true, size = "960 600" })
 hl.window_rule({ match = { class = "^net%.sapples%.LiveCaptions$" }, float = true, move = "500 900" })
-hl.window_rule({ match = { class = "^Waydroid$" }, float = true, size = "468 1014", move = "1428 45" })
+hl.window_rule({ match = { class = "^Waydroid$" }, float = true, size = "468 1036", move = "1444 34" })
 hl.window_rule({ match = { class = "^termfilechooser$" }, float = true, center = true, size = "1280 720" })
 hl.window_rule({ match = { class = "^hiddenkitty.*$" }, float = true, no_initial_focus = true, move = "3000 3000" })
 hl.window_rule({ match = { class = "^org%.telegram%.desktop$", title = "^Media viewer$" }, float = true, fullscreen = true })
@@ -694,7 +694,7 @@ hl.bind(mod .. " + SHIFT + n",      hl.dsp.exec_cmd("rofi -modi nerdy -show nerd
 hl.bind(mod .. " + SHIFT + p",      hl.dsp.exec_cmd("rofi -show window -theme-str 'window {y-offset: -24px;}'"))
 hl.bind(mod .. " + SHIFT + q",      hl.dsp.exec_cmd("~/.config/rofi/scripts/powermenu/type-1/powermenu.sh"))
 hl.bind(mod .. " + SHIFT + r",      hl.dsp.exec_cmd("hyprctl reload && killall waybar; waybar"))
-hl.bind(mod .. " + SHIFT + t",      hl.dsp.exec_cmd("confetti"))
+hl.bind(mod .. " + SHIFT + t",      hl.dsp.exec_cmd("confet"))
 hl.bind(mod .. " + SHIFT + v",      hl.dsp.submap("passthrough"))
 hl.bind(mod .. " + SHIFT + w",      hl.dsp.exec_cmd([[awww img "$(find "/home/muhammad/Backgrounds" -maxdepth 1 -name '*.jpg' -o -name '*.png' | shuf -n1)" --transition-type "none" --transition-duration 0]]), { repeating = true })
 
