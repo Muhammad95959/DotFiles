@@ -151,6 +151,7 @@ export MANPAGER='nvim +Man!'
 export TERMCMD=kitty
 export EDITOR=nvim
 export BAT_THEME="tokyonight_moon"
+export CLOUDFLARE_ACCOUNT_ID=$(cat ~/.config/opencode/api_keys/cloudflare_account_id)
 export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS \
   --ansi \
   --height=~99% \
@@ -174,20 +175,40 @@ export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS \
   --color=separator:#ff966c \
   --color=spinner:#ff007c \
 "
-AUTO_NOTIFY_IGNORE+=( \
-  "btm" \
-  "ff" \
-  "fzf" \
-  "lazygit" \
-  "litecli" \
-  "live-server" \
-  "opencode" \
-  "pgcli" \
-  "rofi" \
-  "tmux" \
-  "unimatrix" \
-  "yazi" \
-  "yy" \
+AUTO_NOTIFY_IGNORE+=(
+  "alsamixer"
+  "brave-origin"
+  "btm"
+  "clipdel"
+  "delta"
+  "ff"
+  "ffplay"
+  "firefox"
+  "free-coding-models"
+  "fzf"
+  "git diff"
+  "git log"
+  "kanata"
+  "lazygit"
+  "litecli"
+  "live-server"
+  "mongosh"
+  "mpv"
+  "nmtui"
+  "nvtop"
+  "octave-cli"
+  "opencode"
+  "pass"
+  "pgcli"
+  "ping"
+  "pulsemixer"
+  "rofi"
+  "tmux"
+  "unimatrix"
+  "vimiv"
+  "yazi"
+  "yy"
+  "zathura"
 )
 
 ### Aliases ---------------------------------------------------------------
@@ -213,8 +234,10 @@ alias cppath="pwd | sed 's/\(^.*$\)/\"\1\"/' | wl-copy"
 alias salawat='printf "%s" "ﷺ" | wl-copy'
 alias copycmd='tail -n 2 ~/.zhistory | head -n 1 | tr -d "\n" | wl-copy'
 alias cbimage='wl-paste --type image/png > /tmp/clipboard.png && kitty +kitten icat /tmp/clipboard.png'
-alias clipdel='cliphist list | rofi -dmenu -p "Delete Entry:" | cliphist delete'
+alias clipdel='cliphist list | rofi -dmenu -i -p "Delete Entry:" | cliphist delete'
 alias clipimage='~/Scripts/cliphist_rofi_img.sh'
+alias free-coding-models='free-coding-models --config-dir ~/.config/free-coding-models'
+alias fitwaydroid='for i in 1 2; do hyprctl dispatch "hl.dsp.window.resize({ x = 468, y = 1036 })"; done; adb connect 192.168.240.112:5555'
 
 if command -v pacman &> /dev/null; then
   alias paruf='(pacman -Slq; cat ~/.cache/aur/packages.txt) | sort -u \
@@ -260,7 +283,7 @@ yz() {
 # fzf function for searching and opening files using nvim
 function ff() {
   local selected_file
-  selected_file=$(fd -H -d 6 -t f -E .Trash -E .git . ~/.config ~/DotFiles ~/Projects ~/Scripts ~/Arch-Setup /mnt/Disk_D/References /mnt/Disk_D/Engineering \
+  selected_file=$(fd -H -d 6 -t f -E .Trash -E .git . ~/.config ~/DotFiles ~/Projects ~/Scripts ~/Arch-Setup /mnt/Disk_D/References /mnt/Disk_D/Engineering /mnt/Disk_D/Muhammad \
     | fzf --preview 'bat --style=numbers --color=always --line-range :500 {}')
   if [ -n "$selected_file" ]; then
     cd $(dirname "$selected_file") 
@@ -331,3 +354,4 @@ function opencode() {
   ) &!
   /usr/bin/opencode "$@"
 }
+

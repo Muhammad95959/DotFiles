@@ -137,7 +137,7 @@ hl.config({
       indicator_gap     = 1,
       indicator_height  = 0,
       font_size         = 10,
-      text_color        = 0xff24273a,
+      text_color        = "rgba(24273aff)",
       col = {
         active          = "rgba(C0CAF5EE)",
         inactive        = "rgba(595959AA)",
@@ -177,6 +177,12 @@ hl.config({
       scroll_factor  = 3,
     },
   },
+})
+
+-- Touchpad-only cursor sensitivity
+hl.device({
+  name        = "elan074b:00-04f3:3169-touchpad",
+  sensitivity = 0.9,
 })
 
 -- Animations
