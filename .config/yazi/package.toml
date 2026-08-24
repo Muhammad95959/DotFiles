@@ -1,16 +1,16 @@
 [[plugin.deps]]
 use = "yazi-rs/plugins:chmod"
-rev = "4c63ed3"
-hash = "5b1c276b75cae91cbbdbe7863f39a540"
+rev = "044c3cc"
+hash = "87472b05a8c420100f6a2b9cde1e7746"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:smart-enter"
-rev = "4c63ed3"
+rev = "044c3cc"
 hash = "187cc58ba7ac3befd49c342129e6f1b6"
 
 [[plugin.deps]]
 use = "pirafrank/what-size"
-rev = "179ebf6"
+rev = "c1a8cb6"
 hash = "57056b9728006881d580ccabe8154a9c"
 
 [[plugin.deps]]
@@ -20,18 +20,18 @@ hash = "722a60eca1b338c9c24bb508d2d48578"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:mount"
-rev = "4c63ed3"
-hash = "e3260d0b1feded8c8e3ae3afa1169e30"
+rev = "044c3cc"
+hash = "46cbdc05596a3ecd730b288e28c7079d"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:toggle-pane"
-rev = "4c63ed3"
-hash = "15e5b67a241172cbb86b8fbf9e63692"
+rev = "044c3cc"
+hash = "5b2fbef7d1513ce38ff72623a071a5e"
 
 [[plugin.deps]]
 use = "ndtoan96/ouch"
-rev = "406ce6c"
-hash = "f5afc904d5106ee368c8aa2ded43bd74"
+rev = "cfe4f50"
+hash = "eff5702573b6cfba61e4ac8b1969629a"
 
 [[plugin.deps]]
 use = "dedukun/relative-motions"
@@ -45,18 +45,18 @@ hash = "92fbb5483657fa7976cdf4e0104e18e0"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:full-border"
-rev = "4c63ed3"
-hash = "7b625412411be411153886894d9acaf"
+rev = "044c3cc"
+hash = "f281261ff04ad7ec867c3f802a50835f"
 
 [[plugin.deps]]
 use = "boydaihungst/simple-tag"
-rev = "1ec0bc0"
-hash = "b04468b0f19afde80477cfe8f65b8f7b"
+rev = "d019de3"
+hash = "c1c9aaf057e2347942361b7155a0308c"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:git"
-rev = "4c63ed3"
-hash = "88e56a64b7ce7c4314427452343fef17"
+rev = "044c3cc"
+hash = "5bb0bfab901d3601c370eafdd66edd31"
 
 [flavor]
 deps = []

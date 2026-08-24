@@ -1,5 +1,5 @@
-# A TOML linter such as https://github.com/tombi-toml/tombi can use this schema to validate your config.
-# If you encounter any problems, please make an issue at https://github.com/yazi-rs/schemas.
+# A TOML linter such as Tombi can use this schema to validate your config.
+# If you encounter any problems, please file an issue at https://github.com/yazi-rs/schemas.
 
 #:schema https://yazi-rs.github.io/schemas/keymap.json
 
@@ -386,31 +386,31 @@ desc = "Enter the child directory, or open the file"
 [[mgr.prepend_keymap]]
 on  = [ "<A-Space>", "d" ]
 run = '''
-	shell 'setsid dragon-drop -a -x "$@" &' --confirm
+	shell 'setsid dragon-drop -a -x %s &' --confirm
 '''
 desc = "dragon-drop"
 [[mgr.prepend_keymap]]
 on  = [ "<A-Space>", "w" ]
 run = '''
-	shell 'awww img "$@" -t "none" --transition-duration 0' --confirm
+	shell 'awww img %s -t "none" --transition-duration 0' --confirm
 '''
 desc = "set background"
 [[mgr.prepend_keymap]]
 on  = [ "<A-Space>", "u" ]
 run = '''
-	shell 'umount "$@"' --confirm
+	shell 'umount %s' --confirm
 '''
 desc = "umount"
 [[mgr.prepend_keymap]]
 on  = [ "<A-Space>", "l" ]
 run = '''
-	shell '~/Scripts/calculate_videos_length.sh "$@"' --confirm
+	shell '~/Scripts/calculate_videos_length.sh %s' --confirm
 '''
 desc = "videos-length"
 [[mgr.prepend_keymap]]
 on  = [ "<A-Space>", "i" ]
 run = '''
-  shell 'notify-send -t 30000 "$(exiftool "$@" | grep -E "^Duration *:" || exiftool "$@" | grep -E "^Page Count *:" || exiftool "$@" | grep "^Image Size *:")"' --confirm
+  shell 'notify-send -t 30000 "$(exiftool %s | grep -E "^Duration *:" || exiftool %s | grep -E "^Page Count *:" || exiftool %s | grep "^Image Size *:")"' --confirm
 '''
 desc = "info"
 

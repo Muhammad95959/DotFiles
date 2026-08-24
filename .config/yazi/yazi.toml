@@ -1,5 +1,5 @@
-# A TOML linter such as https://github.com/tombi-toml/tombi can use this schema to validate your config.
-# If you encounter any issues, please make an issue at https://github.com/yazi-rs/schemas.
+# A TOML linter such as Tombi can use this schema to validate your config.
+# If you encounter any problems, please file an issue at https://github.com/yazi-rs/schemas.
 
 #:schema https://yazi-rs.github.io/schemas/yazi.json
 
@@ -15,7 +15,6 @@ show_hidden    = true
 show_symlink   = true
 scrolloff      = 5
 mouse_events   = [ "click", "scroll", "drag" ]
-title_format   = "Yazi: {cwd}"
 
 [preview]
 wrap            = "no"
@@ -35,7 +34,7 @@ edit = [
 	{ run = "code -w %s",       desc = "code (block)", for = "windows", block = true },
 ]
 play = [
-  { run = "mpv \"$@\"",      desc = "mpv", for = "linux", orphan = true },
+  { run = "mpv %s",          desc = "mpv",  for = "linux", orphan = true },
 	{ run = "mimeopen %s1",    desc = "Play", for = "linux", orphan = true },
 	{ run = "open %s",         desc = "Play", for = "macos" },
 	{ run = 'start "" %s1',    desc = "Play", for = "windows", orphan = true },
@@ -63,45 +62,49 @@ download = [
 	{ run = "ya emit download --open %S", desc = "Download and open" },
 	{ run = "ya emit download %S",        desc = "Download" },
 ]
+trash = [
+	{ run = "ya pub trash-restore --list %S", desc = "Restore selected files" },
+	{ run = "ya pub trash-empty --list %S",   desc = "Empty trash bin" },
+]
 # For HTML
 brave = [
-  { run = 'setsid brave-origin-beta --test-type "$@" >/dev/null 2>&1 &', block = false, desc = "brave-origin" },
+  { run = 'setsid brave-origin-beta --test-type %s >/dev/null 2>&1 &', block = false, desc = "brave-origin" },
 ]
 qutebrowser = [
-  { run = 'setsid qutebrowser "$@" >/dev/null 2>&1 &', block = false, desc = "qutebrowser" },
+  { run = 'setsid qutebrowser %s >/dev/null 2>&1 &', block = false, desc = "qutebrowser" },
 ]
 # For Images
 vimiv = [
-  { run = 'setsid env QT_QPA_PLATFORM=xcb vimiv "$@" >/dev/null 2>&1 &', block = false, desc = "vimiv" },
+  { run = 'setsid env QT_QPA_PLATFORM=xcb vimiv %s >/dev/null 2>&1 &', block = false, desc = "vimiv" },
 ]
 shotwell = [
-  { run = 'setsid shotwell "$@" >/dev/null 2>&1 &', block = false, desc = "shotwell" },
+  { run = 'setsid shotwell %s >/dev/null 2>&1 &', block = false, desc = "shotwell" },
 ]
 gimp = [
-  { run = 'setsid gimp "$@" >/dev/null 2>&1 &', block = false, desc = "gimp" },
+  { run = 'setsid gimp %s >/dev/null 2>&1 &', block = false, desc = "gimp" },
 ]
 inkscape = [
-  { run = 'setsid inkscape "$@" >/dev/null 2>&1 &', block = false, desc = "inkscape" },
+  { run = 'setsid inkscape %s >/dev/null 2>&1 &', block = false, desc = "inkscape" },
 ]
 # For Archives
 file-roller = [
-  { run = 'setsid file-roller "$@" >/dev/null 2>&1 &', block = false, desc = "file-roller" },
+  { run = 'setsid file-roller %s >/dev/null 2>&1 &', block = false, desc = "file-roller" },
 ]
 # For PDF
 zathura = [
-  { run = 'setsid zathura "$@" >/dev/null 2>&1 &', block = false, desc = "zathura" },
+  { run = 'setsid zathura %s >/dev/null 2>&1 &', block = false, desc = "zathura" },
 ]
 okular = [
-  { run = 'setsid okular "$@" >/dev/null 2>&1 &', block = false, desc = "okular" },
+  { run = 'setsid okular %s >/dev/null 2>&1 &', block = false, desc = "okular" },
 ]
 pdfarranger = [
-  { run = 'setsid pdfarranger "$@" >/dev/null 2>&1 &', block = false, desc = "pdfarranger" },
+  { run = 'setsid pdfarranger %s >/dev/null 2>&1 &', block = false, desc = "pdfarranger" },
 ]
 
 [open]
 rules = [
 	# Folder
-	{ url = "*/", use = [ "edit", "open", "reveal" ] },
+	{ mime = "folder/*", use = [ "edit", "open", "reveal" ] },
   # HTML
 	{ mime = "text/html", use = [ "edit", "brave", "qutebrowser", "reveal" ] },
 	# Text
@@ -121,13 +124,18 @@ rules = [
 	{ mime = "application/pdf", use = [ "zathura", "okular", "pdfarranger", "edit", "reveal" ] },
 	# Virtual file system
 	{ mime = "vfs/{absent,stale}", use = "download" },
+	# Trash
+	{ mime = "trash/**", use = [ "open", "trash" ] },
 	# Fallback
 	{ url = "*", use = [ "open", "reveal" ] },
 ]
 
 [tasks]
-micro_workers    = 10
-macro_workers    = 10
+file_workers     = 3
+plugin_workers   = 5
+fetch_workers    = 5
+preload_workers  = 2
+process_workers  = 5
 bizarre_retry    = 3
 image_alloc      = 536870912  # 512MB
 image_bound      = [ 10000, 10000 ]
@@ -138,6 +146,7 @@ fetchers = [
 	# MIME-type
 	{ url = "*/",         run = "mime.dir",    prio = "high", group = "mime" },
 	{ url = "local://*",  run = "mime.local",  prio = "high", group = "mime" },
+	{ url = "trash://*",  run = "mime.trash",  prio = "high", group = "mime" },
 	{ url = "remote://*", run = "mime.remote", prio = "high", group = "mime" },
   { id = "simple-tag", url = "*", run = "simple-tag", group = "default" },
   { id = "simple-tag", url = "*/", run = "simple-tag", group = "default" },
@@ -148,7 +157,7 @@ spotters = [
 	# Multi-file
 	{ mime = "multi/*", run = "multi" },
 	# Folder
-	{ url = "*/", run = "folder" },
+	{ mime = "folder/*", run = "folder" },
 	# Code
 	{ mime = "text/*", run = "code" },
 	{ mime = "application/{mbox,javascript,wine-extension-ini}", run = "code" },
@@ -160,6 +169,8 @@ spotters = [
 	{ mime = "video/*", run = "video" },
 	# Virtual file system
 	{ mime = "vfs/*", run = "vfs" },
+	# Trash
+	{ mime = "trash/**", run = "trash" },
 	# Error
 	{ mime = "null/*", run = "null" },
 	# Fallback
@@ -177,9 +188,11 @@ preloaders = [
 	# Font
 	{ mime = "font/*", run = "font" },
 	{ mime = "application/ms-opentype", run = "font" },
+	# Trash
+	{ mime = "trash/**", run = "trash" },
 ]
 previewers = [
-	{ url = "*/", run = "folder" },
+	{ mime = "folder/*", run = "folder" },
 	# Code
 	{ mime = "text/*", run = "code" },
 	{ mime = "application/{mbox,javascript,wine-extension-ini}", run = "code" },
@@ -208,6 +221,8 @@ previewers = [
 	{ mime = "inode/empty", run = "empty" },
 	# Virtual file system
 	{ mime = "vfs/*", run = "vfs" },
+	# Trash
+	{ mime = "trash/**", run = "trash" },
 	# Error
 	{ mime = "null/*", run = "null" },
 	# Fallback
