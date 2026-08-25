@@ -67,7 +67,7 @@ hl.env("XCURSOR_SIZE",                 "24")
 hl.env("HYPRCURSOR_THEME",             "hyprcursor_Dracula")
 hl.env("HYPRCURSOR_SIZE",              "24")
 
-hl.env("QT_QPA_PLATFORMTHEME",         "qt5ct")
+hl.env("QT_QPA_PLATFORMTHEME",         "qt5ct:qt6ct")
 hl.env("QT_QPA_PLATFORM",              "wayland")
 hl.env("GTK_THEME",                    "Tokyonight-Dark")
 
