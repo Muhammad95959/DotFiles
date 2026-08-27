@@ -130,7 +130,7 @@ interior=true
 interior.element=button
 indicator.size=9
 text.normal.color=#e9e9ed
-text.focus.color=#1a1b26
+text.focus.color=#c0caf5
 text.press.color=#15161E
 text.toggle.color=#15161E
 text.shadow=0
@@ -163,7 +163,7 @@ inherits=PanelButtonCommand
 frame=false
 interior=false
 text.normal.color=#e9e9ed
-text.focus.color=#1a1b26
+text.focus.color=#c0caf5
 text.bold=true
 
 [IndicatorSpinBox]
@@ -180,14 +180,14 @@ inherits=PanelButtonCommand
 frame=false
 interior.element=radio
 text.normal.color=#e9e9ed
-text.focus.color=#1a1b26
+text.focus.color=#c0caf5
 
 [CheckBox]
 inherits=PanelButtonCommand
 frame=false
 interior.element=checkbox
 text.normal.color=#e9e9ed
-text.focus.color=#1a1b26
+text.focus.color=#c0caf5
 
 [Focus]
 inherits=PanelButtonCommand
@@ -229,7 +229,7 @@ indicator.size=9
 inherits=PanelButtonCommand
 text.normal.color=#e9e9ed
 text.press.color=#c0caf5
-text.focus.color=#1a1b26
+text.focus.color=#c0caf5
 
 [Tab]
 inherits=PanelButtonCommand
@@ -245,7 +245,7 @@ frame.bottom=4
 frame.left=4
 frame.right=4
 text.normal.color=#e9e9ed
-text.focus.color=#1a1b26
+text.focus.color=#c0caf5
 text.toggle.color=#c0caf5
 frame.expansion=0
 
@@ -273,7 +273,7 @@ frame.left=1
 frame.right=1
 text.bold=true
 text.normal.color=#e9e9ed
-text.focus.color=#1a1b26
+text.focus.color=#c0caf5
 text.toggle.color=#c0caf5
 frame.expansion=0
 
@@ -289,7 +289,7 @@ frame=false
 interior.element=menubar
 frame.element=menubar
 text.normal.color=#e9e9ed
-text.focus.color=#1a1b26
+text.focus.color=#c0caf5
 frame.bottom=0
 frame.expansion=0
 
@@ -313,7 +313,7 @@ frame.element=progress
 interior.element=progress
 text.margin=0
 text.normal.color=#e9e9ed
-text.focus.color=#1a1b26
+text.focus.color=#c0caf5
 text.press.color=#c0caf5
 text.toggle.color=#c0caf5
 text.bold=false
@@ -339,7 +339,7 @@ text.margin.bottom=2
 text.margin.left=4
 text.margin.right=4
 text.normal.color=#e9e9ed
-text.focus.color=#1a1b26
+text.focus.color=#c0caf5
 text.press.color=#15161E
 text.toggle.color=#15161E
 frame.expansion=0
@@ -418,7 +418,7 @@ interior.element=titlebar
 indicator.size=12
 indicator.element=mdi
 text.normal.color=#e9e9ed
-text.focus.color=#1a1b26
+text.focus.color=#c0caf5
 text.bold=true
 text.italic=true
 frame.expansion=0
@@ -448,7 +448,7 @@ frame=false
 text.shadow=0
 text.margin=0
 text.normal.color=#e9e9ed
-text.focus.color=#1a1b26
+text.focus.color=#c0caf5
 text.bold=true
 frame.expansion=0
 
