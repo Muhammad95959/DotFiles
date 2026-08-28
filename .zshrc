@@ -188,7 +188,9 @@ AUTO_NOTIFY_IGNORE+=(
   "fzf"
   "git diff"
   "git log"
+  "git show"
   "kanata"
+  "kilo"
   "lazygit"
   "litecli"
   "live-server"
@@ -236,7 +238,7 @@ alias copycmd='tail -n 2 ~/.zhistory | head -n 1 | tr -d "\n" | wl-copy'
 alias cbimage='wl-paste --type image/png > /tmp/clipboard.png && kitty +kitten icat /tmp/clipboard.png'
 alias clipdel='cliphist list | rofi -dmenu -i -p "Delete Entry:" | cliphist delete'
 alias clipimage='~/Scripts/cliphist_rofi_img.sh'
-alias free-coding-models='free-coding-models --config-dir ~/.config/free-coding-models'
+alias free-coding-models='node ~/Projects/free-coding-models/bin/free-coding-models.js --config-dir ~/.config/free-coding-models'
 alias fitwaydroid='for i in 1 2; do hyprctl dispatch "hl.dsp.window.resize({ x = 468, y = 1036 })"; done; adb connect 192.168.240.112:5555'
 
 if command -v pacman &> /dev/null; then
@@ -293,6 +295,28 @@ function ff() {
 
 # fzf integration with zsh
 [ -x "$(command -v fzf)" ] && eval "$(fzf --zsh)"
+
+### systemd-boot reboot picker --------------------------------------------
+
+reboot-pick() {
+  local entries choice id
+  entries=$(bootctl list 2>/dev/null | awk '
+    /^ *title:/ { t = substr($0, index($0,$2)) }
+    /^ *id:/    { printf "%-32s| %s\n", $2, t }
+  ')
+  [[ -z "$entries" ]] && { echo "No boot entries found (is systemd-boot installed?)" >&2; return 1; }
+  entries=$(printf '%s\n' "$entries"
+            printf "%-32s| %s\n" "@boot-loader-menu" "Reboot Into Boot Loader Menu"
+            printf "%-32s| %s\n" "@firmware-setup" "Reboot Into Firmware Interface (BIOS/UEFI)")
+  choice=$(fzf --prompt="reboot to > " --height=50% --reverse --border \
+               --delimiter="|" --with-nth=1,2 <<< "$entries") || return 1
+  id=$(cut -d'|' -f1 <<< "$choice" | xargs)
+  case "$id" in
+    @firmware-setup)   sudo systemctl reboot --firmware-setup ;;
+    @boot-loader-menu) sudo systemctl reboot --boot-loader-menu ;;
+    *)                 sudo systemctl reboot --boot-loader-entry="$id" ;;
+  esac
+}
 
 ### sesh command ----------------------------------------------------------
 
@@ -354,4 +378,3 @@ function opencode() {
   ) &!
   /usr/bin/opencode "$@"
 }
-
