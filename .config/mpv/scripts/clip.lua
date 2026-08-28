@@ -25,8 +25,9 @@ local function mark_end()
 	end
 
 	local dir, filename = utils.split_path(path)
+	local ext = filename:match("%.%w+$") or ".mp4"
 	local name = filename:gsub("%.%w+$", "")
-	local out = utils.join_path(dir, name .. "_clip_" .. os.time() .. ".mp4")
+	local out = utils.join_path(dir, name .. "_clip_" .. os.time() .. ext)
 
 	mp.osd_message("Exporting clip...", 9999) -- stays until replaced
 
