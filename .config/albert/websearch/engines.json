@@ -41,6 +41,14 @@
     },
     {
         "fallback": true,
+        "iconPath": "/home/muhammad/DotFiles/.config/albert/websearch/icons/gemini.svg",
+        "id": "1bdeb84b",
+        "name": "Gemini",
+        "trigger": "m",
+        "url": "https://gemini.google.com/app?q=%s"
+    },
+    {
+        "fallback": true,
         "iconPath": "/home/muhammad/DotFiles/.config/albert/websearch/icons/github.svg",
         "id": "202ee488",
         "name": "GitHub",
@@ -84,7 +92,7 @@
         "iconPath": "/home/muhammad/DotFiles/.config/albert/websearch/icons/mdn.svg",
         "id": "769b2cbb",
         "name": "MDN",
-        "trigger": "m",
+        "trigger": "mdn",
         "url": "https://developer.mozilla.org/en-US/search?q=%s"
     },
     {
