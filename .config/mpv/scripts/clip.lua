@@ -26,26 +26,66 @@ local function mark_end()
 
 	local dir, filename = utils.split_path(path)
 	local ext = filename:match("%.%w+$") or ".mp4"
+	ext = ext:lower()
 	local name = filename:gsub("%.%w+$", "")
 	local out = utils.join_path(dir, name .. "_clip_" .. os.time() .. ext)
 
 	mp.osd_message("Exporting clip...", 9999) -- stays until replaced
 
+	local vcodec, acodec
+	if ext == ".webm" then
+		vcodec = { "-c:v", "libvpx-vp9", "-crf", "30", "-b:v", "0" }
+		acodec = { "-c:a", "libopus" }
+	elseif ext == ".mp3" then
+		vcodec = {}
+		acodec = { "-c:a", "libmp3lame", "-q:a", "2" }
+	elseif ext == ".m4a" or ext == ".aac" then
+		vcodec = {}
+		acodec = { "-c:a", "aac", "-b:a", "192k" }
+	elseif ext == ".opus" then
+		vcodec = {}
+		acodec = { "-c:a", "libopus", "-b:a", "128k" }
+	elseif ext == ".ogg" or ext == ".oga" then
+		vcodec = {}
+		acodec = { "-c:a", "libvorbis", "-q:a", "5" }
+	elseif ext == ".flac" then
+		vcodec = {}
+		acodec = { "-c:a", "flac" }
+	elseif ext == ".wav" then
+		vcodec = {}
+		acodec = { "-c:a", "pcm_s16le" }
+	elseif ext == ".mp4" or ext == ".m4v" or ext == ".mov" then
+		vcodec = { "-c:v", "libx264", "-crf", "18", "-preset", "veryfast" }
+		acodec = { "-c:a", "aac" }
+	else
+		-- mkv, avi etc support h264+aac fine; mkv is most flexible
+		vcodec = { "-c:v", "libx264", "-crf", "18", "-preset", "veryfast" }
+		acodec = { "-c:a", "aac" }
+	end
+
+	local args = {
+		"ffmpeg",
+		"-y",
+		"-ss",
+		string.format("%.3f", start_time),
+		"-to",
+		string.format("%.3f", end_time),
+		"-i",
+		path,
+	}
+	for _, v in ipairs(vcodec) do
+		table.insert(args, v)
+	end
+	for _, v in ipairs(acodec) do
+		table.insert(args, v)
+	end
+	table.insert(args, "-avoid_negative_ts")
+	table.insert(args, "make_zero")
+	table.insert(args, out)
+
 	mp.command_native_async({
 		name = "subprocess",
-		args = {
-			"ffmpeg",
-			"-y",
-			"-ss",
-			string.format("%.3f", start_time),
-			"-to",
-			string.format("%.3f", end_time),
-			"-i",
-			path,
-			"-c",
-			"copy",
-			out,
-		},
+		args = args,
 		capture_stderr = true,
 		playback_only = false, -- keeps running if playback ends
 	}, function(success, result, err)
