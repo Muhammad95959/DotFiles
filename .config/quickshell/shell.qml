@@ -8,7 +8,6 @@ import Quickshell.Services.SystemTray
 import Quickshell.Widgets
 import QtQuick
 import QtQuick.Layouts
-import QtQuick.Effects
 
 ShellRoot {
   id: root
@@ -42,13 +41,9 @@ ShellRoot {
       exclusiveZone: bar.barExclusiveZone
       color: "transparent"
 
-      // ── Bar Geometry & Shadow ──────────────────────────────────────
+      // ── Bar Geometry ────────────────────────────────────────────────
       property int barHeight: 24
       property int barExclusiveZone: 24
-      property color shadowColor: "#80000000"
-      property real shadowBlur: 0.8
-      property int shadowVerticalOffset: 3
-      property int shadowHorizontalOffset: 0
 
       // ── Spacing (Margins & Padding) ──────────────────────────────
       // m* = margin (outside the clickable hitbox)
@@ -131,19 +126,11 @@ ShellRoot {
       property bool kbLayoutReady: false
       property int _hyprTick: 0
 
-      // Bar background + drop shadow
+      // Bar background
       Rectangle {
         id: barBg
         anchors.fill: parent
         color: root.bg
-        layer.enabled: true
-        layer.effect: MultiEffect {
-          shadowEnabled: true
-          shadowColor: bar.shadowColor
-          shadowBlur: bar.shadowBlur
-          shadowVerticalOffset: bar.shadowVerticalOffset
-          shadowHorizontalOffset: bar.shadowHorizontalOffset
-        }
       }
 
       // ── Submap & Keyboard Layout Tracking ─────────────────────────
@@ -470,17 +457,15 @@ ShellRoot {
               Rectangle {
                 property var screenToplevel: {
                   bar._hyprTick
-                  const all = Hyprland.toplevels.values
-                  void all.length; void Hyprland.activeToplevel
-                  for (let i = 0; i < all.length; i++) {
-                    const t = all[i]
-                    if (t.activated && t.monitor && t.monitor.name === bar.screen.name) return t
+                  const mon = Hyprland.monitorFor(bar.screen)
+                  const ws = mon ? mon.activeWorkspace : null
+                  if (!ws) return null
+                  const toplevels = ws.toplevels.values
+                  for (let i = 0; i < toplevels.length; i++) {
+                    const t = toplevels[i]
+                    if (t.activated) return t
                   }
-                  for (let i = 0; i < all.length; i++) {
-                    const t = all[i]
-                    if (t.activated && t.workspace && t.workspace.monitor && t.workspace.monitor.name === bar.screen.name) return t
-                  }
-                  return Hyprland.activeToplevel
+                  return toplevels.length > 0 ? toplevels[0] : null
                 }
                 width: Math.min(windowTitle.implicitWidth, bar.windowTitleMaxWidth)
                 height: bar.implicitHeight
