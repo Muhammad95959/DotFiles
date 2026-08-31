@@ -68,4 +68,9 @@
       },
     },
   },
+  "permission": {
+    "external_directory": {
+      "*": "allow"
+    }
+  },
 }
