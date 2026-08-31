@@ -95,7 +95,7 @@ keymap = [
 
 	# Copy
 	{ on = [ "c", "p" ], run = "copy path",                                                desc = "Copy the file path" },
-	{ on = [ "c", "d" ], run = "copy dirname",                                             desc = "Copy the directory path" },
+	{ on = [ "c", "d" ], run = "copy dirpath",                                             desc = "Copy the directory path" },
 	{ on = [ "c", "n" ], run = "copy filename",                                            desc = "Copy the filename" },
 	{ on = [ "c", "N" ], run = "copy name_without_ext",                                    desc = "Copy the filename without extension" },
 	{ on = [ "c", "i" ], run = '''shell 'magick "$0" png:- | wl-copy --type image/png'''', desc = "Copy the image to clipboard" },
