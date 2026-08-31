@@ -35,7 +35,7 @@
     "format-icons": "",
     "tooltip": false,
     "on-click": "nwg-drawer",
-    "on-click-right": "hyprctl dispatch 'hl.dsp.cursor.move({ x = 0, y = 1080 })' && flameshot gui"
+    "on-click-right": "flameshot gui"
   },
 
   "hyprland/workspaces": {
