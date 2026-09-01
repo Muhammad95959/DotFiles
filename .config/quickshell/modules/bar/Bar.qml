@@ -90,7 +90,7 @@ Scope {
       property int fontSizeNetworkIcon: 13
       property int trayIconSize: 14
 
-      // ── Right-side vertical offsets (originals, single var each) ──
+      // ── Right-side vertical offsets ────────────────────────────────
       property real bandwidthIconVerticalOffset: 0
       property real bandwidthTextVerticalOffset: 0
       property real languageIconVerticalOffset: 0
