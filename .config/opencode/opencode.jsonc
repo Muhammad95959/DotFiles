@@ -1,9 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": [
-    "@mohak34/opencode-notifier@latest",
-    "@tarquinen/opencode-dcp@latest"
-  ],
+  "plugin": ["@mohak34/opencode-notifier@latest"],
   "mcp": {
     "stitch": {
       "type": "remote",
@@ -73,7 +70,7 @@
   },
   "permission": {
     "external_directory": {
-      "*": "allow"
-    }
+      "*": "allow",
+    },
   },
 }
