@@ -6,8 +6,8 @@
         "enabled": true,
         "toggle_key": "ctrl+shift+v",
         "indicator": true,
-        "vim_enter_submit": false,
-        "vim_insert_after_submit": false,
+        "vim_enter_submit": true,
+        "vim_insert_after_submit": true,
         "vim_system_clipboard_register": true
       }
     ],
