@@ -698,12 +698,12 @@ hl.bind(mod .. " + SHIFT + g",      function() set_gaps(-10) end, { repeating = 
 hl.bind(mod .. " + SHIFT + n",      hl.dsp.exec_cmd("rofi -modi nerdy -show nerdy -theme ~/.config/rofi/emoji_dropdown.rasi -theme-str 'window {y-offset: -24px;}'"))
 hl.bind(mod .. " + SHIFT + p",      hl.dsp.exec_cmd("rofi -show window -theme-str 'window {y-offset: -24px;}'"))
 hl.bind(mod .. " + SHIFT + q",      hl.dsp.exec_cmd("~/.config/rofi/scripts/powermenu/type-1/powermenu.sh"))
-hl.bind(mod .. " + SHIFT + r",      hl.dsp.exec_cmd("hyprctl reload && killall waybar; waybar"))
+hl.bind(mod .. " + SHIFT + r",      hl.dsp.exec_cmd("hyprctl reload && killall quickshell; quickshell"))
 hl.bind(mod .. " + SHIFT + t",      hl.dsp.exec_cmd("confet"))
-hl.bind(mod .. " + SHIFT + v",      hl.dsp.submap("passthrough"))
 hl.bind(mod .. " + SHIFT + w",      hl.dsp.exec_cmd([[awww img "$(find "/home/muhammad/Backgrounds" -maxdepth 1 -name '*.jpg' -o -name '*.png' | shuf -n1)" --transition-type "none" --transition-duration 0]]), { repeating = true })
 
 hl.bind(mod .. " + CTRL + a",       hl.dsp.exec_cmd("~/Scripts/new_english.sh"))
+hl.bind(mod .. " + CTRL + v",       hl.dsp.submap("passthrough"))
 
 -- Switch workspaces with mod + [1-9]
 for i = 1, 9 do

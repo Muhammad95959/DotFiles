@@ -205,6 +205,7 @@ AUTO_NOTIFY_IGNORE+=(
   "ping"
   "pulsemixer"
   "rofi"
+  "seshi"
   "tmux"
   "unimatrix"
   "vimiv"
@@ -239,6 +240,7 @@ alias cbimage='wl-paste --type image/png > /tmp/clipboard.png && kitty +kitten i
 alias clipdel='cliphist list | rofi -dmenu -i -p "Delete Entry:" | cliphist delete'
 alias clipimage='~/Scripts/cliphist_rofi_img.sh'
 alias free-coding-models='node ~/Projects/free-coding-models/bin/free-coding-models.js --config-dir ~/.config/free-coding-models'
+alias systemd-plot='systemd-analyze plot > /tmp/plot.svg && brave-origin --test-type /tmp/plot.svg'
 alias fitwaydroid='for i in 1 2; do hyprctl dispatch "hl.dsp.window.resize({ x = 468, y = 1036 })"; done; adb connect 192.168.240.112:5555'
 
 if command -v pacman &> /dev/null; then
