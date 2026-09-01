@@ -48,7 +48,7 @@ Scope {
       property int barHeight: 24
       property int barExclusiveZone: 24
 
-      // ── Spacing ────────────────────────────────────────────────────
+      // ── Spacing (bar-only, not shared) ─────────────────────────────
       property int pLauncherLeft: 8
       property int mLauncherRight: 8
       property int mWorkspacesOuterPad: 8
@@ -61,7 +61,7 @@ Scope {
       property int mSepPad: 8
       property int mBilalPad: 5
       property int mBandwidthPad: 5
-      property int pBandwidthUnitGap: 1
+      property int pBandwidthUnitGap: 2
       property int pBandwidthIconGap: 5
       property int mLanguagePad: 5
       property int pLanguageIconGap: 5
@@ -89,6 +89,21 @@ Scope {
       property int fontSizeBatteryIcon: 12
       property int fontSizeNetworkIcon: 13
       property int trayIconSize: 14
+
+      // ── Right-side vertical offsets (originals, single var each) ──
+      property real bandwidthIconVerticalOffset: 0
+      property real bandwidthTextVerticalOffset: 0
+      property real languageIconVerticalOffset: 0
+      property real languageTextVerticalOffset: 0.3
+      property real cpuIconVerticalOffset: 1
+      property real cpuTextVerticalOffset: 0
+      property real volumeIconVerticalOffset: 1
+      property real volumeTextVerticalOffset: 0
+      property real batteryIconVerticalOffset: 0.6
+      property real batteryTextVerticalOffset: 0
+      property real networkContainerVerticalOffset: 0.6
+      property real networkIconVerticalOffset: 0.5
+      property real networkTextVerticalOffset: 0
 
       // ── Thresholds ─────────────────────────────────────────────────
       property int batteryUrgentPct: 10
@@ -164,11 +179,8 @@ Scope {
       }
 
       // ── Bandwidth ──────────────────────────────────────────────────
-      property string bwText: "000.0" + " ".repeat(pBandwidthUnitGap) + "KB"
-      onPBandwidthUnitGapChanged: {
-        const parts = bwText.trim().split(/\s+/)
-        if (parts.length >= 2) bwText = parts[0] + " ".repeat(pBandwidthUnitGap) + parts[1]
-      }
+      property string bwValue: "000.0"
+      property string bwUnit: "KB"
       property double _prevRx: -1
       property double _prevTx: -1
       Timer {
@@ -186,14 +198,12 @@ Scope {
             if (bar._prevRx >= 0) {
               const drx = rx - bar._prevRx; const dtx = tx - bar._prevTx
               const total = drx + dtx
-              function fmt(b) {
-                let num, unit
-                if (b < 1024*1024) { num = (b/1024).toFixed(1); unit = "KB" }
-                else if (b < 1024*1024*1024) { num = (b/(1024*1024)).toFixed(1); unit = "MB" }
-                else { num = (b/(1024*1024*1024)).toFixed(1); unit = "GB" }
-                return num.padStart(5, "0") + " ".repeat(bar.pBandwidthUnitGap) + unit
-              }
-              bar.bwText = fmt(total)
+              let num, unit
+              if (total < 1024*1024) { num = (total/1024).toFixed(1); unit = "KB" }
+              else if (total < 1024*1024*1024) { num = (total/(1024*1024)).toFixed(1); unit = "MB" }
+              else { num = (total/(1024*1024*1024)).toFixed(1); unit = "GB" }
+              bar.bwValue = num.padStart(5, "0")
+              bar.bwUnit = unit
             }
             bar._prevRx = rx; bar._prevTx = tx
           }
@@ -607,15 +617,30 @@ Scope {
                     font.pixelSize: bar.fontSizeText
                     font.bold: true
                     anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenterOffset: bar.bandwidthIconVerticalOffset
                   }
-                  Text {
-                    text: bar.bwText
-                    color: barScope.fg
-                    opacity: 0.7
-                    font.family: barScope.monoFont
-                    font.pixelSize: bar.fontSizeText
-                    font.bold: true
+                  Row {
+                    spacing: bar.pBandwidthUnitGap
                     anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenterOffset: bar.bandwidthTextVerticalOffset
+                    Text {
+                      text: bar.bwValue
+                      color: barScope.fg
+                      opacity: 0.7
+                      font.family: barScope.monoFont
+                      font.pixelSize: bar.fontSizeText
+                      font.bold: true
+                      anchors.verticalCenter: parent.verticalCenter
+                    }
+                    Text {
+                      text: bar.bwUnit
+                      color: barScope.fg
+                      opacity: 0.7
+                      font.family: barScope.monoFont
+                      font.pixelSize: bar.fontSizeText
+                      font.bold: true
+                      anchors.verticalCenter: parent.verticalCenter
+                    }
                   }
                 }
               }
@@ -640,6 +665,7 @@ Scope {
                     font.family: barScope.nerdFont
                     font.pixelSize: bar.fontSizeLanguageIcon
                     anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenterOffset: bar.languageIconVerticalOffset
                   }
                   Text {
                     id: langText
@@ -650,7 +676,7 @@ Scope {
                     font.pixelSize: bar.fontSizeText - 1.5
                     font.bold: true
                     anchors.verticalCenter: parent.verticalCenter
-                    anchors.verticalCenterOffset: 0.3
+                    anchors.verticalCenterOffset: bar.languageTextVerticalOffset
                   }
                 }
                 MouseArea {
@@ -680,7 +706,7 @@ Scope {
                   font.family: barScope.nerdFont
                   font.pixelSize: bar.fontSizeCpuIcon
                   anchors.verticalCenter: parent.verticalCenter
-                  anchors.verticalCenterOffset: 1 
+                  anchors.verticalCenterOffset: bar.cpuIconVerticalOffset
                 }
                 Text {
                   text: (bar.cpuUsage < 10 ? "0" : "") + bar.cpuUsage + "%"
@@ -690,6 +716,7 @@ Scope {
                   font.pixelSize: bar.fontSizeText
                   font.bold: true
                   anchors.verticalCenter: parent.verticalCenter
+                  anchors.verticalCenterOffset: bar.cpuTextVerticalOffset
                 }
               }
               MouseArea {
@@ -729,7 +756,7 @@ Scope {
                 Text {
                   id: volIcon
                   anchors.verticalCenter: parent.verticalCenter
-                  anchors.verticalCenterOffset: 1
+                  anchors.verticalCenterOffset: bar.volumeIconVerticalOffset
                   color: barScope.fg
                   font.family: barScope.nerdFont
                   font.pixelSize: 15
@@ -743,6 +770,7 @@ Scope {
                 }
                 Text {
                   anchors.verticalCenter: parent.verticalCenter
+                  anchors.verticalCenterOffset: bar.volumeTextVerticalOffset
                   text: (volRect.volPct < 10 ? "0" : "") + volRect.volPct + "%"
                   color: barScope.fg
                   opacity: 0.7
@@ -796,7 +824,7 @@ Scope {
                 spacing: bar.pBatteryIconGap
                 Text {
                   anchors.verticalCenter: parent.verticalCenter
-                  anchors.verticalCenterOffset: 0.6
+                  anchors.verticalCenterOffset: bar.batteryIconVerticalOffset
                   font.family: barScope.nerdFont
                   font.pixelSize: 12
                   color: {
@@ -825,6 +853,7 @@ Scope {
                 }
                 Text {
                   anchors.verticalCenter: parent.verticalCenter
+                  anchors.verticalCenterOffset: bar.batteryTextVerticalOffset
                   font.family: barScope.monoFont
                   font.pixelSize: 12
                   font.bold: true
@@ -843,7 +872,7 @@ Scope {
           Row {
             spacing: 0
             anchors.verticalCenter: parent.verticalCenter
-            anchors.verticalCenterOffset: 0.6
+            anchors.verticalCenterOffset: bar.networkContainerVerticalOffset
             opacity: bar.wifiSignal < 0 ? 0.5 : 1
             Item { width: bar.mNetworkPad; height: 1 }
             Rectangle {
@@ -856,7 +885,7 @@ Scope {
                 spacing: bar.pNetworkIconGap
                 Text {
                   anchors.verticalCenter: parent.verticalCenter
-                  anchors.verticalCenterOffset: 0.5
+                  anchors.verticalCenterOffset: bar.networkIconVerticalOffset
                   font.family: barScope.nerdFont
                   font.pixelSize: bar.fontSizeNetworkIcon
                   color: barScope.fg
@@ -872,6 +901,7 @@ Scope {
                 }
                 Text {
                   anchors.verticalCenter: parent.verticalCenter
+                  anchors.verticalCenterOffset: bar.networkTextVerticalOffset
                   font.family: barScope.monoFont
                   font.pixelSize: bar.fontSizeText
                   font.bold: true
