@@ -277,7 +277,7 @@ hl.layer_rule({ match = { namespace = "waybar" },        blur = true })
 local function roalbert()
   local w = hl.get_active_window()
   if w ~= nil and w.title == "Albert" then
-    hl.dispatch(hl.dsp.exec_cmd("rofi -show drun -theme ~/.config/rofi/launcher.rasi"))
+    hl.dispatch(hl.dsp.exec_cmd("rofi -show run -theme ~/.config/rofi/launcher.rasi"))
   else
     hl.dispatch(hl.dsp.exec_cmd("/usr/bin/albert toggle || /usr/bin/albert"))
   end

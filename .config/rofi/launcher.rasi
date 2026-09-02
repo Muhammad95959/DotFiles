@@ -2,7 +2,7 @@
 
 // General Configurations
 configuration {
-  modi: "drun,run,filebrowser,window";
+  modi: "run,drun,filebrowser,window";
   display-drun: "APPS";
   display-run: "RUN";
   display-filebrowser: "FILES";
