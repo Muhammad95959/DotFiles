@@ -12,15 +12,56 @@
     },
   },
   "provider": {
+    "nvidia": {
+      "options": {
+        "apiKey": "{file:~/.config/opencode/api_keys/nvidia_nim}",
+      },
+    },
+    "cerebras": {
+      "options": {
+        "apiKey": "{file:~/.config/opencode/api_keys/cerebras}",
+      },
+    },
+    "google": {
+      "options": {
+        "apiKey": "{file:~/.config/opencode/api_keys/google_ai_studio}",
+      },
+    },
+    "mistral": {
+      "options": {
+        "apiKey": "{file:~/.config/opencode/api_keys/mistral}",
+      },
+    },
     "cloudflare-workers-ai": {
       "options": {
         "baseURL": "https://api.cloudflare.com/client/v4/accounts/{file:~/.config/opencode/api_keys/cloudflare_account_id}/ai/v1",
         "apiKey": "{file:~/.config/opencode/api_keys/cloudflare_workers_ai}",
       },
     },
-    "google": {
+    "openrouter": {
       "options": {
-        "apiKey": "{file:~/.config/opencode/api_keys/google_ai_studio}",
+        "apiKey": "{file:~/.config/opencode/api_keys/openrouter}",
+      },
+    },
+    "sambanova": {
+      "npm": "@ai-sdk/openai-compatible",
+      "options": {
+        "baseURL": "https://api.sambanova.ai/v1",
+        "apiKey": "{file:~/.config/opencode/api_keys/sambanova}",
+      },
+      "models": {
+        "minimax-m2.7": {},
+        "minimax-m3": {},
+        "deepseek-v3.1": {},
+        "deepseek-v3.2": {},
+        "gpt-oss-120b": {},
+        "gemma-4-31b": {},
+        "llama-3.3-70b": {},
+      },
+    },
+    "zai": {
+      "options": {
+        "apiKey": "{file:~/.config/opencode/api_keys/zai}",
       },
     },
     "kilo": {
@@ -42,29 +83,14 @@
         "mistral-Nemo-Instruct-2407": {},
       },
     },
-    "mistral": {
+    "requesty": {
       "options": {
-        "apiKey": "{file:~/.config/opencode/api_keys/mistral}",
-      },
-    },
-    "nvidia": {
-      "options": {
-        "apiKey": "{file:~/.config/opencode/api_keys/nvidia_nim}",
+        "apiKey": "{file:~/.config/opencode/api_keys/requesty}",
       },
     },
     "ollama-cloud": {
       "options": {
         "apiKey": "{file:~/.config/opencode/api_keys/ollama_cloud}",
-      },
-    },
-    "openrouter": {
-      "options": {
-        "apiKey": "{file:~/.config/opencode/api_keys/openrouter}",
-      },
-    },
-    "zai": {
-      "options": {
-        "apiKey": "{file:~/.config/opencode/api_keys/zai}",
       },
     },
   },
