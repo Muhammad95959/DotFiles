@@ -386,8 +386,7 @@ Scope {
               }
 
               MouseArea {
-                anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
-                onEntered: if (!wallpaperRoot._blockHover) wallpaperRoot.selectedIndex = del.index
+                anchors.fill: parent; hoverEnabled: false; cursorShape: Qt.PointingHandCursor
                 onClicked: wallpaperRoot.setWallpaper(del.modelData)
               }
             }
