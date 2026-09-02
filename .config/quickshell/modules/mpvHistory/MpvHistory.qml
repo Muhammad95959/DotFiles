@@ -16,7 +16,7 @@ Scope {
 
   property string query: ""
   property int selectedIndex: 0
-  property var allEntries: [] // strings: file paths
+  property var allEntries: [] // {title, path, isUrl, display}
   property string _accum: ""
   property bool _blockHover: false
   function _markKeyboard() { _blockHover = true }
@@ -25,8 +25,8 @@ Scope {
     const q = query.toLowerCase().trim()
     if (q === "") return allEntries
     const toks = q.split(/\s+/)
-    return allEntries.filter(p => {
-      const hay = String(p).toLowerCase()
+    return allEntries.filter(e => {
+      const hay = (e.title + " " + e.path).toLowerCase()
       for (let t = 0; t < toks.length; t++) if (!hay.includes(toks[t])) return false
       return true
     })
@@ -40,8 +40,8 @@ Scope {
   function activateAt(idx) {
     const list = filtered
     if (idx < 0 || idx >= list.length) return
-    const path = list[idx]
-    Quickshell.execDetached(["mpv", path])
+    const e = list[idx]
+    Quickshell.execDetached(["mpv", e.path])
     close()
   }
   function move(delta) {
@@ -63,15 +63,23 @@ Scope {
 
   Process {
     id: proc
-    command: ["sh", "-c", "tac \"$HOME\"/.config/mpv/history.log 2>/dev/null | sed 's/^.*| //' | while read -r line; do [ -e \"$line\" ] && echo \"$line\"; done"]
-    stdout: SplitParser { onRead: data => root._accum += data + "\n" }
-    onExited: {
-      const lines = root._accum.split("\n").map(s=>s.trim()).filter(s=>s.length>0)
-      // tac already reversed, keep order; dedup preserve first occurrence?
-      // simple: keep as is, no dedup to match script
-      root.allEntries = lines
-      if (root.selectedIndex >= root.filtered.length) root.selectedIndex = 0
-    }
+    command: ["python3", "-c", "import os, re\np=os.path.expanduser('~/.config/mpv/history.log')\nout=[]\ntry:\n    lines=open(p, errors='ignore').read().splitlines()\n    for raw in reversed(lines):\n        m=re.match(r'^\\[.*?\\] \"(.*)\" \\| (.*)$', raw)\n        if not m: continue\n        title, path=m.group(1).strip(), m.group(2).strip()\n        if not path: continue\n        is_url=path.startswith('http://') or path.startswith('https://') or path.startswith('ytdl://')\n        if not is_url and not os.path.exists(os.path.expanduser(path)): continue\n        if not title: title=os.path.basename(path)\n        out.append((title, path, is_url))\nexcept Exception as e: pass\nfor t,p,u in out:\n    print(t.replace(chr(9),' ') + '  󰛂  ' + p)\n"]
+    stdout: StdioCollector{ waitForEnd:true; onStreamFinished: {
+      const lines=String(text||"").split("\n").map(s=>s.trim()).filter(s=>s.length>0)
+      let out=[]
+      for(let line of lines){
+        const sep="  󰛂  "; const idx=line.indexOf(sep)
+        let title="", path=""
+        if(idx>=0){ title=line.slice(0,idx).trim(); path=line.slice(idx+sep.length).trim() }
+        else { title=line; path=line }
+        if(!path) continue
+        const isUrl=path.startsWith("http://")||path.startsWith("https://")||path.startsWith("ytdl://")
+        if(!title) title=path.split("/").pop()
+        out.push({ title: title, path: path, isUrl: isUrl, display: title + " — " + path })
+      }
+      root.allEntries=out
+      if(root.selectedIndex>=root.filtered.length) root.selectedIndex=0
+    }}
   }
 
   Variants {
@@ -169,16 +177,19 @@ Scope {
               required property var modelData
               required property int index
               width: listView.width
-              height: 36
+              height: 40
               radius: Theme.radiusSm
               color: root.selectedIndex===index ? Theme.surfaceHover : Theme.surface
               border.color: root.selectedIndex===index ? Qt.alpha(Theme.fg,0.33) : Theme.border
               border.width:1
               RowLayout {
                 anchors.fill: parent; anchors.leftMargin:12; anchors.rightMargin:12; spacing:10
-                Text { text:""; color:Theme.fg; opacity:0.7; font.family:Theme.nerdFont; font.pixelSize:12; Layout.alignment:Qt.AlignVCenter }
-                Text { text: del.modelData.split("/").pop(); color:Theme.fg; font.family:Theme.monoFont; font.pixelSize:12; Layout.fillWidth:true; elide:Text.ElideMiddle }
-                Text { text: del.modelData; color:Theme.fg; opacity:0.45; font.family:Theme.monoFont; font.pixelSize:10; Layout.preferredWidth: 180; elide:Text.ElideLeft; visible: root.filtered.length<20 }
+                Text { text: del.modelData.isUrl ? "" : ""; color:Theme.fg; opacity:0.7; font.family:Theme.nerdFont; font.pixelSize:12; Layout.alignment:Qt.AlignVCenter }
+                ColumnLayout { Layout.fillWidth:true; spacing:1
+                  Text { text: del.modelData.title; color:Theme.fg; font.family:Theme.monoFont; font.pixelSize:12; elide:Text.ElideRight; Layout.fillWidth:true; font.bold: root.selectedIndex===del.index }
+                  Text { text: del.modelData.path; color:Theme.fg; opacity:0.45; font.family:Theme.monoFont; font.pixelSize:10; elide:Text.ElideMiddle; Layout.fillWidth:true; visible: !del.modelData.isUrl || root.filtered.length<40 }
+                }
+                Text { text: del.modelData.isUrl ? "URL" : "FILE"; color: del.modelData.isUrl ? Theme.accent : Theme.fg; opacity: del.modelData.isUrl ? 1 : 0.45; font.family:Theme.monoFont; font.pixelSize:9; font.bold: del.modelData.isUrl }
               }
               MouseArea{ anchors.fill:parent; hoverEnabled:true; cursorShape:Qt.PointingHandCursor; onEntered: if(!root._blockHover) root.selectedIndex=del.index; onClicked: root.activateAt(del.index) }
             }

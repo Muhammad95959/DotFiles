@@ -17,6 +17,8 @@ import "modules/translate"
 import "modules/resize"
 import "modules/corners"
 import "modules/bookmarks"
+import "modules/braveHistory"
+import "modules/zathuraRecolor"
 
 ShellRoot {
   id: root
@@ -29,9 +31,7 @@ ShellRoot {
   }
 
   // ── Reload Popup ───────────────────────────────────────────────────
-  ReloadPopup {
-    id: reloadPopup
-  }
+  ReloadPopup { id: reloadPopup }
 
   // ── Launcher ───────────────────────────────────────────────────────
   AppLauncher { id: launcher }
@@ -71,5 +71,9 @@ ShellRoot {
 
   // ── Brave ──────────────────────────────────────────────────────────
   Bookmarks { id: bookmarks }
+  BraveHistory { id: braveHistory }
+
+  // ── Theming ────────────────────────────────────────────────────────
+  ZathuraRecolor { id: zathuraRecolor }
 
 }

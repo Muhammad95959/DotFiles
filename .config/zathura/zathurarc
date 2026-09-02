@@ -9,4 +9,4 @@ set window-title-basename true
 map ظ feedkeys "/"
 map zi set "scroll-step 100"
 map zI set "scroll-step 40"
-map zr exec "kitty --class hiddenkitty -e /home/muhammad/Scripts/zathura_recolor.sh"
+map zr exec "quickshell ipc call zathuraRecolor toggle"
