@@ -21,6 +21,7 @@ import "modules/braveHistory"
 import "modules/zathuraRecolor"
 import "modules/virtManager"
 import "modules/liveWall"
+import "modules/qmenu"
 
 ShellRoot {
   id: root
@@ -83,5 +84,8 @@ ShellRoot {
 
   // ── Live Wallpapers ────────────────────────────────────────────────
   LiveWall { id: liveWall }
+
+  // ── Generic Qmenu (rofi replacement) ─────────────────────────────────
+  Qmenu { id: qmenu }
 
 }

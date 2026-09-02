@@ -1,0 +1,142 @@
+#!/usr/bin/env bash
+# qs qmenu — quickshell menu
+# Usage: echo -e "a\nb" | qmenu -p "Prompt:" [--style Style1]
+# Reads stdin lines, shows quickshell qmenu, prints selected line to stdout.
+
+set -euo pipefail
+
+prompt=""
+style="Style1"
+
+show_help() {
+  cat <<'EOF'
+Usage: qmenu [OPTIONS]
+  Reads lines from stdin, shows quickshell qmenu, prints selected line to stdout.
+
+  echo -e "a\nb\nc" | qmenu -p "Prompt:" --style Style1
+  quickshell ipc call qmenu openWith '["a","b"]' "Prompt:"
+
+Options:
+  -p <prompt>              Prompt/header title (default: empty)
+  --style, -s <name>       QML style to use (default: Style1) — corresponds to styles/<name>.qml
+  -h, --help               Show this help and exit
+
+Examples:
+  echo -e "Firefox\nKitty" | qmenu -p "Launch:"
+  echo -e "a\nb" | qmenu --style Style1 -p "Pick one"
+  printf "one\ntwo\n" | qmenu -p "Select:"
+
+IPC (quickshell):
+  quickshell ipc call qmenu open
+  quickshell ipc call qmenu close
+  quickshell ipc call qmenu toggle
+  quickshell ipc call qmenu setItems '["a","b"]'
+  quickshell ipc call qmenu setPrompt "Hello"
+  quickshell ipc call qmenu setStyle "Style1"
+  quickshell ipc call qmenu openWith '["a","b"]' "Prompt:"
+  quickshell ipc call qmenu getResult
+  quickshell ipc call qmenu clearResult
+EOF
+}
+
+# Parse args
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h|--help)
+      show_help; exit 0 ;;
+    -p)
+      prompt="${2:-}"
+      if [[ ${#prompt} -ge 2 ]]; then
+        if [[ "${prompt:0:1}" == '"' && "${prompt: -1}" == '"' ]]; then prompt="${prompt:1:-1}"; fi
+        if [[ "${prompt:0:1}" == "'" && "${prompt: -1}" == "'" ]]; then prompt="${prompt:1:-1}"; fi
+      fi
+      shift 2 ;;
+    --style|-style|-s)
+      style="${2:-Style1}"; shift 2 ;;
+    -*)
+      echo "qmenu: unknown option: $1" >&2
+      show_help >&2
+      exit 1 ;;
+    *)
+      echo "qmenu: unknown argument: $1" >&2
+      show_help >&2
+      exit 1 ;;
+  esac
+done
+
+# Read stdin — hyprminimizer pipes window list, also supports echo | qmenu
+if [[ -t 0 ]]; then
+  # no stdin (tty) — could be called with args as items, not used for hyprminimizer
+  lines=()
+else
+  mapfile -t lines || true
+fi
+
+# If no lines and no stdin, exit
+if [[ ${#lines[@]} -eq 0 ]]; then
+  # try to read from args fallback? no
+  exit 0
+fi
+
+# Convert lines to JSON array of objects {label: line}
+# Keep original line as label, preserve exact string (including spaces)
+json=$(printf '%s\n' "${lines[@]}" | jq -R . | jq -s -c .)
+if [[ -z "$json" || "$json" == "null" ]]; then
+  json="[]"
+fi
+
+# Encode json as JSON string for quickshell ipc (needs jq -Rs)
+enc=$(printf '%s' "$json" | jq -Rs .)
+
+# Prompt handling — hyprminimizer uses -p "Restore window:"
+# Pass prompt as JSON string for second arg
+prompt_enc=$(printf '%s' "$prompt" | jq -Rs .)
+
+# Ensure quickshell is running
+if ! command -v quickshell >/dev/null 2>&1; then
+  echo "quickshell not found" >&2
+  exit 1
+fi
+
+# Clear previous result and set style (Style1, Style2, etc.)
+quickshell ipc call qmenu clearResult >/dev/null 2>&1 || true
+# --style selects which QML style to show (styles/Style1.qml, Style2.qml...)
+if [[ -n "$style" ]]; then
+  style_enc=$(printf '%s' "$style" | jq -Rs .)
+  quickshell ipc call qmenu setStyle "$style_enc" >/dev/null 2>&1 || quickshell ipc call qmenu setStyle "$style" >/dev/null 2>&1 || true
+fi
+
+# Open qmenu with items and prompt
+# openWith expects (json_string, prompt_string) both as JSON strings
+# We pass enc and prompt_enc which are JSON-encoded
+quickshell ipc call qmenu openWith "$enc" "$prompt_enc" >/dev/null 2>&1 || {
+  # Fallback: try without encoding if version expects raw
+  quickshell ipc call qmenu openWith "$json" "$prompt" >/dev/null 2>&1 || true
+}
+
+# Poll for result — qmenu sets _resultState to ok/cancel
+# Poll every 50ms, timeout after 60s (hyprminimizer expects quick return)
+elapsed=0
+while true; do
+  raw=$(quickshell ipc call qmenu getResult 2>/dev/null || echo "__PENDING__")
+  # quickshell returns raw string without JSON quotes; getResult returns __PENDING__ / __CANCELLED__ / label
+  # If raw is quoted JSON string (e.g., "\"label\""), unwrap with jq
+  # Try to interpret as JSON string first
+  val=$(printf '%s' "$raw" | jq -r . 2>/dev/null || printf '%s' "$raw")
+  # If val is literal "__PENDING__", keep polling
+  if [[ "$val" == "__PENDING__" ]]; then
+    sleep 0.05
+    elapsed=$(awk "BEGIN{print $elapsed+0.05}")
+    # timeout after 60s to avoid hang if quickshell dies
+    if (( $(echo "$elapsed > 60" | bc -l) )); then
+      exit 1
+    fi
+    continue
+  elif [[ "$val" == "__CANCELLED__" ]]; then
+    exit 1
+  else
+    # Success — print selected line exactly as it was in input
+    printf '%s\n' "$val"
+    exit 0
+  fi
+done

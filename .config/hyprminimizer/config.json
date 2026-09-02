@@ -1,7 +1,7 @@
 {
   "specialWorkspace": "minimized",
-  "restoreLauncher": "rofi",
-  "restoreLauncherArgs": "-theme ~/.config/rofi/arc_rounded.rasi -dmenu -p \"Restore window:\"",
+  "restoreLauncher": "/home/muhammad/.config/quickshell/modules/qmenu/qmenu",
+  "restoreLauncherArgs": "-p \"Restore window:\" --style Style1",
   "maxMinimizedWindows": 50,
   "excludeWindowClasses": [
     "waybar",
