@@ -95,6 +95,11 @@ Scope {
     close()
   }
 
+  function setTransientWallpaper(path) {
+    WallpaperManager.setTransientWallpaper(path)
+    close()
+  }
+
   // ── Scan wallpapers ───────────────────────────────────────────────
   property string _scanAccum: ""
 
@@ -411,7 +416,7 @@ Scope {
     function toggle() { wallpaperRoot.toggle() }
     function open() { wallpaperRoot.open() }
     function close() { wallpaperRoot.close() }
-    function set(wallpaperPath: string) { wallpaperRoot.setWallpaper(wallpaperPath) }
+    function set(wallpaperPath: string) { wallpaperRoot.setTransientWallpaper(wallpaperPath) }
     function random() { WallpaperManager.setRandomWallpaper() }
   }
 

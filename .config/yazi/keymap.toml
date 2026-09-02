@@ -392,7 +392,7 @@ desc = "dragon-drop"
 [[mgr.prepend_keymap]]
 on  = [ "<A-Space>", "w" ]
 run = '''
-	shell 'awww img %s -t "none" --transition-duration 0' --confirm
+	shell 'quickshell ipc call wallpaper set %s' --confirm
 '''
 desc = "set background"
 [[mgr.prepend_keymap]]
