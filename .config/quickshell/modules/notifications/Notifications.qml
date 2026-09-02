@@ -86,6 +86,174 @@ Scope {
         vals[i].dismiss()
   }
 
+  // WhatsApp PWA app-id (brave --app-id=hnpfj...)
+  readonly property string whatsappDesktopEntry: "brave-hnpfjngllnobngcgfapefoaidbinmjnm-Default"
+  readonly property string whatsappAppIdShort: "hnpfjngllnobngcgfapefoaidbinmjnm"
+
+  // Score helper for finding the best toplevel match
+  function toplevelScore(t, lowerDe: string, isWhatsapp: bool): int {
+    const ipc = t.lastIpcObject || {}
+    const cls = (ipc.class || ipc.initialClass || (t.wayland ? t.wayland.appId : "") || "").toLowerCase()
+    const title = ((ipc.title || t.title || "") + "").toLowerCase()
+    if (cls.length === 0 && title.length === 0) return -1
+    const shortDe = lowerDe.replace("-default", "")
+    const shortCls = cls.replace("-default", "")
+    // exact whatsapp PWA class is highest priority
+    if (cls === lowerDe) return 100
+    if (isWhatsapp) {
+      if (cls.includes(whatsappAppIdShort)) return 95
+      if (cls === whatsappDesktopEntry.toLowerCase()) return 95
+      if (shortDe.includes("hnpfj") && shortCls.includes("hnpfj")) return 90
+      if (title.includes("whatsapp")) return 85
+    }
+    if (shortDe.length > 8 && shortCls.length > 8 && (shortDe.includes(shortCls) || shortCls.includes(shortDe))) return 80
+    if (cls.includes(lowerDe) || lowerDe.includes(cls)) return 70
+    if (title.includes(lowerDe)) return 60
+    return -1
+  }
+
+  function findBestToplevel(desktopEntry: string, isWhatsapp: bool) {
+    let toplevels = []
+    try { toplevels = Hyprland.toplevels.values } catch (e) { toplevels = [] }
+    let best = null
+    let bestScore = -1
+    const lowerDe = (desktopEntry || "").toLowerCase()
+    // for whatsapp, also try whatsapp DE even if requested de is generic
+    const whatsappLower = whatsappDesktopEntry.toLowerCase()
+    for (let i = 0; i < toplevels.length; i++) {
+      const t = toplevels[i]
+      let s = toplevelScore(t, lowerDe, isWhatsapp)
+      // if whatsapp, also score against whatsapp DE as alternative
+      if (isWhatsapp && lowerDe !== whatsappLower) {
+        const s2 = toplevelScore(t, whatsappLower, true)
+        if (s2 > s) s = s2
+      }
+      if (s > bestScore) {
+        bestScore = s
+        best = t
+      }
+    }
+    // never return the hidden new-tab page if we are looking for whatsapp and best is that page
+    if (isWhatsapp && best) {
+      const ipc = best.lastIpcObject || {}
+      const cls = (ipc.class || ipc.initialClass || (best.wayland ? best.wayland.appId : "") || "")
+      // new-tab page is brave-__home_muhammad_Projects_new-tab-page_index.html-Default
+      if (cls.includes("new-tab-page")) {
+        // try second best that is not new-tab-page
+        let second = null
+        let secondScore = -1
+        for (let i = 0; i < toplevels.length; i++) {
+          const t = toplevels[i]
+          if (t === best) continue
+          const s = toplevelScore(t, whatsappLower, true)
+          if (s > secondScore) { secondScore = s; second = t }
+        }
+        if (second && secondScore >= 85) return second
+      }
+    }
+    return bestScore >= 60 ? best : null
+  }
+
+  // Try to focus the window that sent the notification.
+  // Used as fallback when no "default" action is present (e.g. WhatsApp Web
+  // via Brave PWA sends actions=[] but expects click → focus).
+  function focusWindowForDesktopEntry(desktopEntry: string, isWhatsapp: bool): bool {
+    if (!desktopEntry || desktopEntry.length === 0) return false
+    // 1) Try to find a matching Hyprland toplevel and focus by address (most precise)
+    const candidate = findBestToplevel(desktopEntry, isWhatsapp)
+    if (candidate) {
+      const ipc = candidate.lastIpcObject || {}
+      const wsName = (candidate.workspace ? candidate.workspace.name : "") || ipc.workspace || ""
+      const isSpecial = wsName.startsWith("special:")
+      if (isSpecial) {
+        // Move from special:hidden / special:minimized to active workspace then focus
+        let targetWs = "1"
+        try {
+          const fw = Hyprland.focusedWorkspace
+          if (fw && fw.id) targetWs = String(fw.id)
+          else {
+            const mon = Hyprland.monitorFor(Quickshell.screens[0])
+            if (mon && mon.activeWorkspace && mon.activeWorkspace.id) targetWs = String(mon.activeWorkspace.id)
+          }
+        } catch (e) {}
+        Quickshell.execDetached(["hyprctl", "dispatch", "movetoworkspace", targetWs + ",address:" + candidate.address])
+        // small delay then focus
+        Quickshell.execDetached(["sh", "-c", "sleep 0.05; hyprctl dispatch focuswindow address:" + candidate.address + "; hyprctl dispatch bringactivetotop address:" + candidate.address])
+      } else {
+        Quickshell.execDetached(["hyprctl", "dispatch", "focuswindow", "address:" + candidate.address])
+        Quickshell.execDetached(["hyprctl", "dispatch", "bringactivetotop", "address:" + candidate.address])
+      }
+      console.log("[notifications] focusWindowForDesktopEntry", desktopEntry, "->", candidate.address, (ipc.class || ""), wsName)
+      return true
+    }
+    // 2) Fallback: ask Hyprland to focus by class directly
+    console.log("[notifications] focusWindowForDesktopEntry fallback class:", desktopEntry)
+    Quickshell.execDetached(["hyprctl", "dispatch", "focuswindow", "class:" + desktopEntry])
+    return true
+  }
+
+  function activateNotification(notif): bool {
+    const summary = (notif.summary || "").toLowerCase()
+    const body = (notif.body || "").toLowerCase()
+    const app = (notif.appName || "").toLowerCase()
+    const isWhatsapp = app.includes("whatsapp") || summary.includes("whatsapp") || body.includes("whatsapp")
+    // Debug: log all hints for brave/whatsapp to catch mismatched desktopEntry
+    if (isWhatsapp || app.includes("brave") || app.includes("chrome") || app.includes("chromium")) {
+      console.log("[notifications] activate", JSON.stringify({
+        appName: notif.appName, summary: notif.summary, body: (notif.body || "").slice(0,120),
+        desktopEntry: notif.desktopEntry, hints: notif.hints, actions: notif.actions.map(a => a.identifier)
+      }))
+    }
+    // 1) spec-compliant: invoke "default" if present
+    for (let i = 0; i < notif.actions.length; i++) {
+      if (notif.actions[i].identifier === "default") {
+        console.log("[notifications] invoke default for", notif.appName)
+        notif.actions[i].invoke()
+        notif.dismiss()
+        return true
+      }
+    }
+    // 2) fallback: try to focus window via desktopEntry / hints
+    let de = notif.desktopEntry || ""
+    if (de.length === 0) {
+      // freedesktop hints: "desktop-entry", "desktop_entry", "app-id", "x-canonical-*"
+      de = notif.hints["desktop-entry"] || notif.hints["desktop_entry"] || notif.hints["app-id"] || notif.hints["app_id"] || ""
+    }
+    // Force whatsapp DE if content indicates whatsapp, even if de is generic "brave"/"chromium"
+    if (isWhatsapp) {
+      // if de is generic or missing, override; if de already looks like whatsapp PWA keep it
+      if (!de.toLowerCase().includes(whatsappAppIdShort)) {
+        de = whatsappDesktopEntry
+      }
+    } else if (de.length === 0) {
+      if (app === "brave" || app === "brave-browser" || app.includes("chromium") || app.includes("chrome")) {
+        // generic brave window — try appName as class
+        de = notif.appName
+      }
+    }
+    if (de.length > 0) {
+      focusWindowForDesktopEntry(de, isWhatsapp)
+      notif.dismiss()
+      return true
+    }
+    // 3) fallback via sender-pid
+    let pid = notif.hints["sender-pid"]
+    if (pid === undefined) pid = notif.hints["sender_pid"]
+    if (pid === undefined) pid = 0
+    // hints may store pid as int or string
+    let pidStr = String(pid)
+    if (pid && pidStr !== "0") {
+      console.log("[notifications] fallback pid focus", pidStr)
+      Quickshell.execDetached(["hyprctl", "dispatch", "focuswindow", "pid:" + pidStr])
+      notif.dismiss()
+      return true
+    }
+    // 4) last resort: just dismiss (don't leave stale notification)
+    console.log("[notifications] no focus target, dismiss only", notif.appName)
+    notif.dismiss()
+    return false
+  }
+
   // ── Notification server ─────────────────────────────────────────────
   NotificationServer {
     id: server
@@ -444,30 +612,19 @@ Scope {
         }
       }
 
-      // ── Default action click (if only default) ───────────────────────
+      // ── Card click: invoke default or fallback focus (WhatsApp Web) ────
       MouseArea {
-        // clicks on card invoke default action if exists, otherwise dismiss?
-        // We keep dismiss on click only if actionable? Mako: on-button-left=exec makoctl menu...
-        // Now we invoke default directly, and second click dismisses? Let's mirror common behavior:
-        // left click invokes default action if present.
         anchors.fill: parent
-        // below closeBtn and action buttons: let action buttons handle their clicks first
-        // So we need z ordering: this is behind. Use propagate.
+        // keep below close button and action buttons so they receive clicks first
+        z: -1
         propagateComposedEvents: true
         acceptedButtons: Qt.LeftButton
-        cursorShape: cardRoot.notif.actions.length > 0 ? Qt.PointingHandCursor : Qt.ArrowCursor
+        cursorShape: Qt.PointingHandCursor
         onClicked: mouse => {
-          // find default action
-          for (let i = 0; i < cardRoot.notif.actions.length; i++) {
-            if (cardRoot.notif.actions[i].identifier === "default") {
-              cardRoot.notif.actions[i].invoke()
-              cardRoot.notif.dismiss()
-              mouse.accepted = true
-              return
-            }
-          }
-          // if no default but single action, clicking card could invoke it? optional — we leave no-op
-          mouse.accepted = false
+          // if an action button already handled the click, don't double-activate
+          if (mouse.accepted) return
+          root.activateNotification(cardRoot.notif)
+          mouse.accepted = true
         }
       }
 
@@ -481,6 +638,9 @@ Scope {
     target: "notifications"
     function dismissAll(): string { root.dismissAll(); return "ok" }
     function dismiss(): string { root.dismissAll(); return "ok" }
+    function dismissApp(appName: string): string { if (appName && appName.length > 0) root.dismissByApp(appName); else root.dismissAll(); return "ok" }
+    // makoctl compat: dismiss [-a app] [-g group] [-i id]
+    function dismissGroup(group: string): string { root.dismissByApp(group); return "ok" }
     // alias for makoctl compatibility helpers
     function closeAll(): string { root.dismissAll(); return "ok" }
     function dnd(state: string): string {
