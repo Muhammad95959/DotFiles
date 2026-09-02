@@ -293,12 +293,12 @@ Scope {
           // ── Footer options ─────────────────────────────────────────
           RowLayout {
             Layout.alignment: Qt.AlignHCenter
-            spacing: 12
+            spacing: 10
             Text { text: "Enter: kill"; color: Theme.fg; opacity: 0.85; font.family: Theme.monoFont; font.pixelSize: 10; font.bold: true }
             Rectangle { width: 1; height: 10; color: Theme.border; opacity: 0.6 }
-            Text { text: "Ctrl+Enter: killall"; color: Theme.fg; opacity: 0.55; font.family: Theme.monoFont; font.pixelSize: 10 }
+            Text { text: "Ctrl+Enter: killall"; color: Theme.fg; opacity: 0.85; font.family: Theme.monoFont; font.pixelSize: 10; font.bold: true }
             Rectangle { width: 1; height: 10; color: Theme.border; opacity: 0.6 }
-            Text { text: "Esc: close"; color: Theme.fg; opacity: 0.55; font.family: Theme.monoFont; font.pixelSize: 10 }
+            Text { text: "Esc: close"; color: Theme.fg; opacity: 0.85; font.family: Theme.monoFont; font.pixelSize: 10; font.bold: true }
           }
         }
 

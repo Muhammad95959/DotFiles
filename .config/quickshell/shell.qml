@@ -6,6 +6,8 @@ import "modules/launcher"
 import "modules/powermenu"
 import "modules/wallpaper"
 import "modules/appkiller"
+import "modules/osd"
+import "modules/clipboard"
 
 ShellRoot {
   id: root
@@ -27,7 +29,7 @@ ShellRoot {
     id: powermenu
   }
 
-  // ── Wallpaper (native awww replacement, mirrored) ────────────────
+  // ── Wallpaper ──────────────────────────────────────────────────────
   WallpaperBackground {
     id: wallpaperBg
   }
@@ -35,8 +37,19 @@ ShellRoot {
     id: wallpaper
   }
 
-  // ── App Killer (theme, replaces ~/Scripts/app_kill.sh) ───────────
+  // ── App Killer ─────────────────────────────────────────────────────
   AppKiller {
     id: appkiller
   }
+
+  // ── OSD ────────────────────────────────────────────────────────────
+  Osd {
+    id: osd
+  }
+
+  // ── Clipboard ──────────────────────────────────────────────────────
+  Clipboard {
+    id: clipboard
+  }
+
 }

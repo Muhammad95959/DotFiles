@@ -23,10 +23,7 @@ hl.monitor({ output = "HDMI-A-1", mirror = "eDP-1" })
 
 local mod = "SUPER"
 
-local reset         = "hyprctl dispatch 'hl.dsp.submap(\"reset\")' && "
-local unmute        = "wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 && "
-local brightnessGet = "$(brightnessctl info | awk -F '[%(]' '/%/ {print $2}')"
-
+local reset                = "hyprctl dispatch 'hl.dsp.submap(\"reset\")' && "
 local scratchpad_window    = nil
 local last_tiled_window    = {}
 local last_floating_window = {}
@@ -44,7 +41,6 @@ hl.on("hyprland.start", function()
   hl.exec_cmd("quickshell")
   hl.exec_cmd("awww-daemon")
   hl.exec_cmd("nwg-drawer -r")
-  hl.exec_cmd("swayosd-server")
   hl.exec_cmd("xhost +si:localuser:$USER")
   hl.exec_cmd("sleep 1 && /usr/bin/albert")
   hl.exec_cmd("~/Scripts/backup_zsh_history.sh")
@@ -603,7 +599,6 @@ hl.define_submap("scripts", function()
   hl.bind("d", hl.dsp.exec_cmd(reset .. "~/Scripts/rofi_todo/todo.sh"))
   hl.bind("g", hl.dsp.exec_cmd(reset .. "~/Scripts/google_translate.sh"))
   hl.bind("h", hl.dsp.exec_cmd(reset .. "~/Scripts/brave_history.sh"))
-  hl.bind("i", hl.dsp.exec_cmd(reset .. "~/Scripts/cliphist_rofi_img.sh"))
   hl.bind("k", hl.dsp.exec_cmd(reset .. "quickshell ipc call appkiller toggle"))
   hl.bind("l", hl.dsp.exec_cmd(reset .. "~/Scripts/livewall.sh -f"))
   hl.bind("m", hl.dsp.exec_cmd(reset .. "~/Scripts/mpv_history.sh"))
@@ -670,7 +665,7 @@ hl.bind(mod .. " + COMMA",          hl.dsp.group.prev())
 hl.bind(mod .. " + PERIOD",         hl.dsp.group.next())
 hl.bind(mod .. " + a",              hl.dsp.submap("apps"))
 hl.bind(mod .. " + b",              hl.dsp.exec_cmd("/usr/bin/brave-origin --test-type"))
-hl.bind(mod .. " + c",              hl.dsp.exec_cmd("cliphist list | rofi -dmenu -i -p Clipboard: | cliphist decode | wl-copy"))
+hl.bind(mod .. " + c",              hl.dsp.exec_cmd("quickshell ipc call clipboard toggle"))
 hl.bind(mod .. " + d",              hl.dsp.exec_cmd("hyprminimizer"))
 hl.bind(mod .. " + e",              hl.dsp.group.lock_active())
 hl.bind(mod .. " + f",              hl.dsp.window.fullscreen())
@@ -732,19 +727,19 @@ hl.bind(mod .. " + CTRL + l", hl.dsp.window.resize({ x = 50,  y = 0, relative = 
 hl.bind(mod .. " + CTRL + k", hl.dsp.window.resize({ x = 0, y = -50, relative = true }), { repeating = true })
 hl.bind(mod .. " + CTRL + j", hl.dsp.window.resize({ x = 0, y = 50,  relative = true }), { repeating = true })
 
--- Volume controls
-hl.bind("XF86AudioRaiseVolume",         hl.dsp.exec_cmd(unmute .. "swayosd-client --output-volume +5 --max-volume 150"),                            { repeating = true })
-hl.bind("XF86AudioLowerVolume",         hl.dsp.exec_cmd(unmute .. "swayosd-client --output-volume -5 --max-volume 150"),                            { repeating = true })
-hl.bind("SHIFT + XF86AudioRaiseVolume", hl.dsp.exec_cmd(unmute .. "swayosd-client --output-volume +1 --max-volume 150"),                            { repeating = true })
-hl.bind("SHIFT + XF86AudioLowerVolume", hl.dsp.exec_cmd(unmute .. "swayosd-client --output-volume -1 --max-volume 150"),                            { repeating = true })
-hl.bind("XF86AudioMute",                hl.dsp.exec_cmd("swayosd-client --output-volume mute-toggle --max-volume 150"),                             { repeating = true })
-hl.bind("XF86AudioMicMute",             hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle; swayosd-client --input-volume mute-toggle"), { repeating = true })
+-- Volume controls (quickshell OSD — Pipewire auto-show, wpctl backend, no swayosd)
+hl.bind("XF86AudioRaiseVolume",         hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 && wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ -l 1.5"),                            { repeating = true })
+hl.bind("XF86AudioLowerVolume",         hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 && wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"),                                    { repeating = true })
+hl.bind("SHIFT + XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 && wpctl set-volume @DEFAULT_AUDIO_SINK@ 1%+ -l 1.5"),                            { repeating = true })
+hl.bind("SHIFT + XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 && wpctl set-volume @DEFAULT_AUDIO_SINK@ 1%-"),                                    { repeating = true })
+hl.bind("XF86AudioMute",                hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),                                                                               { repeating = true })
+hl.bind("XF86AudioMicMute",             hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"),                                                                            { repeating = true })
 
--- Brightness controls
-hl.bind("XF86MonBrightnessUp",           hl.dsp.exec_cmd("swayosd-client --brightness $(( " .. brightnessGet .. " + 5 ))"), { repeating = true })
-hl.bind("XF86MonBrightnessDown",         hl.dsp.exec_cmd("swayosd-client --brightness $(( " .. brightnessGet .. " - 5 ))"), { repeating = true })
-hl.bind("SHIFT + XF86MonBrightnessUp",   hl.dsp.exec_cmd("swayosd-client --brightness $(( " .. brightnessGet .. " + 1 ))"), { repeating = true })
-hl.bind("SHIFT + XF86MonBrightnessDown", hl.dsp.exec_cmd("swayosd-client --brightness $(( " .. brightnessGet .. " - 1 ))"), { repeating = true })
+-- Brightness controls (quickshell OSD via ipc)
+hl.bind("XF86MonBrightnessUp",           hl.dsp.exec_cmd("brightnessctl set 5%+ && quickshell ipc call osd brightness \"$(brightnessctl -m | awk -F, '{gsub(/%/,\"\",$4);print $4}' | head -n1)\""), { repeating = true })
+hl.bind("XF86MonBrightnessDown",         hl.dsp.exec_cmd("brightnessctl set 5%- && quickshell ipc call osd brightness \"$(brightnessctl -m | awk -F, '{gsub(/%/,\"\",$4);print $4}' | head -n1)\""), { repeating = true })
+hl.bind("SHIFT + XF86MonBrightnessUp",   hl.dsp.exec_cmd("brightnessctl set 1%+ && quickshell ipc call osd brightness \"$(brightnessctl -m | awk -F, '{gsub(/%/,\"\",$4);print $4}' | head -n1)\""), { repeating = true })
+hl.bind("SHIFT + XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl set 1%- && quickshell ipc call osd brightness \"$(brightnessctl -m | awk -F, '{gsub(/%/,\"\",$4);print $4}' | head -n1)\""), { repeating = true })
 
 -- Media player controls
 hl.bind("XF86AudioPlay",         hl.dsp.exec_cmd("playerctl play-pause"),  { repeating = true })
