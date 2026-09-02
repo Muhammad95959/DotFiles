@@ -7,7 +7,6 @@ import Quickshell.Services.UPower
 import Quickshell.Services.SystemTray
 import Quickshell.Widgets
 import QtQuick
-import QtQuick.Layouts
 import "../common"
 
 Scope {
@@ -57,9 +56,7 @@ Scope {
       property int mSubmapPad: 6
       property int pSubmapInnerPad: 8
       property int mWindowPad: 8
-      property int mClockPad: 5
       property int mSepPad: 8
-      property int mBilalPad: 5
       property int mBandwidthPad: 5
       property int pBandwidthUnitGap: 2
       property int pBandwidthIconGap: 5
@@ -85,8 +82,6 @@ Scope {
       property int fontSizePowermenuIcon: 14
       property int fontSizeLanguageIcon: 14
       property int fontSizeCpuIcon: 15
-      property int fontSizeVolumeIcon: 15
-      property int fontSizeBatteryIcon: 12
       property int fontSizeNetworkIcon: 13
       property int trayIconSize: 14
 
@@ -104,10 +99,6 @@ Scope {
       property real networkContainerVerticalOffset: 0.6
       property real networkIconVerticalOffset: 0.5
       property real networkTextVerticalOffset: 0
-
-      // ── Thresholds ─────────────────────────────────────────────────
-      property int batteryUrgentPct: 10
-      property int batteryWarningPct: 20
 
       // ── Intervals ──────────────────────────────────────────────────
       property int bandwidthIntervalMs: 1000
@@ -140,7 +131,6 @@ Scope {
       property int _hyprTick: 0
 
       Rectangle {
-        id: barBg
         anchors.fill: parent
         color: barScope.bg
       }
@@ -172,7 +162,6 @@ Scope {
       }
 
       Process {
-        id: kbInit
         command: ["sh", "-c", "hyprctl -j devices | python3 -c \"import json,sys; d=json.load(sys.stdin); k=[k for k in d.get('keyboards',[]) if k.get('name')=='kanata'] ; layout=(k[0].get('layout','') if k else '').split(','); idx=k[0].get('active_layout_index',0) if k else 0; print(layout[idx] if idx < len(layout) and layout[idx] else k[0].get('active_keymap','') if k else '')\""]
         running: true
         stdout: SplitParser { onRead: function(data) { let v=data.trim().toLowerCase(); if (v === "us") v = "EN"; else if (v === "eg") v = "AR"; else if (v.length > 3) v = bar.shortForLayout(v); else v = v.toUpperCase(); bar.kbLayout = v; bar.kbLayoutReady = true } }
@@ -237,7 +226,6 @@ Scope {
       // ── Network ────────────────────────────────────────────────────
       property int wifiSignal: -1
       property string wifiEssid: ""
-      property string wifiFreq: ""
       property bool wifiConnected: false
       property string _netAccum: ""
       Timer { interval: bar.networkIntervalMs; running: true; repeat: true; triggeredOnStart: true; onTriggered: { bar._netAccum = ""; netProc.running = true } }
@@ -258,10 +246,9 @@ Scope {
               if (wifiLine.startsWith("*")) {
                 const segs = wifiLine.split(":")
                 bar.wifiEssid = segs[1] || ""
-                bar.wifiFreq = segs.slice(2).join(":").trim() || ""
                 bar.wifiConnected = true
               } else {
-                bar.wifiEssid = ""; bar.wifiFreq = ""; bar.wifiConnected = false
+                bar.wifiEssid = ""; bar.wifiConnected = false
               }
               const state = (parts[2] || "").trim().split("\n")[0] || ""
               bar.wifiConnected = state === "connected" && bar.wifiSignal >= 0
@@ -298,7 +285,6 @@ Scope {
 
         // LEFT
         Row {
-          id: leftRow
           spacing: 0
           anchors.left: parent.left
           anchors.verticalCenter: parent.verticalCenter
@@ -337,7 +323,6 @@ Scope {
 
           Item { width: bar.mWorkspacesOuterPad; height: 1 }
           Row {
-            id: wsRow
             spacing: bar.mWorkspacesGap
             anchors.verticalCenter: parent.verticalCenter
 
@@ -515,7 +500,6 @@ Scope {
 
           // CENTER
           Row {
-            id: centerRow
             spacing: 0
             anchors.horizontalCenter: parent.horizontalCenter
             anchors.verticalCenter: parent.verticalCenter
@@ -554,7 +538,6 @@ Scope {
               anchors.verticalCenter: parent.verticalCenter
               Item { width: bar.mSepPad; height: 1 }
               Text {
-                id: sepText
                 anchors.verticalCenter: parent.verticalCenter
                 text: "❯"
                 color: barScope.fg
@@ -593,7 +576,6 @@ Scope {
 
           // RIGHT
           Row {
-            id: rightRow
             spacing: 0
             anchors.right: parent.right
             anchors.verticalCenter: parent.verticalCenter
@@ -754,7 +736,6 @@ Scope {
                 anchors.centerIn: parent
                 spacing: bar.pVolumeIconGap
                 Text {
-                  id: volIcon
                   anchors.verticalCenter: parent.verticalCenter
                   anchors.verticalCenterOffset: bar.volumeIconVerticalOffset
                   color: barScope.fg

@@ -1,7 +1,6 @@
 pragma Singleton
 pragma ComponentBehavior: Bound
 import QtQuick
-import Quickshell
 
 QtObject {
   // ── Shared (used outside bar) ──────────────────────────────────────

@@ -1,7 +1,5 @@
 pragma ComponentBehavior: Bound
 import Quickshell
-import Quickshell.Io
-import Quickshell.Hyprland
 import Quickshell.Wayland
 import QtQuick
 import "../common"
@@ -47,7 +45,6 @@ Scope {
   Variants {
     model: Quickshell.screens
     PanelWindow {
-      id: win
       required property var modelData
       screen: modelData
       visible: root.visible
@@ -62,7 +59,6 @@ Scope {
       Rectangle{ anchors.fill: parent; color: Theme.dim }
 
       Rectangle {
-        id: topBar
         width: parent.width
         height: Config.barHeight
         anchors.top: parent.top
@@ -78,10 +74,8 @@ Scope {
           inputOnly: true
           placeholder: "Type to translate (auto AR ↔ EN)"
           onQueryChangedStr: newQuery => root._query = newQuery
-          onAccepted: idx => root.doTranslate(root._query)
+          onAccepted: { root.doTranslate(root._query) }
           onCancelled: root.close()
-          onMoved: delta => {}
-          onHovered: idx => {}
         }
       }
       Connections{ target: root; function onVisibleChanged(){ if(root.visible) onelinerBar.focusInput() } }

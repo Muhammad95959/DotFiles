@@ -1,7 +1,6 @@
 pragma ComponentBehavior: Bound
 import Quickshell
 import Quickshell.Io
-import Quickshell.Hyprland
 import Quickshell.Wayland
 import QtQuick
 import QtQuick.Layouts
@@ -165,9 +164,6 @@ Scope {
     else close()
   }
 
-  function move(delta){
-    _markKeyboard(); const n=currentCount; if(n===0)return; let ni=selectedIndex+delta; if(ni<0) ni=n-1; if(ni>=n) ni=0; selectedIndex=ni
-  }
   function moveNoWrap(delta){
     _markKeyboard(); const n=currentCount; if(n===0)return; const ni=selectedIndex+delta; if(ni<0||ni>=n) return; selectedIndex=ni
   }
@@ -180,7 +176,6 @@ Scope {
   Variants {
     model: Quickshell.screens
     PanelWindow {
-      id: win
       required property var modelData
       screen: modelData
       visible: root.visible
@@ -193,7 +188,6 @@ Scope {
       MouseArea{ anchors.fill: parent; onClicked: root.stage==="actions" ? root.onBack() : root.close() }
       Rectangle{ anchors.fill: parent; color: Theme.dim }
       Rectangle {
-        id: container
         width: 720; height: Math.min(560, col.implicitHeight + 32); anchors.centerIn: parent; radius: Theme.radiusLg; color: Theme.bg; border.color: Theme.border; border.width:1; clip:true
         MouseArea{ anchors.fill: parent; hoverEnabled:true; onPositionChanged: if(root._blockHover) root._blockHover=false; onClicked:{} }
         ColumnLayout {

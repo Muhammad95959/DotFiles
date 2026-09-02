@@ -1,7 +1,5 @@
 pragma ComponentBehavior: Bound
 import Quickshell
-import Quickshell.Io
-import Quickshell.Hyprland
 import Quickshell.Wayland
 import QtQuick
 import QtQuick.Layouts
@@ -65,7 +63,6 @@ Scope {
   Variants {
     model: Quickshell.screens
     PanelWindow {
-      id: win
       required property var modelData
       screen: modelData
       visible: root.visible

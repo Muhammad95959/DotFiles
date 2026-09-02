@@ -9,7 +9,6 @@ import "../../common"
 // Extracted from Dmenu.qml so multiple styles can coexist.
 // Used by Dmenu.qml controller via Loader/Variants.
 PanelWindow {
-  id: win
   required property var modelData
   required property var qmenuRoot
   screen: modelData
@@ -25,7 +24,6 @@ PanelWindow {
   Rectangle { anchors.fill: parent; color: Theme.dim }
 
   Rectangle {
-    id: container
     width: 560
     height: Math.min(420, col.implicitHeight + 32)
     anchors.centerIn: parent

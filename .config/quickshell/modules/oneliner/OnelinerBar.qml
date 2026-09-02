@@ -34,7 +34,6 @@ Item {
 
     // ── Inputbar (20% width, or 100% in inputOnly) ──
     Rectangle {
-      id: inputBar
       Layout.preferredWidth: root.inputOnly ? parent.width : Math.floor(parent.width * 0.20)
       Layout.fillHeight: true
       color: Theme.bg
@@ -47,7 +46,6 @@ Item {
         anchors.bottomMargin: 1
         spacing: 8
         Text {
-          id: promptText
           text: root.prompt
           color: Theme.fg
           font.family: Theme.monoFont
@@ -97,7 +95,6 @@ Item {
 
     // ── Listview (horizontal) ──
     ListView {
-      id: listView
       visible: !root.inputOnly
       Layout.fillWidth: true
       Layout.fillHeight: true
@@ -131,12 +128,7 @@ Item {
            font.family: Theme.monoFont
            font.pixelSize: 13
           elide: Text.ElideRight
-          // urgent/active coloring when not selected
-          opacity: {
-            if (root.selectedIndex === del.index) return 1
-            if (del.modelData && del.modelData.urgent) return 1
-            return 1
-          }
+          opacity: 1
         }
         MouseArea {
           anchors.fill: parent

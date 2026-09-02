@@ -1,7 +1,6 @@
 pragma ComponentBehavior: Bound
 import Quickshell
 import Quickshell.Io
-import Quickshell.Hyprland
 import Quickshell.Wayland
 import QtQuick
 import QtQuick.Layouts
@@ -24,9 +23,7 @@ Scope {
   property bool isLiveActive: false
   function _markKeyboard() { _blockHover = true }
 
-  readonly property string liveDir: Quickshell.env("HOME") + "/Backgrounds/Live"
-  readonly property string activeLink: liveDir + "/active"
-  readonly property string mpvSocket: "/tmp/mpv-socket"
+  // liveDir/activeLink/mpvSocket inlined as hardcoded paths (previously dead props)
 
   readonly property var filtered: {
     const q = query.toLowerCase().trim()
@@ -110,7 +107,6 @@ Scope {
   Timer { id: syncTimer; interval: 650; repeat: false; onTriggered: isLiveProc.running = true }
 
   // ── Navigation helpers ───────────────────────────────────────────
-  function move(delta) { _markKeyboard(); const n = filtered.length; if (n===0) return; let ni = selectedIndex + delta; if (ni<0) ni=n-1; if (ni>=n) ni=0; selectedIndex=ni }
   function moveNoWrap(d) { _markKeyboard(); const n=filtered.length; if(n===0) return; const ni=selectedIndex+d; if(ni<0||ni>=n) return; selectedIndex=ni }
   function goHome() { _markKeyboard(); if(filtered.length>0) selectedIndex=0 }
   function goEnd() { _markKeyboard(); if(filtered.length>0) selectedIndex=filtered.length-1 }
@@ -125,7 +121,6 @@ Scope {
   // Replaces livewall_auto_pause.sh (1s poll → socat /tmp/mpv-socket).
   // Uses Hyprland IPC via hyprctl + python for now; could be migrated to Quickshell.Hyprland later.
   Timer {
-    id: pauseTimer
     interval: 1000; running: root.isLiveActive; repeat: true
     onTriggered: pauseCheck.running = true
   }
@@ -140,7 +135,6 @@ Scope {
   Variants {
     model: Quickshell.screens
     PanelWindow {
-      id: win
       required property var modelData
       screen: modelData
       visible: root.visible
@@ -155,7 +149,6 @@ Scope {
       Rectangle { anchors.fill: parent; color: Theme.dim }
 
       Rectangle {
-        id: container
         width: 720; height: 500; anchors.centerIn: parent
         radius: Theme.radiusLg; color: Theme.bg; border.color: Theme.border; border.width: 1; clip: true
         MouseArea { anchors.fill: parent; hoverEnabled: true; onPositionChanged: if(root._blockHover) root._blockHover = false; onClicked:{} }

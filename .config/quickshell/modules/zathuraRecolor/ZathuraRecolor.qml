@@ -1,7 +1,6 @@
 pragma ComponentBehavior: Bound
 import Quickshell
 import Quickshell.Io
-import Quickshell.Hyprland
 import Quickshell.Wayland
 import QtQuick
 import QtQuick.Layouts
@@ -39,7 +38,6 @@ Scope {
     Quickshell.execDetached(["sh","-c","p=\"$HOME/.config/zathura/colors/" + safe + ".conf\"; [ -f \"$p\" ] && cp \"$p\" \"$HOME/.config/zathura/colors.conf\" && wtype -d 25 \":source\" -k return -k escape -s 25 -M ctrl r 2>/dev/null || true"])
     close()
   }
-  function move(delta){ _markKeyboard(); const n=filtered.length; if(n===0) return; let ni=selectedIndex+delta; if(ni<0) ni=n-1; if(ni>=n) ni=0; selectedIndex=ni}
   function moveNoWrap(delta){ _markKeyboard(); const n=filtered.length; if(n===0) return; const ni=selectedIndex+delta; if(ni<0||ni>=n) return; selectedIndex=ni}
   function goHome(){ _markKeyboard(); if(filtered.length>0) selectedIndex=0}
   function goEnd(){ _markKeyboard(); const n=filtered.length; if(n>0) selectedIndex=n-1}
@@ -68,13 +66,13 @@ Scope {
   Variants{
     model: Quickshell.screens
     PanelWindow{
-      id: win; required property var modelData; screen: modelData; visible: root.visible; color:"transparent"; exclusionMode: ExclusionMode.Ignore
+      required property var modelData; screen: modelData; visible: root.visible; color:"transparent"; exclusionMode: ExclusionMode.Ignore
       WlrLayershell.layer: WlrLayer.Overlay; WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive; WlrLayershell.namespace:"quickshell-zathura-recolor"
       anchors{ top:true; bottom:true; left:true; right:true}
       MouseArea{ anchors.fill: parent; onClicked: root.close()}
       Rectangle{ anchors.fill: parent; color: Theme.dim}
       Rectangle{
-        id: container; width: 360; height: Math.min(520, col.implicitHeight + 32); anchors.centerIn: parent; radius: Theme.radiusLg; color: Theme.bg; border.color: Theme.border; border.width:1; clip:true
+        width: 360; height: Math.min(520, col.implicitHeight + 32); anchors.centerIn: parent; radius: Theme.radiusLg; color: Theme.bg; border.color: Theme.border; border.width:1; clip:true
         MouseArea{ anchors.fill: parent; hoverEnabled:true; onPositionChanged: if(root._blockHover) root._blockHover=false; onClicked:{}}
 
         ColumnLayout{

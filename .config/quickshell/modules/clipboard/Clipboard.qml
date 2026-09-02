@@ -1,6 +1,5 @@
 pragma ComponentBehavior: Bound
 import Quickshell
-import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Wayland
 import QtQuick
@@ -78,7 +77,7 @@ Scope {
         if (m) ext = m[1].toLowerCase().replace("jpeg","jpg")
         const thumbPath = isImage ? clipRoot.thumbDir + "/" + id + "." + ext : ""
         if (isImage) imgIds.push({id: id, path: thumbPath})
-        out.push({ id: id, preview: preview, isImage: isImage, thumbPath: thumbPath, ext: ext, raw: line })
+        out.push({ id: id, preview: preview, isImage: isImage, thumbPath: thumbPath })
       }
       clipRoot.allEntries = out
       clipRoot._imageIds = imgIds
@@ -160,10 +159,6 @@ Scope {
   onSelectedIndexChanged: updatePreview()
   onFilteredChanged: updatePreview()
 
-  function move(delta) {
-    const n = filtered.length; if (n===0) return
-    let ni = selectedIndex + delta; if (ni<0) ni=n-1; if (ni>=n) ni=0; selectedIndex=ni; updatePreview()
-  }
   function moveNoWrap(delta) {
     const n = filtered.length; if(n===0) return
     const ni = selectedIndex+delta; if(ni<0||ni>=n) return; selectedIndex=ni; updatePreview()
@@ -184,7 +179,6 @@ Scope {
   Variants {
     model: Quickshell.screens
     PanelWindow {
-      id: win
       required property var modelData
       screen: modelData
       visible: clipRoot.visible
@@ -199,7 +193,6 @@ Scope {
       Rectangle { anchors.fill: parent; color: Theme.dim }
 
       Rectangle {
-        id: container
         width: parent.width
         height: 470
         anchors.top: parent.top
@@ -213,7 +206,6 @@ Scope {
         MouseArea { anchors.fill: parent; onClicked: {} }
 
         ColumnLayout {
-          id: col
           anchors.fill: parent
           anchors.margins: 8
           anchors.topMargin: 0

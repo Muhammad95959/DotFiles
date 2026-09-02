@@ -1,7 +1,5 @@
 pragma ComponentBehavior: Bound
 import Quickshell
-import Quickshell.Io
-import Quickshell.Hyprland
 import Quickshell.Wayland
 import QtQuick
 import "../common"
@@ -54,7 +52,6 @@ Scope {
   Variants {
     model: Quickshell.screens
     PanelWindow {
-      id: win
       required property var modelData
       screen: modelData
       visible: root.visible
@@ -68,7 +65,6 @@ Scope {
       Rectangle{ anchors.fill: parent; color: Theme.dim}
 
       Rectangle{
-        id: topBar
         width: parent.width
         height: Config.barHeight
         anchors.top: parent.top

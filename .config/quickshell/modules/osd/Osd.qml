@@ -223,7 +223,6 @@ Scope {
   Variants {
     model: Quickshell.screens
     PanelWindow {
-      id: win
       required property var modelData
       screen: modelData
       visible: osdRoot.opened
@@ -236,7 +235,6 @@ Scope {
       mask: Region {}
 
       Rectangle {
-        id: card
         width: osdRoot.hasProgress ? Math.max(340, row.implicitWidth + 32) : Math.max(260, row.implicitWidth + 32)
         height: 72
         radius: Theme.radiusLg
@@ -255,7 +253,6 @@ Scope {
           spacing: 16
 
           Text {
-            id: iconText
             text: osdRoot.icon
             color: osdRoot.mutedTint ? Qt.alpha(Theme.fg, 0.45) : Theme.fg
             font.family: Theme.nerdFont

@@ -171,7 +171,6 @@ Scope {
 
                         // Copy button (only when failed)
                         TopButton {
-                            id: copyButton
                             visible: root.failed
                             icon: "edit-copy"
                             fallbackText: "Copy"

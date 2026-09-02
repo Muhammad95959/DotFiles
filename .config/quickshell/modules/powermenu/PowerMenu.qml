@@ -1,7 +1,5 @@
 pragma ComponentBehavior: Bound
 import Quickshell
-import Quickshell.Io
-import Quickshell.Hyprland
 import Quickshell.Wayland
 import QtQuick
 import QtQuick.Layouts
@@ -52,16 +50,6 @@ Scope {
     const ni = selectedIndex + dir; if (ni < 0 || ni >= n) return
     selectedIndex = ni
   }
-  function moveVertical(dir) {
-    _markKeyboard()
-    const n = actions.length; if (n === 0) return
-    const cols = columns; const col = selectedIndex % cols
-    const row = Math.floor(selectedIndex / cols); const rows = Math.ceil(n / cols)
-    let nr = row + dir; if (nr < 0) nr = rows - 1; if (nr >= rows) nr = 0
-    let ni = nr * cols + col
-    if (ni >= n) { for (let r = rows - 1; r >= 0; r--) { const cand = r * cols + col; if (cand < n) { ni = cand; break } } }
-    selectedIndex = ni
-  }
   function moveVerticalNoWrap(dir) {
     _markKeyboard()
     const n = actions.length; if (n === 0) return
@@ -92,7 +80,6 @@ Scope {
     model: Quickshell.screens
 
     PanelWindow {
-      id: win
       required property var modelData
       screen: modelData
       visible: pmRoot.visible

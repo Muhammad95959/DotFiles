@@ -1,7 +1,6 @@
 pragma ComponentBehavior: Bound
 import Quickshell
 import Quickshell.Io
-import Quickshell.Hyprland
 import Quickshell.Wayland
 import QtQuick
 import QtQuick.Layouts
@@ -17,7 +16,6 @@ Scope {
   property string query:""
   property int selectedIndex:0
   property var allEntries: [] // {title, url, display}
-  property string _accum:""
   property bool _blockHover:false
   function _markKeyboard(){ _blockHover=true}
   readonly property var filtered: {
@@ -33,14 +31,13 @@ Scope {
   onQueryChanged: selectedIndex=0
   onVisibleChanged: if(visible){ selectedIndex=0; _blockHover=true; refresh()}
 
-  function refresh(){ _accum=""; allEntries=[]; proc.running=true }
+  function refresh(){ allEntries=[]; proc.running=true }
   function activateAt(idx){
     const list=filtered; if(idx<0||idx>=list.length) return
     const url=list[idx].url
     Quickshell.execDetached(["brave-origin","--test-type","--password-store=basic",url])
     close()
   }
-  function move(delta){ _markKeyboard(); const n=filtered.length; if(n===0) return; let ni=selectedIndex+delta; if(ni<0) ni=n-1; if(ni>=n) ni=0; selectedIndex=ni }
   function moveNoWrap(delta){ _markKeyboard(); const n=filtered.length; if(n===0) return; const ni=selectedIndex+delta; if(ni<0||ni>=n) return; selectedIndex=ni}
   function goHome(){ _markKeyboard(); if(filtered.length>0) selectedIndex=0}
   function goEnd(){ _markKeyboard(); const n=filtered.length; if(n>0) selectedIndex=n-1}
@@ -69,13 +66,13 @@ Scope {
   Variants{
     model: Quickshell.screens
     PanelWindow{
-      id: win; required property var modelData; screen: modelData; visible: root.visible; color:"transparent"; exclusionMode: ExclusionMode.Ignore
+      required property var modelData; screen: modelData; visible: root.visible; color:"transparent"; exclusionMode: ExclusionMode.Ignore
       WlrLayershell.layer: WlrLayer.Overlay; WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive; WlrLayershell.namespace:"quickshell-brave-history"
       anchors{ top:true; bottom:true; left:true; right:true}
       MouseArea{ anchors.fill: parent; onClicked: root.close()}
       Rectangle{ anchors.fill: parent; color: Theme.dim}
       Rectangle{
-        id: container; width: 780; height: 480; anchors.centerIn: parent; radius: Theme.radiusLg; color: Theme.bg; border.color: Theme.border; border.width:1; clip:true
+        width: 780; height: 480; anchors.centerIn: parent; radius: Theme.radiusLg; color: Theme.bg; border.color: Theme.border; border.width:1; clip:true
         MouseArea{ anchors.fill: parent; hoverEnabled:true; onPositionChanged: if(root._blockHover) root._blockHover=false; onClicked:{}}
 
         ColumnLayout{

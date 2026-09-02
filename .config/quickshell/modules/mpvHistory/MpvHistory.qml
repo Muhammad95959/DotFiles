@@ -16,8 +16,7 @@ Scope {
 
   property string query: ""
   property int selectedIndex: 0
-  property var allEntries: [] // {title, path, isUrl, display}
-  property string _accum: ""
+  property var allEntries: [] // {title, path, isUrl}
   property bool _blockHover: false
   function _markKeyboard() { _blockHover = true }
 
@@ -35,7 +34,7 @@ Scope {
   onVisibleChanged: if (visible) { selectedIndex = 0; _blockHover = true; refresh() }
 
   function refresh() {
-    _accum = ""; allEntries = []; proc.running = true
+    allEntries = []; proc.running = true
   }
   function activateAt(idx) {
     const list = filtered
@@ -43,10 +42,6 @@ Scope {
     const e = list[idx]
     Quickshell.execDetached(["mpv", e.path])
     close()
-  }
-  function move(delta) {
-    _markKeyboard(); const n = filtered.length; if (n===0) return
-    let ni = selectedIndex + delta; if (ni < 0) ni = n-1; if (ni >= n) ni = 0; selectedIndex = ni
   }
   function moveNoWrap(delta) {
     _markKeyboard(); const n = filtered.length; if (n===0) return
@@ -75,7 +70,7 @@ Scope {
         if(!path) continue
         const isUrl=path.startsWith("http://")||path.startsWith("https://")||path.startsWith("ytdl://")
         if(!title) title=path.split("/").pop()
-        out.push({ title: title, path: path, isUrl: isUrl, display: title + " — " + path })
+        out.push({ title: title, path: path, isUrl: isUrl })
       }
       root.allEntries=out
       if(root.selectedIndex>=root.filtered.length) root.selectedIndex=0
@@ -85,7 +80,6 @@ Scope {
   Variants {
     model: Quickshell.screens
     PanelWindow {
-      id: win
       required property var modelData
       screen: modelData
       visible: root.visible
@@ -100,7 +94,6 @@ Scope {
       Rectangle { anchors.fill: parent; color: Theme.dim }
 
       Rectangle {
-        id: container
         width: 640
         height: 420
         anchors.centerIn: parent

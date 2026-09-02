@@ -1,6 +1,5 @@
 pragma ComponentBehavior: Bound
 import Quickshell
-import Quickshell.Io
 import Quickshell.Hyprland
 import Quickshell.Services.Notifications
 import Quickshell.Wayland
@@ -371,9 +370,6 @@ Scope {
       onTriggered: cardRoot.notif.dismiss()
     }
 
-    // Pause on hover, resume on exit (like mako hover behaviour)
-    property bool hovered: false
-
     Rectangle {
       id: card
       width: root.notifWidth
@@ -393,11 +389,9 @@ Scope {
         hoverEnabled: true
         acceptedButtons: Qt.NoButton
         onEntered: {
-          cardRoot.hovered = true
           if (dismissTimer.running) dismissTimer.stop()
         }
         onExited: {
-          cardRoot.hovered = false
           if (cardRoot.timeoutMs > 0) dismissTimer.restart()
         }
         onPositionChanged: {}
@@ -406,7 +400,6 @@ Scope {
 
       // ── Close button (top-right) — margins match text padding ───────
       Rectangle {
-        id: closeBtn
         width: 18; height: 18
         radius: 2
         anchors.top: parent.top
@@ -452,7 +445,6 @@ Scope {
 
           // Icon (max 32) — prefer notification image, fallback appIcon
           Item {
-            id: iconWrap
             visible: iconImg.visible
             Layout.preferredWidth: root.maxIconSize
             Layout.preferredHeight: root.maxIconSize
@@ -497,7 +489,6 @@ Scope {
 
             // Summary (title) — bold, allow multiline (bilal uses summary for multi-line)
             Text {
-              id: summaryText
               visible: text.length > 0
               Layout.fillWidth: true
               text: cardRoot.notif.summary || ""
@@ -513,7 +504,6 @@ Scope {
 
             // Body — allow long bodies to expand height instead of eliding
             Text {
-              id: bodyText
               visible: text.length > 0
               Layout.fillWidth: true
               text: {
@@ -535,7 +525,6 @@ Scope {
         // App name — dedicated line at bottom, mirrors text padding
         // 10px size, own row so margins match body/summary
         Text {
-          id: appNameText
           visible: (cardRoot.notif.appName || "").length > 0 && (cardRoot.notif.appName !== cardRoot.notif.summary)
           Layout.fillWidth: true
           text: cardRoot.notif.appName
@@ -566,7 +555,6 @@ Scope {
 
         // ── Action buttons (replaces rofi selector) — centered ───────
         Flow {
-          id: actionFlow
           visible: cardRoot.notif.actions.length > 0
           Layout.alignment: Qt.AlignHCenter
           spacing: root.actionSpacing

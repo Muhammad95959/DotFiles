@@ -1,7 +1,6 @@
 pragma ComponentBehavior: Bound
 import Quickshell
 import Quickshell.Io
-import Quickshell.Hyprland
 import Quickshell.Wayland
 import QtQuick
 import "../common"
@@ -94,13 +93,13 @@ Scope {
   Variants{
     model: Quickshell.screens
     PanelWindow{
-      id: win; required property var modelData; screen: modelData; visible: root.visible; color:"transparent"; exclusionMode: ExclusionMode.Ignore
+      required property var modelData; screen: modelData; visible: root.visible; color:"transparent"; exclusionMode: ExclusionMode.Ignore
       WlrLayershell.layer: WlrLayer.Overlay; WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive; WlrLayershell.namespace:"quickshell-corners"
       anchors{ top:true; bottom:true; left:true; right:true}
       MouseArea{ anchors.fill: parent; onClicked: root.close()}
       Rectangle{ anchors.fill: parent; color: Theme.dim}
       Rectangle{
-        id: topBar; width: parent.width; height: Config.barHeight; anchors.top: parent.top; anchors.topMargin: 0; color: Theme.bg
+        width: parent.width; height: Config.barHeight; anchors.top: parent.top; anchors.topMargin: 0; color: Theme.bg
         OnelinerBar{
           id: onelinerBar; anchors.fill: parent; prompt:"corner:"; query: root._query; model: root.filtered; selectedIndex: root.selectedIndex; inputOnly:false; placeholder:"filter"
           onQueryChangedStr: newQuery=>{ root._query=newQuery; root.selectedIndex=0}

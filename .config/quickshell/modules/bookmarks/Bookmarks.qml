@@ -1,7 +1,6 @@
 pragma ComponentBehavior: Bound
 import Quickshell
 import Quickshell.Io
-import Quickshell.Hyprland
 import Quickshell.Wayland
 import QtQuick
 import "../common"
@@ -17,7 +16,6 @@ Scope {
   property string _query:""
   property int selectedIndex:0
   property var allEntries: [] // {name, url, folder}
-  property string _accum:""
 
   readonly property var filtered: {
     const q=_query.toLowerCase().trim()
@@ -32,7 +30,7 @@ Scope {
   onVisibleChanged: if(visible) selectedIndex=0
 
   function refresh(){
-    _accum=""; allEntries=[]; proc.running=true
+    allEntries=[]; proc.running=true
   }
   function activateAt(idx){
     const list=filtered; if(idx<0||idx>=list.length) return
@@ -61,7 +59,7 @@ Scope {
   Variants{
     model: Quickshell.screens
     PanelWindow{
-      id: win; required property var modelData; screen: modelData; visible: root.visible; color:"transparent"; exclusionMode: ExclusionMode.Ignore
+      required property var modelData; screen: modelData; visible: root.visible; color:"transparent"; exclusionMode: ExclusionMode.Ignore
       WlrLayershell.layer: WlrLayer.Overlay; WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive; WlrLayershell.namespace:"quickshell-bookmarks"
       anchors{ top:true; bottom:true; left:true; right:true}
       MouseArea{ anchors.fill: parent; onClicked: root.close()}

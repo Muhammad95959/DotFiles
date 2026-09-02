@@ -24,17 +24,14 @@ import "modules/liveWall"
 import "modules/qmenu"
 
 ShellRoot {
-  id: root
-
   // ── Bar ────────────────────────────────────────────────────────────
   Bar {
-    id: bar
     onLauncherRequested: launcher.toggle()
     onPowermenuRequested: powermenu.toggle()
   }
 
   // ── Reload Popup ───────────────────────────────────────────────────
-  ReloadPopup { id: reloadPopup }
+  ReloadPopup {}
 
   // ── Launcher ───────────────────────────────────────────────────────
   AppLauncher { id: launcher }
@@ -43,49 +40,48 @@ ShellRoot {
   PowerMenu { id: powermenu }
 
   // ── Wallpaper ──────────────────────────────────────────────────────
-  WallpaperBackground { id: wallpaperBg }
-  WallpaperChooser { id: wallpaper }
+  WallpaperBackground {}
+  WallpaperChooser {}
 
   // ── App Killer ─────────────────────────────────────────────────────
-  AppKiller { id: appkiller }
+  AppKiller {}
 
   // ── OSD ────────────────────────────────────────────────────────────
-  Osd { id: osd }
+  Osd {}
 
   // ── Clipboard ──────────────────────────────────────────────────────
-  Clipboard { id: clipboard }
+  Clipboard {}
 
   // ── Notifications  ─────────────────────────────────────────────────
-  Notifications { id: notifications }
+  Notifications {}
 
   // ── Media History ──────────────────────────────────────────────────
-  MpvHistory { id: mpvHistory }
-  ZathuraHistory { id: zathuraHistory }
+  MpvHistory {}
+  ZathuraHistory {}
 
   // ── URL → MPV ──────────────────────────────────────────────────────
-  UrlMpv { id: urlMpv }
+  UrlMpv {}
 
   // ── Translate ──────────────────────────────────────────────────────
-  Translate { id: translate }
+  Translate {}
 
   // ── Window Ops ─────────────────────────────────────────────────────
-  Resize { id: winResize }
-  Corners { id: winCorners }
+  Resize {}
+  Corners {}
 
   // ── Brave ──────────────────────────────────────────────────────────
-  Bookmarks { id: bookmarks }
-  BraveHistory { id: braveHistory }
+  Bookmarks {}
+  BraveHistory {}
 
   // ── Theming ────────────────────────────────────────────────────────
-  ZathuraRecolor { id: zathuraRecolor }
+  ZathuraRecolor {}
 
   // ── VirtManager ────────────────────────────────────────────────────
-  VirtManager { id: virtManager }
+  VirtManager {}
 
   // ── Live Wallpapers ────────────────────────────────────────────────
-  LiveWall { id: liveWall }
+  LiveWall {}
 
   // ── Generic Qmenu (rofi replacement) ─────────────────────────────────
-  Qmenu { id: qmenu }
-
+  Qmenu {}
 }

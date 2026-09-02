@@ -1,7 +1,6 @@
 pragma ComponentBehavior: Bound
 import Quickshell
 import Quickshell.Io
-import Quickshell.Hyprland
 import Quickshell.Wayland
 import QtQuick
 import QtQuick.Layouts
@@ -37,7 +36,6 @@ Scope {
     Quickshell.execDetached(["sh","-c","setsid zathura '" + path.replace(/'/g,"'\\''") + "' >/dev/null 2>&1 &"])
     close()
   }
-  function move(delta){ _markKeyboard(); const n=filtered.length; if(n===0) return; let ni=selectedIndex+delta; if(ni<0) ni=n-1; if(ni>=n) ni=0; selectedIndex=ni }
   function moveNoWrap(delta){ _markKeyboard(); const n=filtered.length; if(n===0) return; const ni=selectedIndex+delta; if(ni<0||ni>=n) return; selectedIndex=ni }
   function goHome(){ _markKeyboard(); if(filtered.length>0) selectedIndex=0 }
   function goEnd(){ _markKeyboard(); const n=filtered.length; if(n>0) selectedIndex=n-1 }
@@ -57,7 +55,6 @@ Scope {
   Variants {
     model: Quickshell.screens
     PanelWindow {
-      id: win
       required property var modelData
       screen: modelData
       visible: root.visible
@@ -72,7 +69,6 @@ Scope {
       Rectangle{ anchors.fill: parent; color: Theme.dim }
 
       Rectangle {
-        id: container
         width:640; height:420; anchors.centerIn: parent; radius: Theme.radiusLg; color: Theme.bg; border.color: Theme.border; border.width:1; clip:true
         MouseArea{ anchors.fill: parent; hoverEnabled:true; onPositionChanged: if(root._blockHover) root._blockHover=false; onClicked:{} }
 

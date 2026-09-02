@@ -1,7 +1,6 @@
 pragma ComponentBehavior: Bound
 import Quickshell
 import Quickshell.Io
-import Quickshell.Hyprland
 import Quickshell.Wayland
 import QtQuick
 import QtQuick.Layouts
@@ -17,7 +16,7 @@ Scope {
   // ── Search state ───────────────────────────────────────────────────
   property string query: ""
   property int selectedIndex: 0
-  property var allApps: [] // {pid, mem, comm, raw}
+  property var allApps: [] // {pid, mem, comm}
 
   readonly property var filteredApps: {
     const q = query.toLowerCase().trim()
@@ -79,7 +78,7 @@ Scope {
         const mem = parts[1]
         const comm = parts.slice(2).join(" ")
         if (pid === "PID") continue
-        out.push({ pid: pid, mem: mem, comm: comm, raw: line })
+        out.push({ pid: pid, mem: mem, comm: comm })
       }
       killerRoot.allApps = out
       if (killerRoot.selectedIndex >= killerRoot.filteredApps.length) killerRoot.selectedIndex = 0
@@ -118,7 +117,6 @@ Scope {
   Variants {
     model: Quickshell.screens
     PanelWindow {
-      id: win
       required property var modelData
       screen: modelData
       visible: killerRoot.visible
@@ -133,7 +131,6 @@ Scope {
 
       // ── Centered 900x600 ──────────────────────────────────────────
       Rectangle {
-        id: container
         width: 900
         height: 600
         anchors.centerIn: parent
