@@ -35,7 +35,6 @@ local smart_gaps           = true
 -------------------
 
 hl.on("hyprland.start", function()
-  hl.exec_cmd("mako")
   hl.exec_cmd("udiskie")
   hl.exec_cmd("hypridle")
   hl.exec_cmd("quickshell")
@@ -686,7 +685,7 @@ hl.bind(mod .. " + SHIFT + RETURN", roalbert)
 hl.bind(mod .. " + SHIFT + SPACE",  toggle_floating)
 hl.bind(mod .. " + SHIFT + COMMA",  hl.dsp.group.move_window({ forward = false }))
 hl.bind(mod .. " + SHIFT + PERIOD", hl.dsp.group.move_window({ forward = true }))
-hl.bind(mod .. " + SHIFT + c",      hl.dsp.exec_cmd("makoctl dismiss -a"))
+hl.bind(mod .. " + SHIFT + c",      hl.dsp.exec_cmd("quickshell ipc call notifications dismissAll"))
 hl.bind(mod .. " + SHIFT + d",      restore_minimized)
 hl.bind(mod .. " + SHIFT + f",      toggle_gaps)
 hl.bind(mod .. " + SHIFT + g",      function() set_gaps(-10) end, { repeating = true })

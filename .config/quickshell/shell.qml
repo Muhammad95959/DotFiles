@@ -8,6 +8,7 @@ import "modules/wallpaper"
 import "modules/appkiller"
 import "modules/osd"
 import "modules/clipboard"
+import "modules/notifications"
 
 ShellRoot {
   id: root
@@ -50,6 +51,11 @@ ShellRoot {
   // ── Clipboard ──────────────────────────────────────────────────────
   Clipboard {
     id: clipboard
+  }
+
+  // ── Notifications (mako replacement) ─────────────────────────────────
+  Notifications {
+    id: notifications
   }
 
 }

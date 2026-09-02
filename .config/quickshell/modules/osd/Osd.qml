@@ -240,7 +240,7 @@ Scope {
         width: osdRoot.hasProgress ? Math.max(340, row.implicitWidth + 32) : Math.max(260, row.implicitWidth + 32)
         height: 72
         radius: Theme.radiusLg
-        color: Qt.alpha(Theme.bg, 0.80)
+        color: Qt.alpha(Theme.bg, 0.867)
         border.color: Qt.alpha(Theme.border, 0.75)
         border.width: 1
         anchors.horizontalCenter: parent.horizontalCenter
