@@ -18,6 +18,8 @@ Scope {
   // ── Selection ──────────────────────────────────────────────────────
   property int selectedIndex: 0
   property int columns: 2
+  property bool _blockHover: false
+  function _markKeyboard() { _blockHover = true }
 
   function activate(idx) {
     if (idx < 0 || idx >= actions.length) return
@@ -36,19 +38,22 @@ Scope {
   ]
 
   function move(dir) {
+    _markKeyboard()
     const n = actions.length
     let ni = selectedIndex + dir
     if (ni < 0) ni = n - 1
     if (ni >= n) ni = 0
     selectedIndex = ni
   }
-  function moveHorizontal(dir) { move(dir) } // wrapping for Tab
+  function moveHorizontal(dir) { _markKeyboard(); move(dir) } // wrapping for Tab
   function moveHorizontalNoWrap(dir) {
+    _markKeyboard()
     const n = actions.length; if (n === 0) return
     const ni = selectedIndex + dir; if (ni < 0 || ni >= n) return
     selectedIndex = ni
   }
   function moveVertical(dir) {
+    _markKeyboard()
     const n = actions.length; if (n === 0) return
     const cols = columns; const col = selectedIndex % cols
     const row = Math.floor(selectedIndex / cols); const rows = Math.ceil(n / cols)
@@ -58,6 +63,7 @@ Scope {
     selectedIndex = ni
   }
   function moveVerticalNoWrap(dir) {
+    _markKeyboard()
     const n = actions.length; if (n === 0) return
     const cols = columns; const col = selectedIndex % cols
     const row = Math.floor(selectedIndex / cols); const rows = Math.ceil(n / cols)
@@ -65,9 +71,10 @@ Scope {
     let ni = nr * cols + col; if (ni >= n) return
     selectedIndex = ni
   }
-  function goHome() { if (actions.length > 0) selectedIndex = 0 }
-  function goEnd() { const n = actions.length; if (n > 0) selectedIndex = n - 1 }
+  function goHome() { _markKeyboard(); if (actions.length > 0) selectedIndex = 0 }
+  function goEnd() { _markKeyboard(); const n = actions.length; if (n > 0) selectedIndex = n - 1 }
   function pageMove(dir) {
+    _markKeyboard()
     const n = actions.length; if (n === 0) return
     const cols = columns; const col = selectedIndex % cols
     const row = Math.floor(selectedIndex / cols); const rows = Math.ceil(n / cols)
@@ -78,7 +85,7 @@ Scope {
     selectedIndex = ni
   }
 
-  onVisibleChanged: if (visible) selectedIndex = 0
+  onVisibleChanged: { if (visible) { selectedIndex = 0; _blockHover = true } }
 
   // ── Windows ────────────────────────────────────────────────────────
   Variants {
@@ -114,7 +121,8 @@ Scope {
         border.width: 1
         focus: true
 
-        MouseArea { anchors.fill: parent; onClicked: {} }
+        MouseArea { anchors.fill: parent; hoverEnabled: true; onPositionChanged: { if (pmRoot._blockHover) { pmRoot._blockHover = false } }
+                onClicked: {} }
 
         Keys.onPressed: event => {
           if (event.key === Qt.Key_Escape) { pmRoot.close(); event.accepted = true; return }
@@ -316,7 +324,7 @@ Scope {
                   anchors.fill: parent
                   hoverEnabled: true
                   cursorShape: Qt.PointingHandCursor
-                  onEntered: pmRoot.selectedIndex = btn.index
+                  onEntered: if (!pmRoot._blockHover) pmRoot.selectedIndex = btn.index
                   onClicked: pmRoot.activate(btn.index)
                 }
               }

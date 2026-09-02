@@ -289,7 +289,6 @@ Scope {
             Layout.preferredWidth: root.maxIconSize
             Layout.preferredHeight: root.maxIconSize
             Layout.alignment: Qt.AlignTop
-            Layout.topMargin: 8 // align icon top with first line cap height
 
             IconImage {
               id: iconImg

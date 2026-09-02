@@ -21,6 +21,9 @@ Scope {
   property string selectedCategory: "All"
   property int selectedIndex: 0
   property int columns: 3
+  // ── Hover block after keyboard/page ─────────────────────────────────
+  property bool _blockHover: false
+  function _markKeyboard() { _blockHover = true }
 
   // freedesktop main categories + All
   readonly property var categories: [
@@ -82,7 +85,7 @@ Scope {
   onQueryChanged: selectedIndex = 0
   onSelectedCategoryChanged: selectedIndex = 0
   onVisibleChanged: {
-    if (visible) { query = ""; selectedCategory = "All"; selectedIndex = 0 }
+    if (visible) { query = ""; selectedCategory = "All"; selectedIndex = 0; _blockHover = true }
   }
 
   function launchAt(idx) {
@@ -94,6 +97,7 @@ Scope {
   }
 
   function moveSelection(delta) {
+    _markKeyboard()
     const n = filteredApps.length
     if (n === 0) return
     let ni = selectedIndex + delta
@@ -102,13 +106,15 @@ Scope {
     selectedIndex = ni
   }
   // ── Row-major helpers: Tab cycles, arrows do not ─────────────────
-  function moveHorizontal(dir) { moveSelection(dir) } // wrapping for Tab
+  function moveHorizontal(dir) { _markKeyboard(); moveSelection(dir) } // wrapping for Tab
   function moveHorizontalNoWrap(dir) {
+    _markKeyboard()
     const n = filteredApps.length; if (n === 0) return
     const ni = selectedIndex + dir; if (ni < 0 || ni >= n) return
     selectedIndex = ni
   }
   function moveVertical(dir) {
+    _markKeyboard()
     const n = filteredApps.length; if (n === 0) return
     const cols = columns; const col = selectedIndex % cols
     const row = Math.floor(selectedIndex / cols); const rows = Math.ceil(n / cols)
@@ -118,6 +124,7 @@ Scope {
     selectedIndex = ni
   }
   function moveVerticalNoWrap(dir) {
+    _markKeyboard()
     const n = filteredApps.length; if (n === 0) return
     const cols = columns; const col = selectedIndex % cols
     const row = Math.floor(selectedIndex / cols); const rows = Math.ceil(n / cols)
@@ -125,9 +132,10 @@ Scope {
     let ni = nr * cols + col; if (ni >= n) return
     selectedIndex = ni
   }
-  function goHome() { if (filteredApps.length > 0) selectedIndex = 0 }
-  function goEnd() { const n = filteredApps.length; if (n > 0) selectedIndex = n - 1 }
+  function goHome() { _markKeyboard(); if (filteredApps.length > 0) selectedIndex = 0 }
+  function goEnd() { _markKeyboard(); const n = filteredApps.length; if (n > 0) selectedIndex = n - 1 }
   function pageMove(dir) {
+    _markKeyboard()
     const n = filteredApps.length; if (n === 0) return
     const cols = columns; const col = selectedIndex % cols
     const row = Math.floor(selectedIndex / cols); const rows = Math.ceil(n / cols)
@@ -182,7 +190,8 @@ Scope {
         border.color: Theme.border
         border.width: 1
 
-        MouseArea { anchors.fill: parent; onClicked: {} }
+        MouseArea { anchors.fill: parent; hoverEnabled: true; onPositionChanged: { if (launcherRoot._blockHover) { launcherRoot._blockHover = false } }
+                onClicked: {} }
 
         ColumnLayout {
           anchors.fill: parent
@@ -379,7 +388,7 @@ Scope {
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
-                onEntered: launcherRoot.selectedIndex = del.index
+                onEntered: if (!launcherRoot._blockHover) launcherRoot.selectedIndex = del.index
                 onClicked: launcherRoot.launchAt(del.index)
               }
             }

@@ -31,7 +31,7 @@ Scope {
   }
 
   onQueryChanged: selectedIndex = 0
-  onVisibleChanged: if (visible) { selectedIndex = 0; refresh() }
+  onVisibleChanged: { if (visible) { selectedIndex = 0; _blockHover = true; refresh() } }
 
   function refresh() {
     _accum = ""; allApps = []; psProc.running = true
@@ -86,18 +86,23 @@ Scope {
     }
   }
 
-  // ── Helpers for keyboard ───────────────────────────────────────────
+  // ── Helpers for keyboard (block hover after page) ────────────────
+  property bool _blockHover: false
+  function _markKeyboard() { _blockHover = true }
   function move(delta) {
+    _markKeyboard()
     const n = filteredApps.length; if (n===0) return
     let ni = selectedIndex + delta; if (ni < 0) ni = n-1; if (ni >= n) ni = 0; selectedIndex = ni
   }
   function moveNoWrap(delta) {
+    _markKeyboard()
     const n = filteredApps.length; if (n===0) return
     const ni = selectedIndex + delta; if (ni<0||ni>=n) return; selectedIndex = ni
   }
-  function goHome() { if(filteredApps.length>0) selectedIndex=0 }
-  function goEnd() { const n=filteredApps.length; if(n>0) selectedIndex=n-1 }
+  function goHome() { _markKeyboard(); if(filteredApps.length>0) selectedIndex=0 }
+  function goEnd() { _markKeyboard(); const n=filteredApps.length; if(n>0) selectedIndex=n-1 }
   function pageMove(dir) {
+    _markKeyboard()
     const n=filteredApps.length; if(n===0) return
     let page = 10
     try {
@@ -137,7 +142,8 @@ Scope {
         border.color: Theme.border
         border.width: 1
         clip: true
-        MouseArea { anchors.fill: parent; onClicked: {} }
+        MouseArea { anchors.fill: parent; hoverEnabled: true; onPositionChanged: { if (killerRoot._blockHover) { killerRoot._blockHover = false } }
+                onClicked: {} }
 
         ColumnLayout {
           anchors.fill: parent
@@ -276,7 +282,7 @@ Scope {
               MouseArea {
                 anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                 acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
-                onEntered: killerRoot.selectedIndex = del.index
+                onEntered: if (!killerRoot._blockHover) killerRoot.selectedIndex = del.index
                 onClicked: mouse => {
                   if (mouse.button === Qt.RightButton) killerRoot.killAllAt(del.index)
                   else killerRoot.killAt(del.index)

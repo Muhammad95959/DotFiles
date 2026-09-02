@@ -22,6 +22,8 @@ Scope {
   property string selectedCategory: "All"
   property int selectedIndex: 0
   property int columns: 5
+  property bool _blockHover: false
+  function _markKeyboard() { _blockHover = true }
   property string wallpapersPaths: Quickshell.env("HOME") + "/Backgrounds"
   property var allWallpapers: []
   property string thumbCacheDir: Quickshell.env("HOME") + "/.cache/quickshell/wallpaper-thumbs"
@@ -86,7 +88,7 @@ Scope {
 
   onQueryChanged: selectedIndex = 0
   onSelectedCategoryChanged: selectedIndex = 0
-  onVisibleChanged: if (visible) { selectedIndex = 0; refreshWallpapers() }
+  onVisibleChanged: { if (visible) { selectedIndex = 0; _blockHover = true; refreshWallpapers() } }
 
   function setWallpaper(path) {
     WallpaperManager.setWallpaper(path)
@@ -147,15 +149,18 @@ Scope {
 
   // ── Row-major helpers: Tab cycles, arrows do not ─────────────────
   function moveSelection(delta) {
+    _markKeyboard()
     const n = filteredWallpapers.length; if (n === 0) return
     let ni = selectedIndex + delta; if (ni < 0) ni = n - 1; if (ni >= n) ni = 0; selectedIndex = ni
   }
-  function moveHorizontal(dir) { moveSelection(dir) }
+  function moveHorizontal(dir) { _markKeyboard(); moveSelection(dir) }
   function moveHorizontalNoWrap(dir) {
+    _markKeyboard()
     const n = filteredWallpapers.length; if (n === 0) return
     const ni = selectedIndex + dir; if (ni < 0 || ni >= n) return; selectedIndex = ni
   }
   function moveVertical(dir) {
+    _markKeyboard()
     const n = filteredWallpapers.length; if (n === 0) return
     const cols = columns; const col = selectedIndex % cols; const row = Math.floor(selectedIndex / cols); const rows = Math.ceil(n / cols)
     let nr = row + dir; if (nr < 0) nr = rows - 1; if (nr >= rows) nr = 0
@@ -164,14 +169,16 @@ Scope {
     selectedIndex = ni
   }
   function moveVerticalNoWrap(dir) {
+    _markKeyboard()
     const n = filteredWallpapers.length; if (n === 0) return
     const cols = columns; const col = selectedIndex % cols; const row = Math.floor(selectedIndex / cols); const rows = Math.ceil(n / cols)
     let nr = row + dir; if (nr < 0 || nr >= rows) return
     let ni = nr * cols + col; if (ni >= n) return; selectedIndex = ni
   }
-  function goHome() { if (filteredWallpapers.length > 0) selectedIndex = 0 }
-  function goEnd() { const n = filteredWallpapers.length; if (n > 0) selectedIndex = n - 1 }
+  function goHome() { _markKeyboard(); if (filteredWallpapers.length > 0) selectedIndex = 0 }
+  function goEnd() { _markKeyboard(); const n = filteredWallpapers.length; if (n > 0) selectedIndex = n - 1 }
   function pageMove(dir) {
+    _markKeyboard()
     const n = filteredWallpapers.length; if (n === 0) return
     const cols = columns; const col = selectedIndex % cols; const row = Math.floor(selectedIndex / cols); const rows = Math.ceil(n / cols)
     let pageRows = 3; try { if (grid && grid.height > 0 && grid.cellHeight > 0) pageRows = Math.max(1, Math.floor(grid.height / grid.cellHeight)) } catch(e) {}
@@ -208,7 +215,8 @@ Scope {
         color: Theme.bg
         border.color: Theme.border
         border.width: 1
-        MouseArea { anchors.fill: parent; onClicked: {} }
+        MouseArea { anchors.fill: parent; hoverEnabled: true; onPositionChanged: { if (wallpaperRoot._blockHover) { wallpaperRoot._blockHover = false } }
+                onClicked: {} }
 
         ColumnLayout {
           anchors.fill: parent
@@ -382,7 +390,7 @@ Scope {
 
               MouseArea {
                 anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
-                onEntered: wallpaperRoot.selectedIndex = del.index
+                onEntered: if (!wallpaperRoot._blockHover) wallpaperRoot.selectedIndex = del.index
                 onClicked: wallpaperRoot.setWallpaper(del.modelData)
               }
             }
