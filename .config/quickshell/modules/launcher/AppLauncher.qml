@@ -92,7 +92,22 @@ Scope {
     const arr = filteredApps
     if (idx < 0 || idx >= arr.length) return
     const e = arr[idx]
-    e.execute()
+    if (e.runInTerminal) {
+      // Quickshell's DesktopEntry.execute() ignores runInTerminal (see
+      // https://quickshell.org/docs/v0.3.0/types/Quickshell/DesktopEntry/).
+      // Wrap Terminal=true entries in a terminal emulator.
+      // Prefer xdg-terminal-exec (freedesktop default-terminal-spec), fall
+      // back to common terminals. The installed terminal on this system is
+      // kitty, but we try a chain for portability.
+      const cmd = e.command
+      Quickshell.execDetached({
+        // sh wrapper probes for available terminals at launch time
+        command: ["sh", "-c", 'if command -v xdg-terminal-exec >/dev/null 2>&1; then exec xdg-terminal-exec "$@"; elif command -v kitty >/dev/null 2>&1; then exec kitty -e "$@"; elif command -v ghostty >/dev/null 2>&1; then exec ghostty -e "$@"; elif command -v alacritty >/dev/null 2>&1; then exec alacritty -e "$@"; elif command -v foot >/dev/null 2>&1; then exec foot "$@"; elif command -v gnome-terminal >/dev/null 2>&1; then exec gnome-terminal -- "$@"; elif command -v xterm >/dev/null 2>&1; then exec xterm -e "$@"; else exec "$@"; fi', "sh"].concat(cmd),
+        workingDirectory: e.workingDirectory
+      })
+    } else {
+      e.execute()
+    }
     close()
   }
 
@@ -178,7 +193,7 @@ Scope {
       // ── Left tall container (below bar) ─────────────────────────────
       Rectangle {
         id: container
-        width: 440
+        width: 454
         anchors.left: parent.left
         anchors.top: parent.top
         anchors.bottom: parent.bottom
@@ -336,71 +351,152 @@ Scope {
           }
 
           // ── Grid ───────────────────────────────────────────────────
-          GridView {
-            id: grid
+          Item {
+            id: gridWrap
             Layout.fillWidth: true
             Layout.fillHeight: true
             clip: true
-            cellWidth: 136
-            cellHeight: 92
-            model: launcherRoot.filteredApps
-            currentIndex: launcherRoot.selectedIndex
-            onCurrentIndexChanged: launcherRoot.selectedIndex = currentIndex
-            highlightMoveDuration: 80
 
-            delegate: Rectangle {
-              id: del
-              required property var modelData
-              required property int index
-              width: grid.cellWidth - 8
-              height: grid.cellHeight - 8
-              radius: Theme.radiusMd
-              color: launcherRoot.selectedIndex === index ? Theme.surfaceHover : "transparent"
-              border.color: launcherRoot.selectedIndex === index ? Qt.alpha(Theme.fg, 0.33) : "transparent"
-              border.width: launcherRoot.selectedIndex === index ? 1 : 0
+            GridView {
+              id: grid
+              anchors.fill: parent
+              anchors.rightMargin: 14
+              clip: true
+              cellWidth: 136
+              cellHeight: 92
+              model: launcherRoot.filteredApps
+              currentIndex: launcherRoot.selectedIndex
+              onCurrentIndexChanged: launcherRoot.selectedIndex = currentIndex
+              highlightMoveDuration: 80
+              boundsBehavior: Flickable.StopAtBounds
+              flickDeceleration: 6000
+              maximumFlickVelocity: 4800
 
-              ColumnLayout {
-                anchors.centerIn: parent
-                spacing: 6
-                width: parent.width - 12
-
-                IconImage {
-                  Layout.alignment: Qt.AlignHCenter
-                  implicitSize: 34
-                  source: Quickshell.iconPath(del.modelData.icon, true)
-                }
-
-                Text {
-                  Layout.fillWidth: true
-                  horizontalAlignment: Text.AlignHCenter
-                  text: del.modelData.name
-                  color: Theme.fg
-                  font.family: Theme.monoFont
-                  font.pixelSize: 11
-                  font.bold: launcherRoot.selectedIndex === del.index
-                  elide: Text.ElideRight
-                  maximumLineCount: 2
-                  wrapMode: Text.WordWrap
+              // Faster mouse-wheel: ~1.7 rows per notch vs default ~0.4
+              WheelHandler {
+                acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+                onWheel: event => {
+                  const delta = event.angleDelta.y
+                  if (delta === 0) return
+                  const step = grid.cellHeight * 1.7
+                  const dir = delta > 0 ? -1 : 1
+                  const maxY = Math.max(0, grid.contentHeight - grid.height)
+                  let nextY = grid.contentY + dir * step
+                  nextY = Math.max(0, Math.min(maxY, nextY))
+                  grid.contentY = nextY
+                  event.accepted = true
                 }
               }
 
-              MouseArea {
-                anchors.fill: parent
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
-                onEntered: if (!launcherRoot._blockHover) launcherRoot.selectedIndex = del.index
-                onClicked: launcherRoot.launchAt(del.index)
+              delegate: Rectangle {
+                id: del
+                required property var modelData
+                required property int index
+                width: grid.cellWidth - 8
+                height: grid.cellHeight - 8
+                radius: Theme.radiusMd
+                color: launcherRoot.selectedIndex === index ? Theme.surfaceHover : "transparent"
+                border.color: launcherRoot.selectedIndex === index ? Qt.alpha(Theme.fg, 0.33) : "transparent"
+                border.width: launcherRoot.selectedIndex === index ? 1 : 0
+
+                ColumnLayout {
+                  anchors.centerIn: parent
+                  spacing: 6
+                  width: parent.width - 12
+
+                  IconImage {
+                    Layout.alignment: Qt.AlignHCenter
+                    implicitSize: 34
+                    source: Quickshell.iconPath(del.modelData.icon, true)
+                  }
+
+                  Text {
+                    Layout.fillWidth: true
+                    horizontalAlignment: Text.AlignHCenter
+                    text: del.modelData.name
+                    color: Theme.fg
+                    font.family: Theme.monoFont
+                    font.pixelSize: 11
+                    font.bold: launcherRoot.selectedIndex === del.index
+                    elide: Text.ElideRight
+                    maximumLineCount: 2
+                    wrapMode: Text.WordWrap
+                  }
+                }
+
+                MouseArea {
+                  anchors.fill: parent
+                  hoverEnabled: true
+                  cursorShape: Qt.PointingHandCursor
+                  onEntered: if (!launcherRoot._blockHover) launcherRoot.selectedIndex = del.index
+                  onClicked: launcherRoot.launchAt(del.index)
+                }
+              }
+
+              Text {
+                anchors.centerIn: parent
+                visible: launcherRoot.filteredApps.length === 0
+                text: "No results"
+                color: Theme.fg
+                opacity: 0.55
+                font.family: Theme.monoFont
+                font.pixelSize: 13
               }
             }
 
-            Text {
-              anchors.centerIn: parent
-              visible: launcherRoot.filteredApps.length === 0
-              text: "No results"
-              color: Theme.fg
-              opacity: 0.55
-              font.family: Theme.monoFont
-              font.pixelSize: 13
+            // Subtle overlay scrollbar (theme-aware) — gutter outside icons
+            Rectangle {
+              id: sbTrack
+              anchors.top: parent.top
+              anchors.bottom: parent.bottom
+              anchors.right: parent.right
+              width: 10
+              radius: 3
+              color: "transparent"
+              visible: grid.contentHeight > grid.height
+
+              Rectangle {
+                id: sbThumb
+                width: 6
+                radius: 3
+                x: (parent.width - width) / 2
+                color: (sbDrag.drag.active || sbDrag.containsMouse || sbHover.containsMouse) ? Theme.fg : Qt.alpha(Theme.fg, 0.22)
+                opacity: grid.moving || sbDrag.containsMouse || sbHover.containsMouse || sbDrag.drag.active ? 1 : 0.85
+                Behavior on color { ColorAnimation { duration: 120 } }
+                Behavior on opacity { NumberAnimation { duration: 150 } }
+                height: Math.max(28, grid.height * grid.visibleArea.heightRatio)
+                y: grid.visibleArea.yPosition * grid.height
+                visible: grid.contentHeight > grid.height
+              }
+
+              MouseArea {
+                id: sbHover
+                anchors.fill: parent
+                hoverEnabled: true
+                acceptedButtons: Qt.NoButton
+              }
+
+              MouseArea {
+                id: sbDrag
+                anchors.fill: parent
+                hoverEnabled: true
+                drag.target: sbThumb
+                drag.axis: Drag.YAxis
+                drag.minimumY: 0
+                drag.maximumY: grid.height - sbThumb.height
+                onPositionChanged: if (drag.active) {
+                  const ratio = sbThumb.y / Math.max(1, grid.height - sbThumb.height)
+                  grid.contentY = ratio * (grid.contentHeight - grid.height)
+                }
+                onPressed: mouse => {
+                  if (mouse.y < sbThumb.y || mouse.y > sbThumb.y + sbThumb.height) {
+                    const ratio = (mouse.y - sbThumb.height / 2) / Math.max(1, grid.height - sbThumb.height)
+                    const clamped = Math.max(0, Math.min(1, ratio))
+                    grid.contentY = clamped * (grid.contentHeight - grid.height)
+                  }
+                }
+                onWheel: wheel => wheel.accepted = false
+              }
             }
           }
         }

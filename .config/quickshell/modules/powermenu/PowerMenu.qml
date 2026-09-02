@@ -108,7 +108,7 @@ Scope {
       // ── Right tall container (below bar) ──────────────────────────
       Rectangle {
         id: box
-        width: 400
+        width: 454
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.bottom: parent.bottom
