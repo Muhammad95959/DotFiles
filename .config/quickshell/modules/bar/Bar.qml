@@ -480,7 +480,7 @@ Scope {
                   elide: Text.ElideRight
                   width: Math.min(implicitWidth, bar.windowTitleMaxWidth)
                 }
-MouseArea {
+                MouseArea {
                   cursorShape: Qt.PointingHandCursor
                   hoverEnabled: true
                   anchors.fill: parent
@@ -493,8 +493,6 @@ MouseArea {
                     }
                   }
                 }
-              }
-              Item { width: bar.mWindowPad; height: 1 }
               }
               Item { width: bar.mWindowPad; height: 1 }
             }
@@ -935,11 +933,12 @@ MouseArea {
                         if (mouse.button === Qt.LeftButton) modelData.activate()
                         else if (mouse.button === Qt.RightButton) modelData.secondaryActivate()
                         else if (mouse.button === Qt.MiddleButton) modelData.secondaryActivate()
-}
-      }
-    }
-  }
-}
+                      }
+                    }
+                  }
+                }
+              }
+            }
             Item { width: bar.mTrayOuterPad; height: 1 }
           }
 
