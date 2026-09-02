@@ -26,6 +26,7 @@ Scope {
     currentPath = path
     startupPath = path
     const esc = path.replace(/'/g, "'\\''")
+    Quickshell.execDetached(["sh", "-c", "ln -frs '" + esc + "' \"$HOME/.cache/waylandwall\""])
   }
 
   function setTransientWallpaper(path) {
