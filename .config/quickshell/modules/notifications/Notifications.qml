@@ -1,4 +1,5 @@
 pragma ComponentBehavior: Bound
+import Quickshell.Io
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Services.Notifications
@@ -601,14 +602,20 @@ Scope {
       }
 
       // ── Card click: invoke default or fallback focus (WhatsApp Web) ────
+      // Right-click dismisses notification
       MouseArea {
         anchors.fill: parent
         // keep below close button and action buttons so they receive clicks first
         z: -1
         propagateComposedEvents: true
-        acceptedButtons: Qt.LeftButton
+        acceptedButtons: Qt.LeftButton | Qt.RightButton
         cursorShape: Qt.PointingHandCursor
         onClicked: mouse => {
+          if (mouse.button === Qt.RightButton) {
+            cardRoot.notif.dismiss()
+            mouse.accepted = true
+            return
+          }
           // if an action button already handled the click, don't double-activate
           if (mouse.accepted) return
           root.activateNotification(cardRoot.notif)

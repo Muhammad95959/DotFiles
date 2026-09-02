@@ -422,14 +422,14 @@ Scope {
               visible: bar.submapName !== ""
               width: submapText.implicitWidth + bar.pSubmapInnerPad*2
               height: bar.implicitHeight - 4
-              color: barScope.urgent
+              color: barScope.fg
               anchors.verticalCenter: parent.verticalCenter
               radius: 4
               Text {
                 id: submapText
                 anchors.centerIn: parent
                 text: bar.submapName
-                color: "white"
+                color: barScope.bg
                 font.family: barScope.monoFont
                 font.pixelSize: bar.fontSizeText
                 font.bold: true

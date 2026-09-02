@@ -30,14 +30,14 @@ ShellRoot {
     onPowermenuRequested: powermenu.toggle()
   }
 
-  // ── Reload Popup ───────────────────────────────────────────────────
-  ReloadPopup {}
-
   // ── Launcher ───────────────────────────────────────────────────────
   AppLauncher { id: launcher }
 
   // ── Power Menu ─────────────────────────────────────────────────────
   PowerMenu { id: powermenu }
+
+  // ── Reload Popup ───────────────────────────────────────────────────
+  ReloadPopup {}
 
   // ── Wallpaper ──────────────────────────────────────────────────────
   WallpaperBackground {}
@@ -84,4 +84,5 @@ ShellRoot {
 
   // ── Generic Qmenu (rofi replacement) ─────────────────────────────────
   Qmenu {}
+
 }
