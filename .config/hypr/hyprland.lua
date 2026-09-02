@@ -329,9 +329,7 @@ local function waydroid()
   local session_running = output ~= nil and output:match("Session:%s*RUNNING") ~= nil
   if session_running then
     hl.exec_cmd([[sh -c '
-      choice=$(printf "Yes\nNo" |
-        rofi -dmenu -p "Confirmation" -mesg "Stop waydroid session?" \
-          -theme "$HOME/.config/rofi/confirmation.rasi")
+      choice=$(printf "Yes\nNo" | /home/muhammad/DotFiles/.config/quickshell/modules/qmenu/qmenu -p "Confirmation: Stop waydroid session?")
       if [ "$choice" = "Yes" ]; then
         waydroid session stop
         notify-send "waydroid" "session stopped"
