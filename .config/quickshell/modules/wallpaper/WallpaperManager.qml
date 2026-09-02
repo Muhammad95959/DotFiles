@@ -26,21 +26,13 @@ Scope {
     currentPath = path
     startupPath = path
     const esc = path.replace(/'/g, "'\\''")
-    // keep awww compat until user deletes it, but native background is primary
-    const cmd = "ln -fs '" + esc + "' \"$HOME/.cache/waylandwall\"; "
-              + "mkdir -p \"$HOME/.cache\"; "
-              + "command -v magick >/dev/null 2>&1 && magick \"$HOME/.cache/waylandwall\" -gravity center -crop 1:1 +repage \"$HOME/.cache/rofiwall\" 2>/dev/null || true; "
-              + "if command -v awww >/dev/null 2>&1; then pgrep -x awww-daemon >/dev/null 2>&1 || setsid awww-daemon >/dev/null 2>&1 & sleep 0.2; awww img '" + esc + "' --transition-type none --transition-duration 0 2>/dev/null || true; fi"
-    Quickshell.execDetached(["sh", "-c", cmd])
   }
 
   function setTransientWallpaper(path) {
     if (!path) return
     currentPath = path
-    // do NOT update startupPath / waylandwall — transient only
-    const esc = path.replace(/'/g, "'\\''")
-    const cmd = "if command -v awww >/dev/null 2>&1; then pgrep -x awww-daemon >/dev/null 2>&1 || setsid awww-daemon >/dev/null 2>&1 & sleep 0.2; awww img '" + esc + "' --transition-type none --transition-duration 0 2>/dev/null || true; fi"
-    Quickshell.execDetached(["sh", "-c", cmd])
+    // do NOT update startupPath / waylandwall — transient only, no awww
+    // Preview is just updating currentPath; WallpaperBackground will render it.
   }
 
   // read current from symlink on startup

@@ -107,8 +107,14 @@ Scope {
     stdout: StdioCollector {
       waitForEnd: true
       onStreamFinished: {
-        const t = String(text||"").trim()
-        if (t && clipRoot.previewIsImage === false) clipRoot.previewFullText = t
+        // Preserve internal new lines exactly; only strip a single trailing newline added by shell
+        let t = String(text||"")
+        if (t.endsWith("\n")) t = t.slice(0, -1)
+        // Do not trim interior spaces/newlines — preview must show them
+        if (clipRoot.previewIsImage === false) {
+          // Only apply if still on same id (avoid race when user moves fast)
+          clipRoot.previewFullText = t
+        }
       }
     }
   }
@@ -144,7 +150,11 @@ Scope {
     } else {
       previewImagePath = ""
       previewUpdateId = e.id
+      // Show truncated preview immediately, then replace with full decode (preserves \n)
       previewFullText = e.preview
+      // Fetch full content with new lines intact
+      previewProc.command = ["sh", "-c", "cliphist decode '" + e.id.replace(/'/g,"'\\''") + "' 2>/dev/null"]
+      previewProc.running = true
     }
   }
   onSelectedIndexChanged: updatePreview()
@@ -391,6 +401,7 @@ Scope {
                     text: clipRoot.previewFullText || (clipRoot.filtered.length>0 && clipRoot.selectedIndex>=0 ? clipRoot.filtered[clipRoot.selectedIndex].preview : "")
                     color: Theme.fg; font.family:Theme.monoFont; font.pixelSize:12
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                    textFormat: Text.PlainText
                   }
                 }
                 Text {

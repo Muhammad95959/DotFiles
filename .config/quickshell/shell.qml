@@ -19,6 +19,8 @@ import "modules/corners"
 import "modules/bookmarks"
 import "modules/braveHistory"
 import "modules/zathuraRecolor"
+import "modules/virtManager"
+import "modules/liveWall"
 
 ShellRoot {
   id: root
@@ -75,5 +77,11 @@ ShellRoot {
 
   // ── Theming ────────────────────────────────────────────────────────
   ZathuraRecolor { id: zathuraRecolor }
+
+  // ── VirtManager ────────────────────────────────────────────────────
+  VirtManager { id: virtManager }
+
+  // ── Live Wallpapers ────────────────────────────────────────────────
+  LiveWall { id: liveWall }
 
 }
