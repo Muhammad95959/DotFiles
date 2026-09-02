@@ -312,7 +312,7 @@ local function brave_translate()
       end
     end
     if not found then
-      hl.exec_cmd("~/Scripts/brave_translate.sh")
+      hl.exec_cmd("quickshell ipc call translate toggle")
     end
     hl.exec_cmd("hyprminimizer cleanup")
   end
@@ -594,21 +594,20 @@ end)
 
 -- Scripts submap
 hl.define_submap("scripts", function()
-  hl.bind("c", hl.dsp.exec_cmd(reset .. "~/Scripts/hyprland_move_to_corners.sh"))
+  hl.bind("c", hl.dsp.exec_cmd(reset .. "quickshell ipc call corners toggle"))
   hl.bind("d", hl.dsp.exec_cmd(reset .. "~/Scripts/rofi_todo/todo.sh"))
-  hl.bind("g", hl.dsp.exec_cmd(reset .. "~/Scripts/google_translate.sh"))
   hl.bind("h", hl.dsp.exec_cmd(reset .. "~/Scripts/brave_history.sh"))
   hl.bind("k", hl.dsp.exec_cmd(reset .. "quickshell ipc call appkiller toggle"))
   hl.bind("l", hl.dsp.exec_cmd(reset .. "~/Scripts/livewall.sh -f"))
-  hl.bind("m", hl.dsp.exec_cmd(reset .. "~/Scripts/mpv_history.sh"))
-  hl.bind("r", hl.dsp.exec_cmd(reset .. "~/Scripts/hyprland_resize.sh"))
+  hl.bind("m", hl.dsp.exec_cmd(reset .. "quickshell ipc call mpvHistory toggle"))
+  hl.bind("r", hl.dsp.exec_cmd(reset .. "quickshell ipc call resize toggle"))
   hl.bind("s", toggle_smart_gaps) hl.bind("s", hl.dsp.submap("reset"))
+  hl.bind("u", hl.dsp.exec_cmd(reset .. "quickshell ipc call urlMpv toggle"))
   hl.bind("v", hl.dsp.exec_cmd(reset .. "~/Scripts/virt_opener.sh"))
-  hl.bind("w", hl.dsp.exec_cmd(reset .. "~/Scripts/brave_bookmarks.sh"))
+  hl.bind("w", hl.dsp.exec_cmd(reset .. "quickshell ipc call bookmarks toggle"))
   hl.bind("y", hl.dsp.exec_cmd(reset .. "kitty --class yt-dlp -e ~/Scripts/yt-dlp_script.sh"))
-  hl.bind("z", hl.dsp.exec_cmd(reset .. "~/Scripts/zathura_history.sh"))
+  hl.bind("z", hl.dsp.exec_cmd(reset .. "quickshell ipc call zathuraHistory toggle"))
   hl.bind("SHIFT + l", hl.dsp.exec_cmd(reset .. "~/Scripts/livewall_select.sh"))
-  hl.bind("SHIFT + m", hl.dsp.exec_cmd(reset .. "~/Scripts/url_to_mpv.sh"))
 
   hl.bind("ESCAPE",             hl.dsp.submap("reset"))
   hl.bind(mod .. " + CTRL + q", hl.dsp.submap("reset"))
@@ -726,15 +725,15 @@ hl.bind(mod .. " + CTRL + l", hl.dsp.window.resize({ x = 50,  y = 0, relative = 
 hl.bind(mod .. " + CTRL + k", hl.dsp.window.resize({ x = 0, y = -50, relative = true }), { repeating = true })
 hl.bind(mod .. " + CTRL + j", hl.dsp.window.resize({ x = 0, y = 50,  relative = true }), { repeating = true })
 
--- Volume controls (quickshell OSD — Pipewire auto-show, wpctl backend, no swayosd)
-hl.bind("XF86AudioRaiseVolume",         hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 && wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ -l 1.5"),                            { repeating = true })
-hl.bind("XF86AudioLowerVolume",         hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 && wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"),                                    { repeating = true })
-hl.bind("SHIFT + XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 && wpctl set-volume @DEFAULT_AUDIO_SINK@ 1%+ -l 1.5"),                            { repeating = true })
-hl.bind("SHIFT + XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 && wpctl set-volume @DEFAULT_AUDIO_SINK@ 1%-"),                                    { repeating = true })
-hl.bind("XF86AudioMute",                hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),                                                                               { repeating = true })
-hl.bind("XF86AudioMicMute",             hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"),                                                                            { repeating = true })
+-- Volume controls
+hl.bind("XF86AudioRaiseVolume",         hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 && wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+ -l 1.5"), { repeating = true })
+hl.bind("XF86AudioLowerVolume",         hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 && wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"),        { repeating = true })
+hl.bind("SHIFT + XF86AudioRaiseVolume", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 && wpctl set-volume @DEFAULT_AUDIO_SINK@ 1%+ -l 1.5"), { repeating = true })
+hl.bind("SHIFT + XF86AudioLowerVolume", hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ 0 && wpctl set-volume @DEFAULT_AUDIO_SINK@ 1%-"),        { repeating = true })
+hl.bind("XF86AudioMute",                hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),                                                { repeating = true })
+hl.bind("XF86AudioMicMute",             hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"),                                              { repeating = true })
 
--- Brightness controls (quickshell OSD via ipc)
+-- Brightness controls
 hl.bind("XF86MonBrightnessUp",           hl.dsp.exec_cmd("brightnessctl set 5%+ && quickshell ipc call osd brightness \"$(brightnessctl -m | awk -F, '{gsub(/%/,\"\",$4);print $4}' | head -n1)\""), { repeating = true })
 hl.bind("XF86MonBrightnessDown",         hl.dsp.exec_cmd("brightnessctl set 5%- && quickshell ipc call osd brightness \"$(brightnessctl -m | awk -F, '{gsub(/%/,\"\",$4);print $4}' | head -n1)\""), { repeating = true })
 hl.bind("SHIFT + XF86MonBrightnessUp",   hl.dsp.exec_cmd("brightnessctl set 1%+ && quickshell ipc call osd brightness \"$(brightnessctl -m | awk -F, '{gsub(/%/,\"\",$4);print $4}' | head -n1)\""), { repeating = true })
