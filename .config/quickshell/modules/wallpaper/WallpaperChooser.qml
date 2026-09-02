@@ -120,20 +120,17 @@ Scope {
       const uniq = [...new Set(raw)]
       uniq.sort()
       wallpaperRoot.allWallpapers = uniq
-      // preselect current wallpaper
+      // preselect startup wallpaper (not transient random)
       try {
-        const cur = WallpaperManager.currentPath
+        const cur = WallpaperManager.startupPath
         if (cur && cur.length > 0) {
           const idx = wallpaperRoot.filteredWallpapers.indexOf(cur)
           if (idx >= 0) wallpaperRoot.selectedIndex = idx
           else if (wallpaperRoot.filteredWallpapers.length > 0) {
-            // if filtered by category, try to find in all then switch category?
             const allIdx = uniq.indexOf(cur)
             if (allIdx >= 0) {
-              // switch to its category
               const cat = wallpaperRoot.categoryOf(cur)
               if (wallpaperRoot.categories.some(c => c.key === cat)) wallpaperRoot.selectedCategory = cat
-              // after category switch filtered will recompute, try again next tick
               Qt.callLater(() => {
                 const nIdx = wallpaperRoot.filteredWallpapers.indexOf(cur)
                 if (nIdx >= 0) wallpaperRoot.selectedIndex = nIdx
@@ -416,6 +413,7 @@ Scope {
     function open() { wallpaperRoot.open() }
     function close() { wallpaperRoot.close() }
     function set(wallpaperPath: string) { wallpaperRoot.setWallpaper(wallpaperPath) }
+    function random() { WallpaperManager.setRandomWallpaper() }
   }
 
   GlobalShortcut {

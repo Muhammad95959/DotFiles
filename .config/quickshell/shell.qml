@@ -9,9 +9,15 @@ import "modules/appkiller"
 import "modules/osd"
 import "modules/clipboard"
 import "modules/notifications"
+import "modules/reload"
 
 ShellRoot {
   id: root
+
+  // ── Reload Popup (themed, right side) ────────────────────────────
+  ReloadPopup {
+    id: reloadPopup
+  }
 
   // ── Bar ────────────────────────────────────────────────────────────
   Bar {

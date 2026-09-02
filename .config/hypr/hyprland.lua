@@ -694,7 +694,7 @@ hl.bind(mod .. " + SHIFT + p",      hl.dsp.exec_cmd("rofi -show window -theme-st
 hl.bind(mod .. " + SHIFT + q",      hl.dsp.exec_cmd("quickshell ipc call powermenu toggle"))
 hl.bind(mod .. " + SHIFT + r",      hl.dsp.exec_cmd("hyprctl reload && killall quickshell; quickshell"))
 hl.bind(mod .. " + SHIFT + t",      hl.dsp.exec_cmd("confet"))
-hl.bind(mod .. " + SHIFT + w",      hl.dsp.exec_cmd([[awww img "$(find "/home/muhammad/Backgrounds" -maxdepth 1 -name '*.jpg' -o -name '*.png' | shuf -n1)" --transition-type "none" --transition-duration 0]]), { repeating = true })
+hl.bind(mod .. " + SHIFT + w",      hl.dsp.exec_cmd("quickshell ipc call wallpaper random"), { repeating = true })
 
 hl.bind(mod .. " + CTRL + a",       hl.dsp.exec_cmd("~/Scripts/new_english.sh"))
 hl.bind(mod .. " + CTRL + v",       hl.dsp.submap("passthrough"))
