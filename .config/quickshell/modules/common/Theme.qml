@@ -9,7 +9,7 @@ QtObject {
   readonly property color bgAlt: "#1e1e2e"
   readonly property color fg: "#e1e2e7"
   readonly property color accent: "#7aa2f7"
-  readonly property color urgent: "#e60053"
+  readonly property color urgent: "#ff757f"
   readonly property color surface: "#24283b"
   readonly property color surfaceHover: "#2a2e44"
   readonly property color border: "#3b4261"

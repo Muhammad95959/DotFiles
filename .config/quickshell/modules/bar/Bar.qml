@@ -52,8 +52,8 @@ Scope {
       property int pLauncherLeft: 8
       property int mLauncherRight: 8
       property int mWorkspacesOuterPad: 8
-      property int pWorkspacesBtnPad: 2
-      property int mWorkspacesGap: 8
+      property int pWorkspacesBtnPad: 4
+      property int mWorkspacesGap: 4
       property int mSubmapPad: 6
       property int pSubmapInnerPad: 8
       property int mWindowPad: 8
@@ -370,7 +370,7 @@ Scope {
 
                 width: isUrgent ? bar.workspaceUrgentWidth : Math.max(bar.pWorkspacesBtnPad*2+10, wsLabel.implicitWidth + bar.pWorkspacesBtnPad*2)
                 height: bar.implicitHeight - 4
-                radius: isUrgent ? bar.workspaceUrgentRadius : 0
+                radius: isUrgent ? bar.workspaceUrgentRadius : 4
                 opacity: (!isActive && isEmpty) ? 0.5 : 1
                 color: {
                   if (isUrgent) return barScope.urgent
@@ -406,7 +406,7 @@ Scope {
                 property bool isUrgent: modelData.urgent
                 width: isUrgent ? bar.workspaceUrgentWidth : Math.max(bar.pWorkspacesBtnPad*2+10, sLabel.implicitWidth + bar.pWorkspacesBtnPad*2)
                 height: bar.implicitHeight - 4
-                radius: isUrgent ? bar.workspaceUrgentRadius : 0
+                radius: isUrgent ? bar.workspaceUrgentRadius : 4
                 color: {
                   if (isUrgent) return barScope.urgent
                   if (sMouse.containsMouse) return Qt.lighter(barScope.bg, 1.8)
