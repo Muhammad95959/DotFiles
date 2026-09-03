@@ -56,7 +56,10 @@ Scope {
     }
   }
 
-  Variants {
+  LazyLoader {
+    active: root.visible
+
+    Variants {
     model: Quickshell.screens
     PanelWindow {
       required property var modelData
@@ -114,6 +117,8 @@ Scope {
         Connections{ target: root; function onVisibleChanged(){ if(root.visible){ searchField.text=""; searchField.forceActiveFocus()}}}
       }
     }
+  }
+
   }
 
   IpcHandler{

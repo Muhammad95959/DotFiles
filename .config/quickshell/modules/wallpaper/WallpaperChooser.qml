@@ -193,7 +193,10 @@ Scope {
   }
 
   // ── Window ─────────────────────────────────────────────────────────
-  Variants {
+  LazyLoader {
+    active: wallpaperRoot.visible
+
+    Variants {
     model: Quickshell.screens
     PanelWindow {
       id: win
@@ -414,6 +417,8 @@ Scope {
   }
 
   // ── IPC ────────────────────────────────────────────────────────────
+  }
+
   IpcHandler {
     target: "wallpaper"
     function toggle() { wallpaperRoot.toggle() }

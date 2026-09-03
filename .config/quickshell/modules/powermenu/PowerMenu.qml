@@ -80,7 +80,10 @@ Scope {
   onVisibleChanged: { if (visible) { selectedIndex = 0; _blockHover = true } }
 
   // ── Windows ────────────────────────────────────────────────────────
-  Variants {
+  LazyLoader {
+    active: pmRoot.visible
+
+    Variants {
     model: Quickshell.screens
 
     PanelWindow {
@@ -328,6 +331,8 @@ Scope {
   }
 
   // ── IPC ────────────────────────────────────────────────────────────
+  }
+
   IpcHandler {
     target: "powermenu"
     function toggle() { pmRoot.toggle() }

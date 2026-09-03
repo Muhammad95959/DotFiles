@@ -117,7 +117,10 @@ Scope {
   }
 
   // ── Window ─────────────────────────────────────────────────────────
-  Variants {
+  LazyLoader {
+    active: killerRoot.visible
+
+    Variants {
     model: Quickshell.screens
     PanelWindow {
       required property var modelData
@@ -318,6 +321,8 @@ Scope {
   }
 
   // ── IPC ────────────────────────────────────────────────────────────
+  }
+
   IpcHandler {
     target: "appkiller"
     function toggle() { killerRoot.toggle() }

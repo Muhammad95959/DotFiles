@@ -64,7 +64,10 @@ Scope {
     _markKeyboard(); const n=qualities.length; let page=6; try{ const h=qList? qList.height:0; if(h>0) page=Math.max(1, Math.floor(h/38))}catch(e){} let ni=selectedIndex+dir*page; if(ni<0) ni=0; if(ni>=n) ni=n-1; selectedIndex=ni
   }
 
-  Variants {
+  LazyLoader {
+    active: root.visible
+
+    Variants {
     model: Quickshell.screens
     PanelWindow {
       required property var modelData
@@ -220,6 +223,8 @@ Scope {
         }
       }
     }
+  }
+
   }
 
   IpcHandler{

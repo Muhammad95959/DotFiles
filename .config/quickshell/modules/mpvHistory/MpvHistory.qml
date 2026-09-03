@@ -104,17 +104,20 @@ Scope {
     }}
   }
 
-  Variants {
-    model: Quickshell.screens
-    PanelWindow {
-      required property var modelData
-      screen: modelData
-      visible: root.visible
-      color: "transparent"
-      exclusionMode: ExclusionMode.Ignore
-      WlrLayershell.layer: WlrLayer.Overlay
-      WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
-      WlrLayershell.namespace: "quickshell-mpv-history"
+  LazyLoader {
+    active: root.visible
+
+    Variants {
+      model: Quickshell.screens
+      PanelWindow {
+        required property var modelData
+        screen: modelData
+        visible: root.visible
+        color: "transparent"
+        exclusionMode: ExclusionMode.Ignore
+        WlrLayershell.layer: WlrLayer.Overlay
+        WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+        WlrLayershell.namespace: "quickshell-mpv-history"
       anchors { top:true; bottom:true; left:true; right:true }
 
       MouseArea { anchors.fill: parent; onClicked: root.close() }
@@ -300,6 +303,7 @@ Scope {
         Connections{ target: root; function onVisibleChanged(){ if(root.visible){ searchField.text=""; searchField.forceActiveFocus(); container.forceActiveFocus(); searchField.forceActiveFocus() } } }
       }
     }
+  }
   }
 
   IpcHandler {

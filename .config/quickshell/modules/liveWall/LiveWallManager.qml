@@ -64,7 +64,7 @@ Scope {
 
   Process {
     id: loadProc
-    command: ["sh", "-c", "readlink -f \"$HOME/Backgrounds/Live/active\" 2>/dev/null || echo \"\""]
+    command: ["readlink", "-f", Quickshell.env("HOME") + "/Backgrounds/Live/active"]
     stdout: SplitParser {
       onRead: data => {
         const p = data.trim()

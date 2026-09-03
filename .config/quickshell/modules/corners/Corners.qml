@@ -97,7 +97,10 @@ Scope {
   function goEnd(){ const n=filtered.length; if(n>0) selectedIndex=n-1 }
   function pageMove(dir){ const n=filtered.length; if(n===0) return; let page=10; let ni=selectedIndex+dir*page; if(ni<0) ni=0; if(ni>=n) ni=n-1; selectedIndex=ni }
 
-  Variants{
+  LazyLoader {
+    active: root.visible
+
+    Variants {
     model: Quickshell.screens
     PanelWindow{
       required property var modelData; screen: modelData; visible: root.visible; color:"transparent"; exclusionMode: ExclusionMode.Ignore
@@ -123,6 +126,8 @@ Scope {
         Connections{ target: root; function onVisibleChanged(){ if(root.visible) onelinerBar.focusInput()}}
       }
     }
+  }
+
   }
 
   IpcHandler {

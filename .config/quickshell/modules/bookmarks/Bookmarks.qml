@@ -67,7 +67,10 @@ Scope {
     }}
   }
 
-  Variants{
+  LazyLoader {
+    active: root.visible
+
+    Variants {
     model: Quickshell.screens
     PanelWindow{
       required property var modelData; screen: modelData; visible: root.visible; color:"transparent"; exclusionMode: ExclusionMode.Ignore
@@ -123,6 +126,8 @@ Scope {
         }
       }
     }
+  }
+
   }
 
   IpcHandler {

@@ -52,7 +52,7 @@ Scope {
   // read current from symlink on startup
   Process {
     id: loadProc
-    command: ["sh", "-c", "readlink -f \"$HOME/.cache/waylandwall\" 2>/dev/null || echo \"\""]
+    command: ["readlink", "-f", Quickshell.env("HOME") + "/.cache/waylandwall"]
     stdout: SplitParser {
       onRead: data => {
         const p = data.trim()

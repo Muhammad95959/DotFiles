@@ -224,13 +224,16 @@ Scope {
     }
   }
 
-  Variants {
-    model: Quickshell.screens
+  LazyLoader {
+    active: root.visible
 
-    PanelWindow {
-      required property var modelData
-      screen: modelData
-      visible: root.visible
+    Variants {
+      model: Quickshell.screens
+
+      PanelWindow {
+        required property var modelData
+        screen: modelData
+        visible: root.visible
       color: "transparent"
       exclusionMode: ExclusionMode.Ignore
       WlrLayershell.namespace: "quickshell-systemd"
@@ -581,6 +584,7 @@ Scope {
         Connections { target: root; function onVisibleChanged() { if (root.visible) { searchField.text = ""; searchField.forceActiveFocus(); container.forceActiveFocus(); searchField.forceActiveFocus() } } }
       }
     }
+  }
   }
 
   IpcHandler {

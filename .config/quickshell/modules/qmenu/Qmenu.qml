@@ -115,10 +115,14 @@ Scope {
   // Delegates UI to styles/Style1.qml (and future Style2). Keeps logic single-source.
   // To add Style2: copy styles/Style1.qml → styles/Style2.qml and change `Style1` → `Style2` below,
   // or make `currentStyle` dynamic via Loader (future).
-  Variants {
-    model: Quickshell.screens
-    Style1 {
-      qmenuRoot: root
+  LazyLoader {
+    active: root.visible
+
+    Variants {
+      model: Quickshell.screens
+      Style1 {
+        qmenuRoot: root
+      }
     }
   }
 

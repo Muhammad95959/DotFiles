@@ -183,12 +183,15 @@ Scope {
     const list=filtered; if(idx<0||idx>=list.length) return; decodeId(list[idx].id)
   }
 
-  Variants {
-    model: Quickshell.screens
-    PanelWindow {
-      required property var modelData
-      screen: modelData
-      visible: clipRoot.visible
+  LazyLoader {
+    active: clipRoot.visible
+
+    Variants {
+      model: Quickshell.screens
+      PanelWindow {
+        required property var modelData
+        screen: modelData
+        visible: clipRoot.visible
       color: "transparent"
       exclusionMode: ExclusionMode.Ignore
       WlrLayershell.namespace: "quickshell-clipboard"
@@ -451,6 +454,7 @@ Scope {
         Connections{ target:clipRoot; function onVisibleChanged(){ if(clipRoot.visible){ searchField.text=""; searchField.forceActiveFocus() } } }
       }
     }
+  }
   }
 
   IpcHandler {

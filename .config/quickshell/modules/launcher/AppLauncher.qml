@@ -157,7 +157,10 @@ Scope {
   }
 
   // ── Windows ────────────────────────────────────────────────────────
-  Variants {
+  LazyLoader {
+    active: launcherRoot.visible
+
+    Variants {
     model: Quickshell.screens
 
     PanelWindow {
@@ -507,6 +510,8 @@ Scope {
   }
 
   // ── IPC / Shortcut ─────────────────────────────────────────────────
+  }
+
   IpcHandler {
     target: "launcher"
     function toggle() { launcherRoot.toggle() }

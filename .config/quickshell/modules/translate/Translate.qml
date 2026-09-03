@@ -46,7 +46,10 @@ Scope {
     close()
   }
 
-  Variants {
+  LazyLoader {
+    active: root.visible
+
+    Variants {
     model: Quickshell.screens
     PanelWindow {
       required property var modelData
@@ -84,6 +87,8 @@ Scope {
       }
       Connections{ target: root; function onVisibleChanged(){ if(root.visible) onelinerBar.focusInput() } }
     }
+  }
+
   }
 
   IpcHandler{

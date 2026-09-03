@@ -179,17 +179,20 @@ Scope {
     _markKeyboard(); const n=currentCount; if(n===0)return; let page=10; try{ const h=listView?listView.height:0; if(h>0) page=Math.max(1, Math.floor(h/42))}catch(e){} let ni=selectedIndex+dir*page; if(ni<0) ni=0; if(ni>=n) ni=n-1; selectedIndex=ni; try{ if(typeof listView!=="undefined"&&listView) listView.positionViewAtIndex(ni, ListView.Contain)}catch(e){}
   }
 
-  Variants {
-    model: Quickshell.screens
-    PanelWindow {
-      required property var modelData
-      screen: modelData
-      visible: root.visible
-      color: "transparent"
-      exclusionMode: ExclusionMode.Ignore
-      WlrLayershell.layer: WlrLayer.Overlay
-      WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
-      WlrLayershell.namespace: "quickshell-virt"
+  LazyLoader {
+    active: root.visible
+
+    Variants {
+      model: Quickshell.screens
+      PanelWindow {
+        required property var modelData
+        screen: modelData
+        visible: root.visible
+        color: "transparent"
+        exclusionMode: ExclusionMode.Ignore
+        WlrLayershell.layer: WlrLayer.Overlay
+        WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+        WlrLayershell.namespace: "quickshell-virt"
       anchors { top:true; bottom:true; left:true; right:true }
       MouseArea{ anchors.fill: parent; onClicked: root.stage==="actions" ? root.onBack() : root.close() }
       Rectangle{ anchors.fill: parent; color: Theme.dim }
@@ -350,6 +353,7 @@ Scope {
         Connections{ target: root; function onVisibleChanged(){ if(root.visible){ searchField.text=""; root.query=""; searchField.forceActiveFocus() } } }
       }
     }
+  }
   }
 
   IpcHandler {

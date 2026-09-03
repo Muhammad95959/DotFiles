@@ -222,14 +222,17 @@ Scope {
     }
   }
 
-  Variants {
-    model: Quickshell.screens
+  LazyLoader {
+    active: root.visible
 
-    PanelWindow {
-      id: win
-      required property var modelData
-      screen: modelData
-      visible: root.visible
+    Variants {
+      model: Quickshell.screens
+
+      PanelWindow {
+        id: win
+        required property var modelData
+        screen: modelData
+        visible: root.visible
       color: "transparent"
       exclusionMode: ExclusionMode.Ignore
       WlrLayershell.namespace: "quickshell-glyphPicker"
@@ -579,6 +582,7 @@ Scope {
         Connections { target: root; function onVisibleChanged() { if (root.visible) { searchField.text = ""; searchField.forceActiveFocus(); container.forceActiveFocus(); searchField.forceActiveFocus() } } }
       }
     }
+  }
   }
 
   IpcHandler {
