@@ -99,6 +99,7 @@ Scope {
   }
 
   // keyboard helpers
+  function move(delta) { _markKeyboard(); const n=filtered.length; if(n===0) return; let ni=selectedIndex+delta; if(ni<0) ni=n-1; if(ni>=n) ni=0; selectedIndex=ni }
   function moveNoWrap(delta) { _markKeyboard(); const n=filtered.length; if(n===0) return; const ni=selectedIndex+delta; if(ni<0||ni>=n) return; selectedIndex=ni }
   function goHome() { _markKeyboard(); if(filtered.length>0) selectedIndex=0 }
   function goEnd() { _markKeyboard(); const n=filtered.length; if(n>0) selectedIndex=n-1 }

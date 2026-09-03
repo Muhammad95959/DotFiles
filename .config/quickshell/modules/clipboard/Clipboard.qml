@@ -160,6 +160,10 @@ Scope {
   onSelectedIndexChanged: updatePreview()
   onFilteredChanged: updatePreview()
 
+  function move(delta) {
+    const n = filtered.length; if(n===0) return
+    let ni = selectedIndex+delta; if(ni<0) ni=n-1; if(ni>=n) ni=0; selectedIndex=ni; updatePreview()
+  }
   function moveNoWrap(delta) {
     const n = filtered.length; if(n===0) return
     const ni = selectedIndex+delta; if(ni<0||ni>=n) return; selectedIndex=ni; updatePreview()
@@ -233,8 +237,16 @@ Scope {
                 onAccepted: clipRoot.activateAt(clipRoot.selectedIndex)
                 Keys.onPressed: event => {
                   if (event.key === Qt.Key_Escape) { clipRoot.close(); event.accepted=true }
+                  else if (event.key === Qt.Key_Backtab) { clipRoot.move(-1); event.accepted=true }
+                  else if (event.key === Qt.Key_Tab) {
+                    if (event.modifiers & Qt.ShiftModifier) clipRoot.move(-1)
+                    else clipRoot.move(1)
+                    event.accepted=true
+                  }
                   else if (event.key === Qt.Key_Up) { clipRoot.moveNoWrap(-1); event.accepted=true }
                   else if (event.key === Qt.Key_Down) { clipRoot.moveNoWrap(1); event.accepted=true }
+                  else if (event.key === Qt.Key_Left) { clipRoot.moveNoWrap(-1); event.accepted=true }
+                  else if (event.key === Qt.Key_Right) { clipRoot.moveNoWrap(1); event.accepted=true }
                   else if (event.key === Qt.Key_Home) { clipRoot.goHome(); event.accepted=true }
                   else if (event.key === Qt.Key_End) { clipRoot.goEnd(); event.accepted=true }
                   else if (event.key === Qt.Key_PageUp) { clipRoot.pageMove(-1); event.accepted=true }

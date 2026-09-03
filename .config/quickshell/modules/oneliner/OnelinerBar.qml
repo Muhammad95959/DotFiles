@@ -19,6 +19,10 @@ Item {
   signal accepted(int index)
   signal cancelled()
   signal moved(int delta)
+  signal movedNoWrap(int delta)
+  signal homeRequested()
+  signal endRequested()
+  signal pageRequested(int dir)
   signal hovered(int index)
 
   // expose focus call
@@ -71,13 +75,19 @@ Item {
           }
           Keys.onPressed: event => {
             if (event.key === Qt.Key_Escape) { root.cancelled(); event.accepted = true }
-            else if (!root.inputOnly && event.key === Qt.Key_Right) { root.moved(1); event.accepted = true }
-            else if (!root.inputOnly && event.key === Qt.Key_Left) { root.moved(-1); event.accepted = true }
-            else if (!root.inputOnly && event.key === Qt.Key_Tab) { root.moved(1); event.accepted = true }
             else if (!root.inputOnly && event.key === Qt.Key_Backtab) { root.moved(-1); event.accepted = true }
-            else if (!root.inputOnly && (event.key === Qt.Key_Down || event.key === Qt.Key_Up)) { /* ignore vertical */ event.accepted = true }
-            else if (event.key === Qt.Key_Home) { root.moved(-9999); event.accepted = true }
-            else if (event.key === Qt.Key_End) { root.moved(9999); event.accepted = true }
+            else if (!root.inputOnly && event.key === Qt.Key_Tab) {
+              if (event.modifiers & Qt.ShiftModifier) root.moved(-1)
+              else root.moved(1)
+              event.accepted = true
+            } else if (!root.inputOnly && event.key === Qt.Key_Right) { root.movedNoWrap(1); event.accepted = true }
+            else if (!root.inputOnly && event.key === Qt.Key_Left) { root.movedNoWrap(-1); event.accepted = true }
+            else if (!root.inputOnly && event.key === Qt.Key_Down) { root.movedNoWrap(1); event.accepted = true }
+            else if (!root.inputOnly && event.key === Qt.Key_Up) { root.movedNoWrap(-1); event.accepted = true }
+            else if (event.key === Qt.Key_Home) { root.homeRequested(); event.accepted = true }
+            else if (event.key === Qt.Key_End) { root.endRequested(); event.accepted = true }
+            else if (event.key === Qt.Key_PageUp) { root.pageRequested(-1); event.accepted = true }
+            else if (event.key === Qt.Key_PageDown) { root.pageRequested(1); event.accepted = true }
           }
           Text {
             anchors.left: parent.left

@@ -108,6 +108,7 @@ Scope {
   Timer { id: syncTimer; interval: 650; repeat: false; onTriggered: isLiveProc.running = true }
 
   // ── Navigation helpers ───────────────────────────────────────────
+  function move(d) { _markKeyboard(); const n=filtered.length; if(n===0) return; let ni=selectedIndex+d; if(ni<0) ni=n-1; if(ni>=n) ni=0; selectedIndex=ni }
   function moveNoWrap(d) { _markKeyboard(); const n=filtered.length; if(n===0) return; const ni=selectedIndex+d; if(ni<0||ni>=n) return; selectedIndex=ni }
   function goHome() { _markKeyboard(); if(filtered.length>0) selectedIndex=0 }
   function goEnd() { _markKeyboard(); if(filtered.length>0) selectedIndex=filtered.length-1 }
@@ -200,8 +201,12 @@ Scope {
                 onAccepted: { if(root.filtered.length>0) root.activateAt(root.selectedIndex) }
                 Keys.onPressed: event=>{
                   if(event.key===Qt.Key_Escape){ root.close(); event.accepted=true}
+                  else if(event.key===Qt.Key_Backtab){ root.move(-1); event.accepted=true}
+                  else if(event.key===Qt.Key_Tab){ if(event.modifiers & Qt.ShiftModifier) root.move(-1); else root.move(1); event.accepted=true }
                   else if(event.key===Qt.Key_Up){ root.moveNoWrap(-1); event.accepted=true}
                   else if(event.key===Qt.Key_Down){ root.moveNoWrap(1); event.accepted=true}
+                  else if(event.key===Qt.Key_Left){ root.moveNoWrap(-1); event.accepted=true}
+                  else if(event.key===Qt.Key_Right){ root.moveNoWrap(1); event.accepted=true}
                   else if(event.key===Qt.Key_Home){ root.goHome(); event.accepted=true}
                   else if(event.key===Qt.Key_End){ root.goEnd(); event.accepted=true}
                   else if(event.key===Qt.Key_PageUp){ root.pageMove(-1); event.accepted=true}

@@ -42,6 +42,14 @@ Scope {
   function move(delta){
     const n=filtered.length; if(n===0) return; let ni=selectedIndex+delta; if(ni<0) ni=n-1; if(ni>=n) ni=0; selectedIndex=ni
   }
+  function moveNoWrap(delta){
+    const n=filtered.length; if(n===0) return; const ni=selectedIndex+delta; if(ni<0||ni>=n) return; selectedIndex=ni
+  }
+  function goHome(){ if(filtered.length>0) selectedIndex=0 }
+  function goEnd(){ const n=filtered.length; if(n>0) selectedIndex=n-1 }
+  function pageMove(dir){
+    const n=filtered.length; if(n===0) return; let page=10; let ni=selectedIndex+dir*page; if(ni<0) ni=0; if(ni>=n) ni=n-1; selectedIndex=ni
+  }
 
   Process {
     id: proc
@@ -73,6 +81,10 @@ Scope {
           onAccepted: idx=>{ const eff= idx>=0?idx:root.selectedIndex; if(root.filtered.length>0) root.activateAt(eff)}
           onCancelled: root.close()
           onMoved: delta=> root.move(delta)
+          onMovedNoWrap: delta=> root.moveNoWrap(delta)
+          onHomeRequested: root.goHome()
+          onEndRequested: root.goEnd()
+          onPageRequested: dir=> root.pageMove(dir)
           onHovered: idx=> root.selectedIndex=idx
         }
         Component.onCompleted: if(root.visible) onelinerBar.focusInput()

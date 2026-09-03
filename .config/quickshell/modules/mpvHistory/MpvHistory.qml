@@ -43,6 +43,10 @@ Scope {
     Quickshell.execDetached(["mpv", e.path])
     close()
   }
+  function move(delta) {
+    _markKeyboard(); const n = filtered.length; if (n===0) return
+    let ni = selectedIndex + delta; if (ni < 0) ni = n-1; if (ni >= n) ni = 0; selectedIndex = ni
+  }
   function moveNoWrap(delta) {
     _markKeyboard(); const n = filtered.length; if (n===0) return
     const ni = selectedIndex + delta; if (ni < 0 || ni >= n) return; selectedIndex = ni
@@ -94,8 +98,8 @@ Scope {
       Rectangle { anchors.fill: parent; color: Theme.dim }
 
       Rectangle {
-        width: 640
-        height: 420
+        width: 780
+        height: 480
         anchors.centerIn: parent
         radius: Theme.radiusLg
         color: Theme.bg
@@ -141,8 +145,12 @@ Scope {
                 onAccepted: root.activateAt(root.selectedIndex)
                 Keys.onPressed: event => {
                   if (event.key===Qt.Key_Escape){ root.close(); event.accepted=true}
+                  else if (event.key===Qt.Key_Backtab){ root.move(-1); event.accepted=true}
+                  else if (event.key===Qt.Key_Tab){ if (event.modifiers & Qt.ShiftModifier) root.move(-1); else root.move(1); event.accepted=true }
                   else if (event.key===Qt.Key_Up){ root.moveNoWrap(-1); event.accepted=true}
                   else if (event.key===Qt.Key_Down){ root.moveNoWrap(1); event.accepted=true}
+                  else if (event.key===Qt.Key_Left){ root.moveNoWrap(-1); event.accepted=true}
+                  else if (event.key===Qt.Key_Right){ root.moveNoWrap(1); event.accepted=true}
                   else if (event.key===Qt.Key_Home){ root.goHome(); event.accepted=true}
                   else if (event.key===Qt.Key_End){ root.goEnd(); event.accepted=true}
                   else if (event.key===Qt.Key_PageUp){ root.pageMove(-1); event.accepted=true}

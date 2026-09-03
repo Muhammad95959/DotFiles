@@ -190,6 +190,8 @@ Scope {
                     if (event.modifiers & Qt.ShiftModifier) killerRoot.move(-1); else killerRoot.move(1); event.accepted = true
                   } else if (event.key === Qt.Key_Up) { killerRoot.moveNoWrap(-1); event.accepted = true }
                   else if (event.key === Qt.Key_Down) { killerRoot.moveNoWrap(1); event.accepted = true }
+                  else if (event.key === Qt.Key_Left) { killerRoot.moveNoWrap(-1); event.accepted = true }
+                  else if (event.key === Qt.Key_Right) { killerRoot.moveNoWrap(1); event.accepted = true }
                   else if (event.key === Qt.Key_Home) { killerRoot.goHome(); event.accepted = true }
                   else if (event.key === Qt.Key_End) { killerRoot.goEnd(); event.accepted = true }
                   else if (event.key === Qt.Key_PageUp) { killerRoot.pageMove(-1); event.accepted = true }

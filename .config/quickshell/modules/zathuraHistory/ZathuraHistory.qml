@@ -37,6 +37,7 @@ Scope {
     Quickshell.execDetached(["sh","-c","setsid zathura '" + path.replace(/'/g,"'\\''") + "' >/dev/null 2>&1 &"])
     close()
   }
+  function move(delta){ _markKeyboard(); const n=filtered.length; if(n===0) return; let ni=selectedIndex+delta; if(ni<0) ni=n-1; if(ni>=n) ni=0; selectedIndex=ni }
   function moveNoWrap(delta){ _markKeyboard(); const n=filtered.length; if(n===0) return; const ni=selectedIndex+delta; if(ni<0||ni>=n) return; selectedIndex=ni }
   function goHome(){ _markKeyboard(); if(filtered.length>0) selectedIndex=0 }
   function goEnd(){ _markKeyboard(); const n=filtered.length; if(n>0) selectedIndex=n-1 }
@@ -70,7 +71,7 @@ Scope {
       Rectangle{ anchors.fill: parent; color: Theme.dim }
 
       Rectangle {
-        width:640; height:420; anchors.centerIn: parent; radius: Theme.radiusLg; color: Theme.bg; border.color: Theme.border; border.width:1; clip:true
+        width: 780; height: 480; anchors.centerIn: parent; radius: Theme.radiusLg; color: Theme.bg; border.color: Theme.border; border.width:1; clip:true
         MouseArea{ anchors.fill: parent; hoverEnabled:true; onPositionChanged: if(root._blockHover) root._blockHover=false; onClicked:{} }
 
         ColumnLayout {
@@ -86,7 +87,7 @@ Scope {
             RowLayout{ anchors.fill:parent; anchors.leftMargin:12; anchors.rightMargin:12; spacing:8
               Text{ text:""; color:Theme.fg; opacity:0.55; font.family:Theme.nerdFont; font.pixelSize:14}
               TextInput{ id: searchField; Layout.fillWidth:true; color:Theme.fg; font.family:Theme.monoFont; font.pixelSize:14; focus:true; activeFocusOnTab:false; onTextChanged: root.query=text; onAccepted: root.activateAt(root.selectedIndex)
-                Keys.onPressed: event=>{ if(event.key===Qt.Key_Escape){root.close();event.accepted=true} else if(event.key===Qt.Key_Up){root.moveNoWrap(-1);event.accepted=true} else if(event.key===Qt.Key_Down){root.moveNoWrap(1);event.accepted=true} else if(event.key===Qt.Key_Home){root.goHome();event.accepted=true} else if(event.key===Qt.Key_End){root.goEnd();event.accepted=true} else if(event.key===Qt.Key_PageUp){root.pageMove(-1);event.accepted=true} else if(event.key===Qt.Key_PageDown){root.pageMove(1);event.accepted=true} else if(event.key===Qt.Key_Return||event.key===Qt.Key_Enter){root.activateAt(root.selectedIndex);event.accepted=true} }
+                Keys.onPressed: event=>{ if(event.key===Qt.Key_Escape){root.close();event.accepted=true} else if(event.key===Qt.Key_Backtab){root.move(-1);event.accepted=true} else if(event.key===Qt.Key_Tab){ if(event.modifiers & Qt.ShiftModifier) root.move(-1); else root.move(1); event.accepted=true } else if(event.key===Qt.Key_Up){root.moveNoWrap(-1);event.accepted=true} else if(event.key===Qt.Key_Down){root.moveNoWrap(1);event.accepted=true} else if(event.key===Qt.Key_Left){root.moveNoWrap(-1);event.accepted=true} else if(event.key===Qt.Key_Right){root.moveNoWrap(1);event.accepted=true} else if(event.key===Qt.Key_Home){root.goHome();event.accepted=true} else if(event.key===Qt.Key_End){root.goEnd();event.accepted=true} else if(event.key===Qt.Key_PageUp){root.pageMove(-1);event.accepted=true} else if(event.key===Qt.Key_PageDown){root.pageMove(1);event.accepted=true} else if(event.key===Qt.Key_Return||event.key===Qt.Key_Enter){root.activateAt(root.selectedIndex);event.accepted=true} }
                 Text{anchors.left:parent.left;anchors.verticalCenter:parent.verticalCenter;visible:searchField.text==="";text:"Search document…";color:Theme.fg;opacity:0.45;font.family:Theme.monoFont;font.pixelSize:14}
               }
               Text{ visible: searchField.text!==""; text:""; color:Theme.fg; opacity:0.55; font.family:Theme.nerdFont; font.pixelSize:12; MouseArea{anchors.fill:parent;cursorShape:Qt.PointingHandCursor; onClicked:{searchField.text=""; root.query=""}} }

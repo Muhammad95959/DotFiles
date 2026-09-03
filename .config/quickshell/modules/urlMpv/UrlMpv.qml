@@ -83,12 +83,14 @@ Scope {
         focus: true
         Keys.onPressed: event => {
           if (event.key===Qt.Key_Escape){ root.close(); event.accepted=true}
-          else if (event.key===Qt.Key_Up || event.key===Qt.Key_Left){ root.moveNoWrap(-1); event.accepted=true}
-          else if (event.key===Qt.Key_Down || event.key===Qt.Key_Right){ root.moveNoWrap(1); event.accepted=true}
+          else if (event.key===Qt.Key_Backtab){ root.move(-1); event.accepted=true}
           else if (event.key===Qt.Key_Tab){
             if (event.modifiers & Qt.ShiftModifier) root.move(-1); else root.move(1); event.accepted=true
           }
-          else if (event.key===Qt.Key_Backtab){ root.move(-1); event.accepted=true}
+          else if (event.key===Qt.Key_Up){ root.moveNoWrap(-1); event.accepted=true}
+          else if (event.key===Qt.Key_Down){ root.moveNoWrap(1); event.accepted=true}
+          else if (event.key===Qt.Key_Left){ root.moveNoWrap(-1); event.accepted=true}
+          else if (event.key===Qt.Key_Right){ root.moveNoWrap(1); event.accepted=true}
           else if (event.key===Qt.Key_Home){ root.goHome(); event.accepted=true}
           else if (event.key===Qt.Key_End){ root.goEnd(); event.accepted=true}
           else if (event.key===Qt.Key_PageUp){ root.pageMove(-1); event.accepted=true}

@@ -70,8 +70,12 @@ PanelWindow {
             onAccepted: qmenuRoot.activateAt(qmenuRoot.selectedIndex)
             Keys.onPressed: event=>{
               if(event.key===Qt.Key_Escape){ qmenuRoot.cancelled(); qmenuRoot.close(); event.accepted=true}
+              else if(event.key===Qt.Key_Backtab){ qmenuRoot.move(-1); event.accepted=true}
+              else if(event.key===Qt.Key_Tab){ if(event.modifiers & Qt.ShiftModifier) qmenuRoot.move(-1); else qmenuRoot.move(1); event.accepted=true }
               else if(event.key===Qt.Key_Up){ qmenuRoot.moveNoWrap(-1); event.accepted=true}
               else if(event.key===Qt.Key_Down){ qmenuRoot.moveNoWrap(1); event.accepted=true}
+              else if(event.key===Qt.Key_Left){ qmenuRoot.moveNoWrap(-1); event.accepted=true}
+              else if(event.key===Qt.Key_Right){ qmenuRoot.moveNoWrap(1); event.accepted=true}
               else if(event.key===Qt.Key_Home){ qmenuRoot.goHome(); event.accepted=true}
               else if(event.key===Qt.Key_End){ qmenuRoot.goEnd(); event.accepted=true}
               else if(event.key===Qt.Key_PageUp){ qmenuRoot.pageMove(-1); event.accepted=true}
