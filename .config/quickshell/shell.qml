@@ -15,6 +15,7 @@ import "modules/mpvHistory"
 import "modules/notifications"
 import "modules/osd"
 import "modules/powermenu"
+import "modules/glyphPicker"
 import "modules/qmenu"
 import "modules/reload"
 import "modules/resize"
@@ -87,5 +88,8 @@ ShellRoot {
 
   // ── Generic Qmenu (rofi replacement) ─────────────────────────────────
   Qmenu {}
+
+  // ── Glyph Picker (emoji + nerd + unicode) ────────────────────────────
+  GlyphPicker {}
 
 }
