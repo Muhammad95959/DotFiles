@@ -1,0 +1,3 @@
+singleton LiveWallManager 1.0 LiveWallManager.qml
+LiveWallpaperBackground 1.0 LiveWallpaperBackground.qml
+LiveWall 1.0 LiveWall.qml

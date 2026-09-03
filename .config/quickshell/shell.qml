@@ -82,6 +82,7 @@ ShellRoot {
   VirtManager {}
 
   // ── Live Wallpapers ────────────────────────────────────────────────
+  LiveWallpaperBackground {}
   LiveWall {}
 
   // ── Generic Qmenu (rofi replacement) ─────────────────────────────────
