@@ -10,9 +10,13 @@ Scope {
 
   // ── Current wallpaper (mirrored single) ────────────────────────────
   property string currentPath: ""
+  property bool skipNextAnimation: true
   property string startupPath: "" // persisted, loaded at startup, not changed by random
 
-  // helper for file:// encoding (#, unicode, spaces)
+  onSkipNextAnimationChanged: {
+    if (skipNextAnimation) _resetSkipTimer.restart()
+  }
+
   function fileUrl(path) {
     if (!path) return ""
     return "file://" + path.split("/").map(c => c === "" ? "" : encodeURIComponent(c)).join("/")
@@ -22,19 +26,27 @@ Scope {
     loadProc.running = true
   }
 
+  function setRandomWallpaper() {
+    skipNextAnimation = true
+    _resetSkipTimer.restart()
+    randomProc.running = true
+  }
+
+  function setTransientWallpaper(path, skipAnimation) {
+    if (!path) return
+    const skip = skipAnimation === true
+    skipNextAnimation = skip
+    if (skip) _resetSkipTimer.restart()
+    currentPath = path
+  }
+
   function setWallpaper(path) {
     if (!path) return
+    skipNextAnimation = false
     currentPath = path
     startupPath = path
     const esc = path.replace(/'/g, "'\\''")
     Quickshell.execDetached(["sh", "-c", "ln -frs '" + esc + "' \"$HOME/.cache/waylandwall\""])
-  }
-
-  function setTransientWallpaper(path) {
-    if (!path) return
-    currentPath = path
-    // do NOT update startupPath / waylandwall — transient only, no awww
-    // Preview is just updating currentPath; WallpaperBackground will render it.
   }
 
   // read current from symlink on startup
@@ -44,7 +56,12 @@ Scope {
     stdout: SplitParser {
       onRead: data => {
         const p = data.trim()
-        if (p.length > 0) { manager.currentPath = p; manager.startupPath = p }
+        if (p.length > 0) {
+          manager.skipNextAnimation = true
+          _resetSkipTimer.restart()
+          manager.currentPath = p
+          manager.startupPath = p
+        }
       }
     }
   }
@@ -56,12 +73,16 @@ Scope {
     stdout: SplitParser {
       onRead: data => {
         const p = data.trim()
-        if (p.length > 0) manager.setTransientWallpaper(p)
+        if (p.length > 0) manager.setTransientWallpaper(p, true)
       }
     }
   }
 
-  function setRandomWallpaper() { randomProc.running = true }
+  Timer {
+    id: _resetSkipTimer
+    interval: 750
+    onTriggered: manager.skipNextAnimation = false
+  }
 
   Component.onCompleted: loadCurrent()
 }
