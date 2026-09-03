@@ -1,10 +1,10 @@
 pragma ComponentBehavior: Bound
-import Quickshell
-import Quickshell.Io
-import Quickshell.Hyprland
-import Quickshell.Wayland
 import QtQuick
 import QtQuick.Layouts
+import Quickshell
+import Quickshell.Hyprland
+import Quickshell.Io
+import Quickshell.Wayland
 import "../common"
 
 Scope {
@@ -15,23 +15,44 @@ Scope {
   function close() { visible = false }
 
   property string query: ""
+  property string sourceFilter: "All"
   property int selectedIndex: 0
-  property var allEntries: [] // {title, path, isUrl}
+  property var allEntries: []
+  property bool _altHeld: false
   property bool _blockHover: false
-  function _markKeyboard() { _blockHover = true }
+
+  readonly property var sourceFilters: [
+    { key: "All", label: "All" },
+    { key: "File", label: "Files" },
+    { key: "Url", label: "URL" }
+  ]
 
   readonly property var filtered: {
     const q = query.toLowerCase().trim()
-    if (q === "") return allEntries
-    const toks = q.split(/\s+/)
-    return allEntries.filter(e => {
-      const hay = (e.title + " " + e.path).toLowerCase()
-      for (let t = 0; t < toks.length; t++) if (!hay.includes(toks[t])) return false
-      return true
-    })
+    const f = sourceFilter
+    let list = []
+    for (let i = 0; i < allEntries.length; i++) {
+      const e = allEntries[i]
+      const isUrl = e.isUrl
+      if (f === "File" && isUrl) continue
+      if (f === "Url" && !isUrl) continue
+      if (q !== "") {
+        const hay = (e.title + " " + e.path).toLowerCase()
+        const toks = q.split(/\s+/)
+        let ok = true
+        for (let t = 0; t < toks.length; t++) if (!hay.includes(toks[t])) { ok = false; break }
+        if (!ok) continue
+      }
+      list.push(e)
+    }
+    return list
   }
+
+  function _markKeyboard() { _blockHover = true }
+
   onQueryChanged: selectedIndex = 0
-  onVisibleChanged: if (visible) { selectedIndex = 0; _blockHover = true; refresh() }
+  onSourceFilterChanged: selectedIndex = 0
+  onVisibleChanged: { _altHeld = false; if (visible) { selectedIndex = 0; _blockHover = true; refresh() } }
 
   function refresh() {
     allEntries = []; proc.running = true
@@ -98,14 +119,32 @@ Scope {
       Rectangle { anchors.fill: parent; color: Theme.dim }
 
       Rectangle {
+        id: container
         width: 780
-        height: 480
+        height: 520
         anchors.centerIn: parent
         radius: Theme.radiusLg
         color: Theme.bg
         border.color: Theme.border
         border.width: 1
         clip: true
+        focus: true
+        Keys.onPressed: event => {
+          const hasAlt = (event.modifiers & Qt.AltModifier) || event.key === Qt.Key_Alt
+          if (hasAlt) root._altHeld = true
+          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_F) { root.sourceFilter = "File"; event.accepted = true; return }
+          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_U) { root.sourceFilter = "Url"; event.accepted = true; return }
+          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_A) { root.sourceFilter = "All"; event.accepted = true; return }
+          const inSearch = searchField.activeFocus
+          if (event.key === Qt.Key_Escape) { root.close(); event.accepted = true }
+          else if (event.key === Qt.Key_Slash && !inSearch && !(event.modifiers & Qt.AltModifier)) { searchField.forceActiveFocus(); event.accepted = true }
+          else if (event.key === Qt.Key_R && !inSearch && !(event.modifiers & Qt.AltModifier) && !(event.modifiers & Qt.ControlModifier)) { root.refresh(); event.accepted = true }
+          if (event.key === Qt.Key_Alt) root._altHeld = true
+        }
+        Keys.onReleased: event => {
+          if (event.key === Qt.Key_Alt) root._altHeld = false
+          else root._altHeld = Boolean(event.modifiers & Qt.AltModifier)
+        }
         MouseArea { anchors.fill: parent; hoverEnabled: true; onPositionChanged: if(root._blockHover) root._blockHover=false; onClicked:{} }
 
         ColumnLayout {
@@ -120,7 +159,7 @@ Scope {
             }
             ColumnLayout { spacing:2
               Text { text:"MPV History"; color:Theme.fg; font.family:Theme.monoFont; font.pixelSize:14; font.bold:true }
-              Text { text: root.filtered.length + " videos • " + root.allEntries.length + " total"; color:Theme.fg; opacity:0.55; font.family:Theme.monoFont; font.pixelSize:11 }
+              Text { text: root.filtered.length + " videos • " + root.allEntries.length + " total • " + root.sourceFilter; color:Theme.fg; opacity:0.55; font.family:Theme.monoFont; font.pixelSize:11 }
             }
             Item { Layout.fillWidth:true }
             Rectangle { width:28; height:28; radius:14; color:Theme.surface; border.color:Theme.border; border.width:1
@@ -134,7 +173,7 @@ Scope {
           }
 
           Rectangle {
-            Layout.fillWidth:true; height:42; radius:Theme.radiusMd; color:Theme.surface; border.color: searchField.activeFocus ? Qt.alpha(Theme.fg,0.40) : Theme.border; border.width:1
+            Layout.fillWidth:true; Layout.preferredHeight:42; radius:Theme.radiusMd; color:Theme.surface; border.color: searchField.activeFocus ? Qt.alpha(Theme.fg,0.40) : Theme.border; border.width:1
             RowLayout {
               anchors.fill: parent; anchors.leftMargin:12; anchors.rightMargin:12; spacing:8
               Text { text:""; color:Theme.fg; opacity:0.55; font.family:Theme.nerdFont; font.pixelSize:14 }
@@ -144,7 +183,12 @@ Scope {
                 onTextChanged: root.query = text
                 onAccepted: root.activateAt(root.selectedIndex)
                 Keys.onPressed: event => {
-                  if (event.key===Qt.Key_Escape){ root.close(); event.accepted=true}
+                  const hasAlt = (event.modifiers & Qt.AltModifier) || event.key === Qt.Key_Alt
+                  if (hasAlt) root._altHeld = true
+                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_F) { root.sourceFilter = "File"; event.accepted = true; return }
+                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_U) { root.sourceFilter = "Url"; event.accepted = true; return }
+                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_A) { root.sourceFilter = "All"; event.accepted = true; return }
+                  if (event.key===Qt.Key_Escape){ if(text.length>0){ text=""; root.query=""; event.accepted=true } else { root.close(); event.accepted=true } }
                   else if (event.key===Qt.Key_Backtab){ root.move(-1); event.accepted=true}
                   else if (event.key===Qt.Key_Tab){ if (event.modifiers & Qt.ShiftModifier) root.move(-1); else root.move(1); event.accepted=true }
                   else if (event.key===Qt.Key_Up){ root.moveNoWrap(-1); event.accepted=true}
@@ -156,12 +200,52 @@ Scope {
                   else if (event.key===Qt.Key_PageUp){ root.pageMove(-1); event.accepted=true}
                   else if (event.key===Qt.Key_PageDown){ root.pageMove(1); event.accepted=true}
                   else if (event.key===Qt.Key_Return||event.key===Qt.Key_Enter){ root.activateAt(root.selectedIndex); event.accepted=true}
+                  if (event.key === Qt.Key_Alt) root._altHeld = true
+                }
+                Keys.onReleased: event => {
+                  if (event.key === Qt.Key_Alt) root._altHeld = false
+                  else root._altHeld = Boolean(event.modifiers & Qt.AltModifier)
                 }
                 Text { anchors.left: parent.left; anchors.verticalCenter: parent.verticalCenter; visible: searchField.text===""; text:"Search video…"; color:Theme.fg; opacity:0.45; font.family:Theme.monoFont; font.pixelSize:14 }
               }
               Text { visible: searchField.text!==""; text:""; color:Theme.fg; opacity:0.55; font.family:Theme.nerdFont; font.pixelSize:12
                 MouseArea{anchors.fill:parent; cursorShape:Qt.PointingHandCursor; onClicked:{searchField.text=""; root.query=""}}
               }
+              Text { visible: searchField.text===""; text:"/"; color:Theme.fg; opacity:0.35; font.family:Theme.monoFont; font.pixelSize:11
+                MouseArea{anchors.fill:parent; cursorShape:Qt.PointingHandCursor; onClicked: searchField.forceActiveFocus()}
+              }
+            }
+          }
+
+          Flickable {
+            Layout.fillWidth: true; Layout.preferredHeight: 32; contentWidth: filterRow.width; contentHeight: 32; clip: true
+            flickableDirection: Flickable.HorizontalFlick; boundsBehavior: Flickable.StopAtBounds
+            RowLayout {
+              id: filterRow; height: 32; spacing: 8
+              Repeater {
+                model: root.sourceFilters
+                Rectangle {
+                  required property var modelData
+                  height: 28; width: chipLabel.width + 22; radius: 14
+                  color: root.sourceFilter === modelData.key ? Theme.fg : Theme.surface
+                  border.color: root.sourceFilter === modelData.key ? Theme.fg : Theme.border; border.width: 1
+                  Text {
+                    id: chipLabel; anchors.centerIn: parent
+                    text: {
+                      if (!root._altHeld) return modelData.label
+                      if (modelData.key === "File") return "<u>F</u>iles"
+                      if (modelData.key === "Url") return "<u>U</u>RL"
+                      if (modelData.key === "All") return "<u>A</u>ll"
+                      return modelData.label
+                    }
+                    textFormat: root._altHeld ? Text.RichText : Text.PlainText
+                    color: root.sourceFilter === modelData.key ? Theme.bg : Theme.fg; font.family:Theme.monoFont; font.pixelSize:11; font.bold: root.sourceFilter === modelData.key
+                  }
+                  MouseArea { anchors.fill: parent; cursorShape:Qt.PointingHandCursor; onClicked: root.sourceFilter = modelData.key }
+                }
+              }
+              Item { Layout.preferredWidth: 8 }
+              Text { text: root.filtered.length + " / " + root.allEntries.length; color:Theme.fg; opacity:0.45; font.family:Theme.monoFont; font.pixelSize:11; Layout.alignment: Qt.AlignVCenter }
             }
           }
 
@@ -197,14 +281,22 @@ Scope {
             Text { anchors.centerIn: parent; visible: root.filtered.length===0; text: root.allEntries.length===0? "No history yet" : "No matches"; color:Theme.fg; opacity:0.55; font.family:Theme.monoFont; font.pixelSize:13 }
           }
 
-          RowLayout { Layout.alignment:Qt.AlignHCenter; spacing:10
-            Text { text:"↵ Open"; color:Theme.fg; opacity:0.85; font.family:Theme.monoFont; font.pixelSize:10; font.bold:true}
-            Rectangle{width:1;height:10;color:Theme.border;opacity:0.6}
-            Text { text:"Esc Close"; color:Theme.fg; opacity:0.85; font.family:Theme.monoFont; font.pixelSize:10; font.bold:true}
+          RowLayout { Layout.alignment: Qt.AlignHCenter; spacing: 10
+            Text { text:"󰘳+F Files"; color:Theme.fg; opacity:0.85; font.family:Theme.nerdFont; font.pixelSize:10; font.bold:true }
+            Rectangle { Layout.preferredWidth: 1; Layout.preferredHeight: 10; color:Theme.border; opacity:0.6 }
+            Text { text:"󰘳+U URLs"; color:Theme.fg; opacity:0.85; font.family:Theme.nerdFont; font.pixelSize:10; font.bold:true }
+            Rectangle { Layout.preferredWidth: 1; Layout.preferredHeight: 10; color:Theme.border; opacity:0.6 }
+            Text { text:"󰘳+A All"; color:Theme.fg; opacity:0.85; font.family:Theme.nerdFont; font.pixelSize:10; font.bold:true }
+            Rectangle { Layout.preferredWidth: 1; Layout.preferredHeight: 10; color:Theme.border; opacity:0.6 }
+            Text { text:"󰌒 Tab"; color:Theme.fg; opacity:0.85; font.family:Theme.nerdFont; font.pixelSize:10; font.bold:true }
+            Rectangle { Layout.preferredWidth: 1; Layout.preferredHeight: 10; color:Theme.border; opacity:0.6 }
+            Text { text:"↵ Open"; color:Theme.fg; opacity:0.85; font.family:Theme.monoFont; font.pixelSize:10; font.bold:true }
+            Rectangle { Layout.preferredWidth: 1; Layout.preferredHeight: 10; color:Theme.border; opacity:0.6 }
+            Text { text:"Esc Close"; color:Theme.fg; opacity:0.85; font.family:Theme.monoFont; font.pixelSize:10; font.bold:true }
           }
         }
         Component.onCompleted: if(root.visible) searchField.forceActiveFocus()
-        Connections{ target: root; function onVisibleChanged(){ if(root.visible){ searchField.text=""; searchField.forceActiveFocus() } } }
+        Connections{ target: root; function onVisibleChanged(){ if(root.visible){ searchField.text=""; searchField.forceActiveFocus(); container.forceActiveFocus(); searchField.forceActiveFocus() } } }
       }
     }
   }
