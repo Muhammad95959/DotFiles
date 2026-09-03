@@ -47,6 +47,7 @@ Scope {
     startupPath = path
     const esc = path.replace(/'/g, "'\\''")
     Quickshell.execDetached(["sh", "-c", "ln -frs '" + esc + "' \"$HOME/.cache/waylandwall\""])
+    Quickshell.execDetached(["sh", "-c", "magick '" + esc + "' -gravity center -crop '1:1' -resize 720x720 \"$HOME/.cache/rofiwall\""])
   }
 
   // read current from symlink on startup
