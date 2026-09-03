@@ -17,6 +17,7 @@ import "modules/osd"
 import "modules/powermenu"
 import "modules/glyphPicker"
 import "modules/qmenu"
+import "modules/systemd"
 import "modules/reload"
 import "modules/resize"
 import "modules/translate"
@@ -91,5 +92,8 @@ ShellRoot {
 
   // ── Glyph Picker (emoji + nerd + unicode) ────────────────────────────
   GlyphPicker {}
+
+  // ── Systemd (rofi-systemd replacement) ───────────────────────────────
+  Systemd {}
 
 }
