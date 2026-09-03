@@ -296,6 +296,7 @@ Scope {
           // ── Categories ─────────────────────────────────────────────
           Flickable {
             Layout.fillWidth: true; height: 32; contentWidth: catRow.width; contentHeight: 32; clip: true
+        LayoutMirroring.enabled: false
             flickableDirection: Flickable.HorizontalFlick; boundsBehavior: Flickable.StopAtBounds
             RowLayout {
               id: catRow; height: 32; spacing: 8

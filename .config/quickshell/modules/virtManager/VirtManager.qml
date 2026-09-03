@@ -193,6 +193,7 @@ Scope {
       Rectangle{ anchors.fill: parent; color: Theme.dim }
       Rectangle {
         width: 720; height: Math.min(560, col.implicitHeight + 32); anchors.centerIn: parent; radius: Theme.radiusLg; color: Theme.bg; border.color: Theme.border; border.width:1; clip:true
+        LayoutMirroring.enabled: false
         MouseArea{ anchors.fill: parent; hoverEnabled:true; onPositionChanged: if(root._blockHover) root._blockHover=false; onClicked:{} }
         ColumnLayout {
           id: col
@@ -265,7 +266,7 @@ Scope {
                   Layout.fillWidth:true; Layout.alignment: Qt.AlignVCenter; spacing:2
                   Text{
                     text: root.stage==="vms" ? modelData.name : modelData.label
-                    color:Theme.fg; font.family:Theme.monoFont; font.pixelSize:12; font.bold: root.selectedIndex===del.index
+                    color:Theme.fg; font.family:Theme.monoFont; font.pixelSize:12; font.bold: root.selectedIndex===del.index; horizontalAlignment: Text.AlignLeft; LayoutMirroring.enabled: false
                     elide:Text.ElideRight; Layout.fillWidth:true
                     verticalAlignment: Text.AlignVCenter; leftPadding: 0; topPadding: 0; bottomPadding: 0
                     lineHeight: 1.0; lineHeightMode: Text.FixedHeight

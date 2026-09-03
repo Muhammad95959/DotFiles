@@ -119,6 +119,7 @@ Item {
       model: root.model
       currentIndex: root.selectedIndex
       onCurrentIndexChanged: { if (currentIndex >= 0) positionViewAtIndex(currentIndex, ListView.Contain) }
+      LayoutMirroring.enabled: false
       delegate: Rectangle {
         id: del
         required property var modelData
@@ -143,6 +144,8 @@ Item {
            font.pixelSize: 13
           elide: Text.ElideRight
           opacity: 1
+          horizontalAlignment: Text.AlignLeft
+          LayoutMirroring.enabled: false
         }
         MouseArea {
           anchors.fill: parent

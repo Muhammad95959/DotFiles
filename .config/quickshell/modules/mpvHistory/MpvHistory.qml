@@ -128,6 +128,7 @@ Scope {
         border.color: Theme.border
         border.width: 1
         clip: true
+        LayoutMirroring.enabled: false
         focus: true
         Keys.onPressed: event => {
           const hasAlt = (event.modifiers & Qt.AltModifier) || event.key === Qt.Key_Alt
@@ -271,8 +272,8 @@ Scope {
                 anchors.fill: parent; anchors.leftMargin:12; anchors.rightMargin:12; spacing:10
                 Text { text: del.modelData.isUrl ? "" : ""; color:Theme.fg; opacity:0.7; font.family:Theme.nerdFont; font.pixelSize:12; Layout.alignment:Qt.AlignVCenter }
                 ColumnLayout { Layout.fillWidth:true; spacing:1
-                  Text { text: del.modelData.title; color:Theme.fg; font.family:Theme.monoFont; font.pixelSize:12; elide:Text.ElideRight; Layout.fillWidth:true; font.bold: root.selectedIndex===del.index }
-                  Text { text: del.modelData.path; color:Theme.fg; opacity:0.45; font.family:Theme.monoFont; font.pixelSize:10; elide:Text.ElideMiddle; Layout.fillWidth:true; visible: !del.modelData.isUrl || root.filtered.length<40 }
+                  Text { text: del.modelData.title; color:Theme.fg; font.family:Theme.monoFont; font.pixelSize:12; elide:Text.ElideRight; Layout.fillWidth:true; horizontalAlignment: Text.AlignLeft; LayoutMirroring.enabled: false; font.bold: root.selectedIndex===del.index }
+                  Text { text: del.modelData.path; color:Theme.fg; opacity:0.45; horizontalAlignment: Text.AlignLeft; LayoutMirroring.enabled: false; font.family:Theme.monoFont; font.pixelSize:10; elide:Text.ElideMiddle; Layout.fillWidth:true; visible: !del.modelData.isUrl || root.filtered.length<40 }
                 }
                 Text { text: del.modelData.isUrl ? "URL" : "FILE"; color: del.modelData.isUrl ? Theme.accent : Theme.fg; opacity: del.modelData.isUrl ? 1 : 0.45; font.family:Theme.monoFont; font.pixelSize:9; font.bold: del.modelData.isUrl }
               }

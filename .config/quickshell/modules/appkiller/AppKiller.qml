@@ -140,6 +140,7 @@ Scope {
         border.color: Theme.border
         border.width: 1
         clip: true
+        LayoutMirroring.enabled: false
         MouseArea { anchors.fill: parent; hoverEnabled: true; onPositionChanged: { if (killerRoot._blockHover) { killerRoot._blockHover = false } }
                 onClicked: {} }
 
@@ -275,7 +276,7 @@ Scope {
                 Text {
                   text: del.modelData.comm
                   color: Theme.fg; font.family: Theme.monoFont; font.pixelSize: 12
-                  Layout.fillWidth: true; elide: Text.ElideRight
+                  Layout.fillWidth: true; elide: Text.ElideRight; horizontalAlignment: Text.AlignLeft; LayoutMirroring.enabled: false
                 }
               }
 

@@ -32,6 +32,7 @@ PanelWindow {
     border.color: Theme.border
     border.width: 1
     clip: true
+    LayoutMirroring.enabled: false
     MouseArea { anchors.fill: parent; hoverEnabled:true; onPositionChanged: if(qmenuRoot._blockHover) qmenuRoot._blockHover=false; onClicked:{} }
 
     ColumnLayout {
@@ -108,8 +109,8 @@ PanelWindow {
           border.color: qmenuRoot.selectedIndex===index ? Qt.alpha(Theme.fg,0.33) : Theme.border; border.width:1
           RowLayout {
             anchors.fill: parent; anchors.leftMargin:12; anchors.rightMargin:12; spacing:10
-            Text { text: del.modelData.label; color:Theme.fg; font.family:Theme.monoFont; font.pixelSize:12; Layout.fillWidth:true; elide:Text.ElideRight; font.bold: qmenuRoot.selectedIndex===del.index }
-            Text { text: del.modelData.detail; color:Theme.fg; opacity:0.45; font.family:Theme.monoFont; font.pixelSize:11; visible: del.modelData.detail!==""; elide:Text.ElideRight; Layout.preferredWidth: Math.min(180, implicitWidth) }
+            Text { text: del.modelData.label; color:Theme.fg; font.family:Theme.monoFont; font.pixelSize:12; Layout.fillWidth:true; elide:Text.ElideRight; font.bold: qmenuRoot.selectedIndex===del.index; horizontalAlignment: Text.AlignLeft; LayoutMirroring.enabled: false }
+            Text { text: del.modelData.detail; color:Theme.fg; opacity:0.45; font.family:Theme.monoFont; font.pixelSize:11; visible: del.modelData.detail!==""; elide:Text.ElideRight; horizontalAlignment: Text.AlignLeft; LayoutMirroring.enabled: false; Layout.preferredWidth: Math.min(180, implicitWidth) }
           }
           MouseArea{ anchors.fill:parent; hoverEnabled:true; cursorShape:Qt.PointingHandCursor; onEntered: if(!qmenuRoot._blockHover) qmenuRoot.selectedIndex=del.index; onClicked: qmenuRoot.activateAt(del.index) }
         }

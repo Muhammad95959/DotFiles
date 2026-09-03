@@ -107,6 +107,7 @@ Scope {
         border.color: Theme.border
         border.width: 1
         clip: true
+        LayoutMirroring.enabled: false
         MouseArea{ anchors.fill: parent; hoverEnabled:true; onPositionChanged: if(root._blockHover) root._blockHover=false; onClicked:{} }
 
         ColumnLayout {

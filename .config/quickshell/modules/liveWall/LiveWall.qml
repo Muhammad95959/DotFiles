@@ -153,6 +153,7 @@ Scope {
       Rectangle {
         width: 720; height: 500; anchors.centerIn: parent
         radius: Theme.radiusLg; color: Theme.bg; border.color: Theme.border; border.width: 1; clip: true
+        LayoutMirroring.enabled: false
         MouseArea { anchors.fill: parent; hoverEnabled: true; onPositionChanged: if(root._blockHover) root._blockHover = false; onClicked:{} }
 
         ColumnLayout {
@@ -250,7 +251,7 @@ Scope {
                 Text{
                   text: modelData; color: Theme.fg; font.family:Theme.monoFont; font.pixelSize:12
                   Layout.fillWidth:true; elide:Text.ElideMiddle
-                  font.bold: root.selectedIndex===del.index || modelData===root.activeFile
+                  font.bold: root.selectedIndex===del.index || modelData===root.activeFile; horizontalAlignment: Text.AlignLeft; LayoutMirroring.enabled: false
                 }
                 Text{ text: modelData===root.activeFile ? "active" : ""; color:Theme.accent; font.family:Theme.monoFont; font.pixelSize:10; font.bold:true; visible: modelData===root.activeFile }
               }

@@ -75,6 +75,7 @@ Scope {
       Rectangle{ anchors.fill: parent; color: Theme.dim}
       Rectangle{
         width: 780; height: 480; anchors.centerIn: parent; radius: Theme.radiusLg; color: Theme.bg; border.color: Theme.border; border.width:1; clip:true
+        LayoutMirroring.enabled: false
         MouseArea{ anchors.fill: parent; hoverEnabled:true; onPositionChanged: if(root._blockHover) root._blockHover=false; onClicked:{}}
 
         ColumnLayout{
@@ -106,8 +107,8 @@ Scope {
             delegate: Rectangle{
               id: del; required property var modelData; required property int index; width:listView.width; height:48; radius:Theme.radiusSm; color: root.selectedIndex===index?Theme.surfaceHover:Theme.surface; border.color: root.selectedIndex===index?Qt.alpha(Theme.fg,0.33):Theme.border; border.width:1
               ColumnLayout{ anchors.fill:parent; anchors.leftMargin:12; anchors.rightMargin:12; anchors.topMargin:6; anchors.bottomMargin:6; spacing:2
-                Text{ text: del.modelData.title; color:Theme.fg; font.family:Theme.monoFont; font.pixelSize:12; font.bold: root.selectedIndex===del.index; elide:Text.ElideRight; Layout.fillWidth:true }
-                Text{ text: del.modelData.url; color:Theme.fg; opacity:0.55; font.family:Theme.monoFont; font.pixelSize:10; elide:Text.ElideMiddle; Layout.fillWidth:true }
+                Text{ text: del.modelData.title; color:Theme.fg; font.family:Theme.monoFont; font.pixelSize:12; font.bold: root.selectedIndex===del.index; elide:Text.ElideRight; Layout.fillWidth:true; horizontalAlignment: Text.AlignLeft; LayoutMirroring.enabled: false }
+                Text{ text: del.modelData.url; color:Theme.fg; opacity:0.55; font.family:Theme.monoFont; font.pixelSize:10; elide:Text.ElideMiddle; Layout.fillWidth:true; horizontalAlignment: Text.AlignLeft; LayoutMirroring.enabled: false }
               }
               MouseArea{ anchors.fill:parent; hoverEnabled:true; cursorShape:Qt.PointingHandCursor; onEntered: if(!root._blockHover) root.selectedIndex=del.index; onClicked: root.activateAt(del.index)}
             }

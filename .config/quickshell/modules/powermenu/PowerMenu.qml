@@ -106,6 +106,7 @@ Scope {
         anchors.bottomMargin: 12
         radius: Theme.radiusLg
         color: Theme.bg
+        LayoutMirroring.enabled: false
         border.color: Theme.border
         border.width: 1
         focus: true

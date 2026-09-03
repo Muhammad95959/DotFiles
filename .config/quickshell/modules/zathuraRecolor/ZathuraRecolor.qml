@@ -75,6 +75,7 @@ Scope {
       Rectangle{ anchors.fill: parent; color: Theme.dim}
       Rectangle{
         width: 360; height: Math.min(520, col.implicitHeight + 32); anchors.centerIn: parent; radius: Theme.radiusLg; color: Theme.bg; border.color: Theme.border; border.width:1; clip:true
+        LayoutMirroring.enabled: false
         MouseArea{ anchors.fill: parent; hoverEnabled:true; onPositionChanged: if(root._blockHover) root._blockHover=false; onClicked:{}}
 
         ColumnLayout{
@@ -127,7 +128,7 @@ Scope {
                   border.color: Qt.alpha(Theme.fg,0.25); border.width:1
                 }
                 // second swatch for contrast: show darkcolor if available? keep single for now
-                Text{ text: del.modelData.name; color: Theme.fg; font.family:Theme.monoFont; font.pixelSize:12; Layout.fillWidth:true; elide:Text.ElideRight; font.bold: root.selectedIndex===del.index}
+                Text{ text: del.modelData.name; color: Theme.fg; font.family:Theme.monoFont; font.pixelSize:12; Layout.fillWidth:true; elide:Text.ElideRight; font.bold: root.selectedIndex===del.index; horizontalAlignment: Text.AlignLeft; LayoutMirroring.enabled: false}
                 Text{ text: del.modelData.color; color:Theme.fg; opacity:0.45; font.family:Theme.monoFont; font.pixelSize:10; visible: root.filtered.length<10 }
               }
               MouseArea{ anchors.fill:parent; hoverEnabled:true; cursorShape:Qt.PointingHandCursor; onEntered: if(!root._blockHover) root.selectedIndex=del.index; onClicked: root.activateAt(del.index)}

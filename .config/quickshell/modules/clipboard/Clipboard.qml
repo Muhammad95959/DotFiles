@@ -208,6 +208,7 @@ Scope {
         border.width: 0
         radius: 0
         clip: true
+        LayoutMirroring.enabled: false
         MouseArea { anchors.fill: parent; onClicked: {} }
 
         ColumnLayout {
@@ -339,6 +340,8 @@ Scope {
                         color: Theme.fg; font.family:Theme.monoFont; font.pixelSize:12
                         elide: Text.ElideRight; maximumLineCount:1
                         opacity: del.modelData.isImage?0.80:1
+                        horizontalAlignment: Text.AlignLeft
+                        LayoutMirroring.enabled: false
                       }
                       Text {
                         visible: del.modelData.isImage

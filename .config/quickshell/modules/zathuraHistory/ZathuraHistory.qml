@@ -94,13 +94,13 @@ Scope {
             }
           }
           ListView{
-            id: listView; Layout.fillWidth:true; Layout.fillHeight:true; clip:true; boundsBehavior:Flickable.StopAtBounds; spacing:6; model: root.filtered; currentIndex: root.selectedIndex
+            id: listView; Layout.fillWidth:true; Layout.fillHeight:true; clip:true; LayoutMirroring.enabled: false; boundsBehavior:Flickable.StopAtBounds; spacing:6; model: root.filtered; currentIndex: root.selectedIndex
             onCurrentIndexChanged:{ root.selectedIndex=currentIndex; if(currentIndex>=0) positionViewAtIndex(currentIndex, ListView.Contain)}
             delegate: Rectangle{
               id: del; required property var modelData; required property int index; width:listView.width; height:36; radius:Theme.radiusSm; color: root.selectedIndex===index?Theme.surfaceHover:Theme.surface; border.color: root.selectedIndex===index?Qt.alpha(Theme.fg,0.33):Theme.border; border.width:1
               RowLayout{ anchors.fill:parent; anchors.leftMargin:12; anchors.rightMargin:12; spacing:10
                 Text{ text:""; color:Theme.fg; opacity:0.7; font.family:Theme.nerdFont; font.pixelSize:12}
-                Text{ text: del.modelData.split("/").pop(); color:Theme.fg; font.family:Theme.monoFont; font.pixelSize:12; Layout.fillWidth:true; elide:Text.ElideMiddle}
+                Text{ text: del.modelData.split("/").pop(); color:Theme.fg; font.family:Theme.monoFont; font.pixelSize:12; Layout.fillWidth:true; elide:Text.ElideMiddle; horizontalAlignment: Text.AlignLeft; LayoutMirroring.enabled: false}
               }
               MouseArea{ anchors.fill:parent; hoverEnabled:true; cursorShape:Qt.PointingHandCursor; onEntered: if(!root._blockHover) root.selectedIndex=del.index; onClicked: root.activateAt(del.index)}
             }
