@@ -1,12 +1,14 @@
 pragma ComponentBehavior: Bound
-import Quickshell
-import Quickshell.Io
-import Quickshell.Hyprland
-import Quickshell.Services.Pipewire
-import Quickshell.Services.UPower
-import Quickshell.Services.SystemTray
-import Quickshell.Widgets
 import QtQuick
+
+import Quickshell
+import Quickshell.Hyprland
+import Quickshell.Io
+import Quickshell.Services.Pipewire
+import Quickshell.Services.SystemTray
+import Quickshell.Services.UPower
+import Quickshell.Widgets
+
 import "../common"
 
 Scope {

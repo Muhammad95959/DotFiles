@@ -1,9 +1,11 @@
 pragma ComponentBehavior: Bound
-import Quickshell.Hyprland
+import QtQuick
+
 import Quickshell
+import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Wayland
-import QtQuick
+
 import "../common"
 import "../oneliner"
 

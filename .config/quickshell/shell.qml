@@ -1,27 +1,29 @@
 pragma ComponentBehavior: Bound
-import Quickshell
 import QtQuick
-import "modules/bar"
-import "modules/launcher"
-import "modules/powermenu"
-import "modules/wallpaper"
+
+import Quickshell
+
 import "modules/appkiller"
-import "modules/osd"
-import "modules/clipboard"
-import "modules/notifications"
-import "modules/reload"
-import "modules/mpvHistory"
-import "modules/zathuraHistory"
-import "modules/urlMpv"
-import "modules/translate"
-import "modules/resize"
-import "modules/corners"
+import "modules/bar"
 import "modules/bookmarks"
 import "modules/braveHistory"
-import "modules/zathuraRecolor"
-import "modules/virtManager"
+import "modules/clipboard"
+import "modules/corners"
+import "modules/launcher"
 import "modules/liveWall"
+import "modules/mpvHistory"
+import "modules/notifications"
+import "modules/osd"
+import "modules/powermenu"
 import "modules/qmenu"
+import "modules/reload"
+import "modules/resize"
+import "modules/translate"
+import "modules/urlMpv"
+import "modules/virtManager"
+import "modules/wallpaper"
+import "modules/zathuraHistory"
+import "modules/zathuraRecolor"
 
 ShellRoot {
   // ── Bar ────────────────────────────────────────────────────────────

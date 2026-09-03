@@ -1,8 +1,10 @@
 pragma ComponentBehavior: Bound
-import Quickshell.Io
-import Quickshell.Hyprland
-import Quickshell
 import QtQuick
+
+import Quickshell
+import Quickshell.Hyprland
+import Quickshell.Io
+
 import "styles"
 
 // Generic vertical qmenu — replacement for `rofi -dmenu -p "Prompt"`

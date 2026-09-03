@@ -1,13 +1,15 @@
 pragma ComponentBehavior: Bound
-import Quickshell
-import Quickshell.Io
-import Quickshell.Hyprland
-import Quickshell.Wayland
-import Quickshell.Widgets
 import QtQuick
 import QtQuick.Layouts
-import "../common"
+
+import Quickshell
+import Quickshell.Hyprland
+import Quickshell.Io
+import Quickshell.Wayland
+import Quickshell.Widgets
+
 import "."
+import "../common"
 
 Scope {
   id: wallpaperRoot

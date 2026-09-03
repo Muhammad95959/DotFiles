@@ -1,6 +1,7 @@
 pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
+
 import "../common"
 
 // Reusable top-bar picker — 1:1 with rofi/oneliner.rasi

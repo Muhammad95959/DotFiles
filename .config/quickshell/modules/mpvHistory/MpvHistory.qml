@@ -1,10 +1,12 @@
 pragma ComponentBehavior: Bound
 import QtQuick
 import QtQuick.Layouts
+
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Wayland
+
 import "../common"
 
 Scope {
@@ -288,8 +290,6 @@ Scope {
             Text { text:"󰘳+U URLs"; color:Theme.fg; opacity:0.85; font.family:Theme.nerdFont; font.pixelSize:10; font.bold:true }
             Rectangle { Layout.preferredWidth: 1; Layout.preferredHeight: 10; color:Theme.border; opacity:0.6 }
             Text { text:"󰘳+A All"; color:Theme.fg; opacity:0.85; font.family:Theme.nerdFont; font.pixelSize:10; font.bold:true }
-            Rectangle { Layout.preferredWidth: 1; Layout.preferredHeight: 10; color:Theme.border; opacity:0.6 }
-            Text { text:"󰌒 Tab"; color:Theme.fg; opacity:0.85; font.family:Theme.nerdFont; font.pixelSize:10; font.bold:true }
             Rectangle { Layout.preferredWidth: 1; Layout.preferredHeight: 10; color:Theme.border; opacity:0.6 }
             Text { text:"↵ Open"; color:Theme.fg; opacity:0.85; font.family:Theme.monoFont; font.pixelSize:10; font.bold:true }
             Rectangle { Layout.preferredWidth: 1; Layout.preferredHeight: 10; color:Theme.border; opacity:0.6 }

@@ -1,9 +1,11 @@
 pragma ComponentBehavior: Bound
+import QtQuick
+
 import Quickshell
 import Quickshell.Wayland
-import QtQuick
-import "../common"
+
 import "."
+import "../common"
 
 Scope {
   id: bgRoot

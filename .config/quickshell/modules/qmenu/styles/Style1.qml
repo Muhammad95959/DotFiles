@@ -1,8 +1,10 @@
 pragma ComponentBehavior: Bound
-import Quickshell
-import Quickshell.Wayland
 import QtQuick
 import QtQuick.Layouts
+
+import Quickshell
+import Quickshell.Wayland
+
 import "../../common"
 
 // Style1 — Centered 560×420 card (original Dmenu style)

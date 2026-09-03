@@ -1,12 +1,14 @@
 pragma ComponentBehavior: Bound
-import Quickshell.Io
+import QtQuick
+import QtQuick.Layouts
+
 import Quickshell
 import Quickshell.Hyprland
+import Quickshell.Io
 import Quickshell.Services.Notifications
 import Quickshell.Wayland
 import Quickshell.Widgets
-import QtQuick
-import QtQuick.Layouts
+
 import "../common"
 
 Scope {
