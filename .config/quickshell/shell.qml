@@ -16,6 +16,7 @@ import "modules/notifications"
 import "modules/osd"
 import "modules/powermenu"
 import "modules/glyphPicker"
+import "modules/pass"
 import "modules/qmenu"
 import "modules/systemd"
 import "modules/reload"
@@ -95,5 +96,8 @@ ShellRoot {
 
   // ── Systemd (rofi-systemd replacement) ───────────────────────────────
   Systemd {}
+
+  // ── Pass (rofi-pass replacement) ─────────────────────────────────
+  Pass {}
 
 }
