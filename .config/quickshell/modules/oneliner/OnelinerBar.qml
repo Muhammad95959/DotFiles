@@ -68,9 +68,13 @@ Item {
           onTextChanged: root.queryChangedStr(text)
           onAccepted: {
             if (root.inputOnly) {
-              if (text.trim().length > 0) root.accepted(-1)
+              if (text.trim().length > 0) {
+                root.accepted(-1)
+                text = ""
+              }
             } else {
               root.accepted(root.selectedIndex)
+              text = ""
             }
           }
           Keys.onPressed: event => {
@@ -144,12 +148,12 @@ Item {
           anchors.fill: parent
           hoverEnabled: true
           cursorShape: Qt.PointingHandCursor
-          // rofi hover-select true, me-select-entry MousePrimary, me-accept-entry !MousePrimary
           onEntered: root.hovered(del.index)
           onClicked: mouse => {
             if (mouse.button === Qt.LeftButton) {
               root.hovered(del.index)
               root.accepted(del.index)
+              root.clear()
             }
           }
         }
