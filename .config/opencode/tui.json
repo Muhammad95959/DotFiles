@@ -11,6 +11,6 @@
         "vim_system_clipboard_register": true
       }
     ],
-    "@tarquinen/opencode-dcp@latest"
+    "@slkiser/opencode-quota"
   ]
 }

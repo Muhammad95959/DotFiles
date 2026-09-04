@@ -1,6 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugin": ["@mohak34/opencode-notifier@latest"],
+  "plugin": ["@mohak34/opencode-notifier@latest", "@slkiser/opencode-quota"],
   "mcp": {
     "stitch": {
       "type": "remote",
