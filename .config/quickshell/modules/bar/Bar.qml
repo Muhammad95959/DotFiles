@@ -193,6 +193,8 @@ Scope {
               if (total < 1024*1024) { num = (total/1024).toFixed(1); unit = "KB" }
               else if (total < 1024*1024*1024) { num = (total/(1024*1024)).toFixed(1); unit = "MB" }
               else { num = (total/(1024*1024*1024)).toFixed(1); unit = "GB" }
+              if (total >= 1024*1000 && total < 1024*1024) { num = "1.0"; unit = "MB" }
+              else if (total >= 1024*1024*1000 && total < 1024*1024*1024) { num = "1.0"; unit = "GB" }
               bar.bwValue = num.padStart(5, "0")
               bar.bwUnit = unit
             }
@@ -607,14 +609,37 @@ Scope {
                     spacing: bar.pBandwidthUnitGap
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.verticalCenterOffset: bar.bandwidthTextVerticalOffset
-                    Text {
-                      text: bar.bwValue
-                      color: barScope.fg
-                      opacity: 0.7
-                      font.family: barScope.monoFont
-                      font.pixelSize: bar.fontSizeText
-                      font.bold: true
+                    Row {
+                      spacing: 0
                       anchors.verticalCenter: parent.verticalCenter
+                      Text {
+                        text: {
+                          const v = bar.bwValue
+                          if (!/[1-9]/.test(v)) return ""
+                          let n = 0
+                          while (n < v.length && v[n] === "0") n++
+                          return v.slice(0, n)
+                        }
+                        color: barScope.fg
+                        opacity: 0.5
+                        font.family: barScope.monoFont
+                        font.pixelSize: bar.fontSizeText
+                        font.bold: true
+                      }
+                      Text {
+                        text: {
+                          const v = bar.bwValue
+                          if (!/[1-9]/.test(v)) return v
+                          let n = 0
+                          while (n < v.length && v[n] === "0") n++
+                          return v.slice(n)
+                        }
+                        color: barScope.fg
+                        opacity: 0.7
+                        font.family: barScope.monoFont
+                        font.pixelSize: bar.fontSizeText
+                        font.bold: true
+                      }
                     }
                     Text {
                       text: bar.bwUnit
