@@ -75,7 +75,7 @@ Scope {
           model: []
           selectedIndex: 0
           inputOnly: true
-          placeholder: "Type to translate (auto AR ↔ EN)"
+          placeholder: "Translate · Auto AR ↔ EN"
           onQueryChangedStr: newQuery => root._query = newQuery
           onAccepted: (index, query) => { if (index === -1) root.doTranslate(query) }
           onCancelled: root.close()

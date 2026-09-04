@@ -93,7 +93,6 @@ Scope {
           model: root.filtered
           selectedIndex: root.selectedIndex
           inputOnly: false
-          placeholder: "filter size"
           onQueryChangedStr: newQuery=>{ root._query=newQuery; root.selectedIndex=0 }
           onAccepted: (idx, query)=>{
             // idx is selectedIndex; if filtered empty ignore

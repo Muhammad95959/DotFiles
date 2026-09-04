@@ -111,7 +111,7 @@ Scope {
       Rectangle{
         width: parent.width; height: Config.barHeight; anchors.top: parent.top; anchors.topMargin: 0; color: Theme.bg
         OnelinerBar{
-          id: onelinerBar; anchors.fill: parent; prompt:"corner:"; query: root._query; model: root.filtered; selectedIndex: root.selectedIndex; inputOnly:false; placeholder:"filter"
+          id: onelinerBar; anchors.fill: parent; prompt:"corner:"; query: root._query; model: root.filtered; selectedIndex: root.selectedIndex; inputOnly:false
           onQueryChangedStr: newQuery=>{ root._query=newQuery; root.selectedIndex=0}
           onAccepted: (idx, query)=>{ const eff= idx>=0?idx:root.selectedIndex; root.activateAt(eff)}
           onCancelled: root.close()
