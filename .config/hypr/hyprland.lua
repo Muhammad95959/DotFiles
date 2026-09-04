@@ -592,7 +592,7 @@ end)
 
 -- Shell submap
 hl.define_submap("shell", function()
-  hl.bind("b", hl.dsp.exec_cmd(reset .. "quickshell ipc call bookmarks toggle"))
+  hl.bind("a", hl.dsp.exec_cmd(reset .. "quickshell ipc call launcher toggle"))
   hl.bind("c", hl.dsp.exec_cmd(reset .. "quickshell ipc call corners toggle"))
   hl.bind("h", hl.dsp.exec_cmd(reset .. "quickshell ipc call braveHistory toggle"))
   hl.bind("i", hl.dsp.exec_cmd(reset .. "quickshell ipc call glyphPicker toggle"))

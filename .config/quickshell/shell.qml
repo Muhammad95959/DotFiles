@@ -5,7 +5,6 @@ import Quickshell
 
 import "modules/appkiller"
 import "modules/bar"
-import "modules/bookmarks"
 import "modules/braveHistory"
 import "modules/clipboard"
 import "modules/corners"
@@ -75,7 +74,6 @@ ShellRoot {
   Corners {}
 
   // ── Brave ──────────────────────────────────────────────────────────
-  Bookmarks {}
   BraveHistory {}
 
   // ── Theming ────────────────────────────────────────────────────────
