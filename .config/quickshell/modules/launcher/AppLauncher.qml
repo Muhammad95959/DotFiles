@@ -537,8 +537,7 @@ if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_T) { launcherRoot
                   anchors.fill: parent
                   hoverEnabled: true
                   cursorShape: Qt.PointingHandCursor
-                  onEntered: if (!launcherRoot._blockHover) launcherRoot.selectedIndex = del.index
-                  onClicked: launcherRoot.launchAt(del.index)
+                  onClicked: { if (launcherRoot.selectedIndex === del.index) launcherRoot.launchAt(del.index); else launcherRoot.selectedIndex = del.index }
                 }
               }
 

@@ -301,7 +301,7 @@ Scope {
                   Layout.preferredWidth: visible ? implicitWidth : 0
                 }
               }
-              MouseArea{ anchors.fill:parent; hoverEnabled:true; cursorShape:Qt.PointingHandCursor; onEntered: if(!root._blockHover) root.selectedIndex=del.index; onClicked: root.stage==="vms" ? root.chooseVm(del.index) : root.chooseAction(del.index) }
+              MouseArea{ anchors.fill:parent; hoverEnabled:true; cursorShape:Qt.PointingHandCursor; onClicked: { if (root.selectedIndex === del.index) { if (root.stage === "vms") root.chooseVm(del.index); else root.chooseAction(del.index) } else root.selectedIndex = del.index } }
             }
             Text{ anchors.centerIn:parent; visible: root.currentCount===0; text: root.stage==="vms" ? (root.vms.length===0?"No VMs":"No match") : "No actions"; color:Theme.fg; opacity:0.55; font.family:Theme.monoFont; font.pixelSize:13 }
           }

@@ -199,7 +199,7 @@ Scope {
                 }
                 Text{ text: modelData===LiveWallManager.activeFile ? "active" : ""; color:Theme.accent; font.family:Theme.monoFont; font.pixelSize:10; font.bold:true; visible: modelData===LiveWallManager.activeFile }
               }
-              MouseArea{ anchors.fill:parent; hoverEnabled:true; cursorShape:Qt.PointingHandCursor; onEntered: if(!root._blockHover) root.selectedIndex=del.index; onClicked: root.activateAt(del.index) }
+              MouseArea{ anchors.fill:parent; hoverEnabled:true; cursorShape:Qt.PointingHandCursor; onClicked: { if (root.selectedIndex === del.index) root.activateAt(del.index); else root.selectedIndex = del.index } }
             }
             Text{
               anchors.centerIn:parent; visible: root.filtered.length===0

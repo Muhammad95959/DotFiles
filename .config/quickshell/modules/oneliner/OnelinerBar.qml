@@ -152,12 +152,14 @@ Item {
           anchors.fill: parent
           hoverEnabled: true
           cursorShape: Qt.PointingHandCursor
-          onEntered: root.hovered(del.index)
           onClicked: mouse => {
             if (mouse.button === Qt.LeftButton) {
-              root.hovered(del.index)
-              root.accepted(del.index, entry.text)
-              root.clear()
+              if (root.selectedIndex === del.index) {
+                root.accepted(del.index, entry.text)
+                root.clear()
+              } else {
+                root.hovered(del.index)
+              }
             }
           }
         }

@@ -207,7 +207,7 @@ Scope {
                 }
                 Text { text:"󰄬"; color:Theme.accent; font.family:Theme.nerdFont; font.pixelSize:14; visible: root.selectedIndex===del.index; Layout.alignment: Qt.AlignVCenter }
               }
-              MouseArea{ anchors.fill:parent; hoverEnabled:true; cursorShape:Qt.PointingHandCursor; onEntered: if(!root._blockHover) root.selectedIndex=del.index; onClicked: { root.selectedIndex=del.index; root.activate() } }
+              MouseArea{ anchors.fill:parent; hoverEnabled:true; cursorShape:Qt.PointingHandCursor; onClicked: { if (root.selectedIndex === del.index) root.activate(); else root.selectedIndex = del.index } }
             }
           }
 

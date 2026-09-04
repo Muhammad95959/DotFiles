@@ -598,8 +598,7 @@ Scope {
                   anchors.fill: parent
                   hoverEnabled: true
                   cursorShape: Qt.PointingHandCursor
-                  onEntered: if (!root._blockHover) root.selectedIndex = del.index
-                  onClicked: root.copyAt(del.index, false)
+                  onClicked: { if (root.selectedIndex === del.index) root.copyAt(del.index, false); else root.selectedIndex = del.index }
                 }
               }
               Text {

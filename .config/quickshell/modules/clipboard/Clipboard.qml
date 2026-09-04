@@ -357,10 +357,10 @@ Scope {
                     MouseArea {
                       anchors.fill: parent; hoverEnabled:true; cursorShape: Qt.PointingHandCursor
                       acceptedButtons: Qt.LeftButton|Qt.RightButton|Qt.MiddleButton
-                      onEntered: { clipRoot.selectedIndex=del.index; clipRoot.updatePreview() }
                       onClicked: mouse=>{
                         if(mouse.button===Qt.RightButton||mouse.button===Qt.MiddleButton) clipRoot.deleteId(del.modelData.id)
-                        else clipRoot.activateAt(del.index)
+                        else if (clipRoot.selectedIndex===del.index) clipRoot.activateAt(del.index)
+                        else { clipRoot.selectedIndex=del.index; clipRoot.updatePreview() }
                       }
                     }
                   }

@@ -1135,8 +1135,7 @@ Scope {
                                             anchors.fill: parent
                                             hoverEnabled: true
                                             cursorShape: Qt.PointingHandCursor
-                                            onEntered: { if (root._blockHover) return; root.selectedIndex = del.index }
-                                            onClicked: root.activateAt(del.index)
+                                            onClicked: { if (root.selectedIndex === del.index) root.activateAt(del.index); else root.selectedIndex = del.index }
                                         }
                                     }
                                     Text {
@@ -1196,8 +1195,7 @@ Scope {
                                         anchors.fill: parent
                                         hoverEnabled: true
                                         cursorShape: Qt.PointingHandCursor
-                                        onEntered: { if (root._blockHover) return; root.actionIndex = ad.index }
-                                        onClicked: if (root._targetEntry) root.executeAction(root._targetEntry, ad.modelData.key)
+                                        onClicked: { if (root.actionIndex === ad.index) { if (root._targetEntry) root.executeAction(root._targetEntry, ad.modelData.key) } else root.actionIndex = ad.index }
                                     }
                                 }
                                 Text {
@@ -1241,8 +1239,7 @@ Scope {
                                         anchors.fill: parent
                                         hoverEnabled: true
                                         cursorShape: Qt.PointingHandCursor
-                                        onEntered: { if (root._blockHover) return; root._fieldIndex = fd.index }
-                                        onClicked: root.activateFieldAt(fd.index)
+                                        onClicked: { if (root._fieldIndex === fd.index) root.activateFieldAt(fd.index); else root._fieldIndex = fd.index }
                                     }
                                 }
                                 Text {

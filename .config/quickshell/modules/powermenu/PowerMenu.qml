@@ -318,8 +318,7 @@ Scope {
                   anchors.fill: parent
                   hoverEnabled: true
                   cursorShape: Qt.PointingHandCursor
-                  onEntered: if (!pmRoot._blockHover) pmRoot.selectedIndex = btn.index
-                  onClicked: pmRoot.activate(btn.index)
+                  onClicked: { if (pmRoot.selectedIndex === btn.index) pmRoot.activate(btn.index); else pmRoot.selectedIndex = btn.index }
                 }
               }
             }

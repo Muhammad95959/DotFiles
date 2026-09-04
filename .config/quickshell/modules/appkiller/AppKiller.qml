@@ -288,10 +288,11 @@ Scope {
               MouseArea {
                 anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
                 acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
-                onEntered: if (!killerRoot._blockHover) killerRoot.selectedIndex = del.index
                 onClicked: mouse => {
                   if (mouse.button === Qt.RightButton) killerRoot.killAllAt(del.index)
-                  else killerRoot.killAt(del.index)
+                  else if (mouse.button === Qt.MiddleButton) killerRoot.killAt(del.index)
+                  else if (killerRoot.selectedIndex === del.index) killerRoot.killAt(del.index)
+                  else killerRoot.selectedIndex = del.index
                 }
               }
             }

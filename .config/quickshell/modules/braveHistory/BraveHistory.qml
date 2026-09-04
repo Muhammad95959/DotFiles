@@ -115,7 +115,7 @@ Scope {
                 Text{ text: del.modelData.title; color:Theme.fg; font.family:Theme.monoFont; font.pixelSize:12; font.bold: root.selectedIndex===del.index; elide:Text.ElideRight; Layout.fillWidth:true; horizontalAlignment: Text.AlignLeft; LayoutMirroring.enabled: false }
                 Text{ text: del.modelData.url; color:Theme.fg; opacity:0.55; font.family:Theme.monoFont; font.pixelSize:10; elide:Text.ElideMiddle; Layout.fillWidth:true; horizontalAlignment: Text.AlignLeft; LayoutMirroring.enabled: false }
               }
-              MouseArea{ anchors.fill:parent; hoverEnabled:true; cursorShape:Qt.PointingHandCursor; onEntered: if(!root._blockHover) root.selectedIndex=del.index; onClicked: root.activateAt(del.index)}
+              MouseArea{ anchors.fill:parent; hoverEnabled:true; cursorShape:Qt.PointingHandCursor; onClicked: { if (root.selectedIndex === del.index) root.activateAt(del.index); else root.selectedIndex = del.index }}
             }
             Text{ anchors.centerIn:parent; visible: root.filtered.length===0; text: root.allEntries.length===0? "No history or DB locked" : "No matches"; color:Theme.fg; opacity:0.55; font.family:Theme.monoFont; font.pixelSize:13}
           }

@@ -114,7 +114,7 @@ PanelWindow {
             Text { text: del.modelData.label; color:Theme.fg; font.family:Theme.monoFont; font.pixelSize:12; Layout.fillWidth:true; elide:Text.ElideRight; font.bold: qmenuRoot.selectedIndex===del.index; horizontalAlignment: Text.AlignLeft; LayoutMirroring.enabled: false }
             Text { text: del.modelData.detail; color:Theme.fg; opacity:0.45; font.family:Theme.monoFont; font.pixelSize:11; visible: del.modelData.detail!==""; elide:Text.ElideRight; horizontalAlignment: Text.AlignLeft; LayoutMirroring.enabled: false; Layout.preferredWidth: Math.min(180, implicitWidth) }
           }
-          MouseArea{ anchors.fill:parent; hoverEnabled:true; cursorShape:Qt.PointingHandCursor; onEntered: if(!qmenuRoot._blockHover) qmenuRoot.selectedIndex=del.index; onClicked: qmenuRoot.activateAt(del.index) }
+          MouseArea{ anchors.fill:parent; hoverEnabled:true; cursorShape:Qt.PointingHandCursor; onClicked: { if (qmenuRoot.selectedIndex === del.index) qmenuRoot.activateAt(del.index); else qmenuRoot.selectedIndex = del.index } }
         }
         Text { anchors.centerIn: parent; visible: qmenuRoot.filtered.length===0; text: qmenuRoot.items.length===0 ? "No items" : "No match for \""+qmenuRoot.query+"\""; color:Theme.fg; opacity:0.55; font.family:Theme.monoFont; font.pixelSize:12 }
       }

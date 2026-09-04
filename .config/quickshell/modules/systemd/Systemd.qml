@@ -547,15 +547,14 @@ Scope {
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
-                onEntered: {
-                  if (root._blockHover) return
-                  if (root._showActions) root.actionIndex = del.index
-                  else root.selectedIndex = del.index
-                }
                 onClicked: {
                   if (root._showActions) {
-                    if (root._targetUnit) root.executeAction(root._targetUnit, del.modelData.key)
-                  } else root.activateAt(del.index)
+                    if (root.actionIndex === del.index) { if (root._targetUnit) root.executeAction(root._targetUnit, del.modelData.key) }
+                    else root.actionIndex = del.index
+                  } else {
+                    if (root.selectedIndex === del.index) root.activateAt(del.index)
+                    else root.selectedIndex = del.index
+                  }
                 }
               }
             }

@@ -468,8 +468,8 @@ Scope {
               }
 
               MouseArea {
-                anchors.fill: parent; hoverEnabled: false; cursorShape: Qt.PointingHandCursor
-                onClicked: wallpaperRoot.setWallpaper(del.modelData)
+                anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor
+                onClicked: { if (wallpaperRoot.selectedIndex === del.index) wallpaperRoot.setWallpaper(del.modelData); else wallpaperRoot.selectedIndex = del.index }
               }
             }
 

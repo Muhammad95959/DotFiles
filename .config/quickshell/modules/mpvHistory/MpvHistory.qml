@@ -282,7 +282,7 @@ Scope {
                 }
                 Text { text: del.modelData.isUrl ? "URL" : "FILE"; color: del.modelData.isUrl ? Theme.accent : Theme.fg; opacity: del.modelData.isUrl ? 1 : 0.45; font.family:Theme.monoFont; font.pixelSize:9; font.bold: del.modelData.isUrl }
               }
-              MouseArea{ anchors.fill:parent; hoverEnabled:true; cursorShape:Qt.PointingHandCursor; onEntered: if(!root._blockHover) root.selectedIndex=del.index; onClicked: root.activateAt(del.index) }
+              MouseArea{ anchors.fill:parent; hoverEnabled:true; cursorShape:Qt.PointingHandCursor; onClicked: { if (root.selectedIndex === del.index) root.activateAt(del.index); else root.selectedIndex = del.index } }
             }
             Text { anchors.centerIn: parent; visible: root.filtered.length===0; text: root.allEntries.length===0? "No history yet" : "No matches"; color:Theme.fg; opacity:0.55; font.family:Theme.monoFont; font.pixelSize:13 }
           }

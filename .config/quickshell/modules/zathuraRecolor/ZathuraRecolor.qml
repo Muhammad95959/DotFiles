@@ -136,7 +136,7 @@ Scope {
                 Text{ text: del.modelData.name; color: Theme.fg; font.family:Theme.monoFont; font.pixelSize:12; Layout.fillWidth:true; elide:Text.ElideRight; font.bold: root.selectedIndex===del.index; horizontalAlignment: Text.AlignLeft; LayoutMirroring.enabled: false}
                 Text{ text: del.modelData.color; color:Theme.fg; opacity:0.45; font.family:Theme.monoFont; font.pixelSize:10; visible: root.filtered.length<10 }
               }
-              MouseArea{ anchors.fill:parent; hoverEnabled:true; cursorShape:Qt.PointingHandCursor; onEntered: if(!root._blockHover) root.selectedIndex=del.index; onClicked: root.activateAt(del.index)}
+              MouseArea{ anchors.fill:parent; hoverEnabled:true; cursorShape:Qt.PointingHandCursor; onClicked: { if (root.selectedIndex === del.index) root.activateAt(del.index); else root.selectedIndex = del.index }}
             }
             Text{ anchors.centerIn: parent; visible: root.filtered.length===0; text: root.allEntries.length===0 ? "No themes" : "No matches"; color:Theme.fg; opacity:0.55; font.family:Theme.monoFont; font.pixelSize:13}
           }
