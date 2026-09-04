@@ -396,6 +396,21 @@ Scope {
             onCurrentIndexChanged: wallpaperRoot.selectedIndex = currentIndex
             highlightMoveDuration: 80
 
+            WheelHandler {
+              acceptedDevices: PointerDevice.Mouse | PointerDevice.TouchPad
+              onWheel: event => {
+                const delta = event.angleDelta.y
+                if (delta === 0) return
+                const step = grid.cellHeight
+                const dir = delta > 0 ? -1 : 1
+                const maxY = Math.max(0, grid.contentHeight - grid.height)
+                let nextY = grid.contentY + dir * step
+                nextY = Math.max(0, Math.min(maxY, nextY))
+                grid.contentY = nextY
+                event.accepted = true
+              }
+            }
+
             delegate: Rectangle {
               id: del
               required property var modelData
