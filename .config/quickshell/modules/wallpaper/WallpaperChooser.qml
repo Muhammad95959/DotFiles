@@ -161,7 +161,11 @@ Scope {
   function moveHorizontalNoWrap(dir) {
     _markKeyboard()
     const n = filteredWallpapers.length; if (n === 0) return
-    const ni = selectedIndex + dir; if (ni < 0 || ni >= n) return; selectedIndex = ni
+    const cols = columns; const row = Math.floor(selectedIndex / cols)
+    const col = selectedIndex % cols
+    const rowStart = row * cols; const rowEnd = Math.min(rowStart + cols, n) - 1
+    let nc = col + dir; if (nc < 0 || rowStart + nc > rowEnd) return
+    selectedIndex = rowStart + nc
   }
   function moveVertical(dir) {
     _markKeyboard()

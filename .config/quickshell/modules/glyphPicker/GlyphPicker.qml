@@ -25,7 +25,14 @@ Scope {
   property int selectedIndex: 0
   property bool _altHeld: false
   property bool _blockHover: false
-  property int columns: 7
+  property int columns: 6
+  function _effectiveCols(): int {
+    try {
+      if (typeof grid !== "undefined" && grid && grid.width > 0 && grid.cellWidth > 0)
+        return Math.max(1, Math.floor(grid.width / grid.cellWidth))
+    } catch(e) {}
+    return columns
+  }
 
   readonly property var tabs: [
     { key: "emoji", label: "Emoji" },
@@ -157,16 +164,27 @@ Scope {
   function moveHorizontalNoWrap(dir) {
     _markKeyboard()
     const n = filtered.length; if (n === 0) return
-    const ni = selectedIndex + dir; if (ni < 0 || ni >= n) return
-    selectedIndex = ni
+    const cols = _effectiveCols(); const row = Math.floor(selectedIndex / cols)
+    const col = selectedIndex % cols
+    const rowStart = row * cols; const rowEnd = Math.min(rowStart + cols, n) - 1
+    let nc = col + dir; if (nc < 0 || rowStart + nc > rowEnd) return
+    selectedIndex = rowStart + nc
   }
   function moveVerticalNoWrap(dir) {
     _markKeyboard()
     const n = filtered.length; if (n === 0) return
-    const cols = columns; const col = selectedIndex % cols
+    const cols = _effectiveCols(); const col = selectedIndex % cols
     const row = Math.floor(selectedIndex / cols); const rows = Math.ceil(n / cols)
     let nr = row + dir; if (nr < 0 || nr >= rows) return
     let ni = nr * cols + col; if (ni >= n) return
+    selectedIndex = ni
+  }
+  function moveHorizontalWrap(dir) {
+    _markKeyboard()
+    const n = filtered.length; if (n === 0) return
+    let ni = selectedIndex + dir
+    if (ni < 0) ni = n - 1
+    if (ni >= n) ni = 0
     selectedIndex = ni
   }
   function goHome() { _markKeyboard(); if (filtered.length > 0) selectedIndex = 0 }
@@ -174,7 +192,7 @@ Scope {
   function pageMove(dir) {
     _markKeyboard()
     const n = filtered.length; if (n === 0) return
-    const cols = columns; const col = selectedIndex % cols
+    const cols = _effectiveCols(); const col = selectedIndex % cols
     const row = Math.floor(selectedIndex / cols); const rows = Math.ceil(n / cols)
     let pageRows = 4; try { if (grid && grid.height > 0 && grid.cellHeight > 0) pageRows = Math.max(1, Math.floor(grid.height / grid.cellHeight)) } catch (e) {}
     let nr = row + dir * pageRows; if (nr < 0) nr = 0; if (nr >= rows) nr = rows - 1
@@ -324,8 +342,8 @@ Scope {
                   if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_N) { root.currentTab = "nerd"; event.accepted = true; return }
                   if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_U) { root.currentTab = "unicode"; event.accepted = true; return }
                   if (event.key === Qt.Key_Escape) { if (text.length > 0) { text = ""; root.query = ""; event.accepted = true } else { root.close(); event.accepted = true } }
-                  else if (event.key === Qt.Key_Backtab) { root.move(-1); event.accepted = true }
-                  else if (event.key === Qt.Key_Tab) { if (event.modifiers & Qt.ShiftModifier) root.move(-1); else root.move(1); event.accepted = true }
+                  else if (event.key === Qt.Key_Backtab) { root.moveHorizontalWrap(-1); event.accepted = true }
+                  else if (event.key === Qt.Key_Tab) { if (event.modifiers & Qt.ShiftModifier) root.moveHorizontalWrap(-1); else root.moveHorizontalWrap(1); event.accepted = true }
                   else if (event.key === Qt.Key_Up) { root.moveVerticalNoWrap(-1); event.accepted = true }
                   else if (event.key === Qt.Key_Down) { root.moveVerticalNoWrap(1); event.accepted = true }
                   else if (event.key === Qt.Key_Left) { root.moveHorizontalNoWrap(-1); event.accepted = true }
