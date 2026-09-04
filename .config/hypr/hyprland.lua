@@ -685,7 +685,6 @@ hl.bind(mod .. " + SHIFT + c",      hl.dsp.exec_cmd("quickshell ipc call notific
 hl.bind(mod .. " + SHIFT + d",      restore_minimized)
 hl.bind(mod .. " + SHIFT + f",      toggle_gaps)
 hl.bind(mod .. " + SHIFT + g",      function() set_gaps(-10) end, { repeating = true })
-hl.bind(mod .. " + SHIFT + p",      hl.dsp.exec_cmd("rofi -show window -theme-str 'window {y-offset: -24px;}'"))
 hl.bind(mod .. " + SHIFT + q",      hl.dsp.exec_cmd("quickshell ipc call powermenu toggle"))
 hl.bind(mod .. " + SHIFT + r",      hl.dsp.exec_cmd("hyprctl reload && killall quickshell; quickshell"))
 hl.bind(mod .. " + SHIFT + t",      hl.dsp.exec_cmd("confet"))
