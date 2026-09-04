@@ -271,12 +271,17 @@ Scope {
     inlineReplySupported: false
 
     onNotification: notification => {
-      // [mode=do-not-disturb] invisible=true except app-name=notify-send
-      if (root.dnd && notification.appName !== "notify-send") {
-        // drop silently (not tracked)
+      const isChromium = (notification.appName || "").toLowerCase().includes("brave") || 
+                      (notification.appName || "").toLowerCase().includes("helium") ||
+                      (notification.appName || "").toLowerCase().includes("chrome") ||
+                      (notification.appName || "").toLowerCase().includes("chromium")
+
+      // 2. Bypass DND for notify-send AND Brave/Chromium to prevent silent drops
+      if (root.dnd && notification.appName !== "notify-send" && !isChromium) {
         return
       }
-      // [app-name=power] group-by=app-name  → replace previous power notifs
+
+      // 3. Power notification grouping
       if (notification.appName === "power") {
         const vals = server.trackedNotifications.values.slice()
         for (let i = 0; i < vals.length; i++) {
@@ -284,8 +289,8 @@ Scope {
             vals[i].dismiss()
         }
       }
-      // Also replace-by-id if same replaces-id handling is automatic via notification id?
-      // but ensure tracked
+      
+      // 4. Ensure tracking is applied
       notification.tracked = true
     }
   }
