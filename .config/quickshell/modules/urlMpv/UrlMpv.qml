@@ -214,10 +214,6 @@ Scope {
           RowLayout { Layout.alignment:Qt.AlignHCenter; spacing:10
             Text { text:"↵ Play"; color:Theme.fg; opacity:0.85; font.family:Theme.monoFont; font.pixelSize:10; font.bold:true}
             Rectangle{width:1;height:10;color:Theme.border;opacity:0.6}
-            Text { text:"↑↓←→ Tab Select"; color:Theme.fg; opacity:0.85; font.family:Theme.monoFont; font.pixelSize:10; font.bold:true}
-            Rectangle{width:1;height:10;color:Theme.border;opacity:0.6}
-            Text { text:"PgUp/Dn Jump"; color:Theme.fg; opacity:0.70; font.family:Theme.monoFont; font.pixelSize:10; }
-            Rectangle{width:1;height:10;color:Theme.border;opacity:0.6}
             Text { text:"Esc Close"; color:Theme.fg; opacity:0.85; font.family:Theme.monoFont; font.pixelSize:10; font.bold:true}
           }
         }

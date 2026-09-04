@@ -197,7 +197,7 @@ Scope {
       MouseArea{ anchors.fill: parent; onClicked: root.stage==="actions" ? root.onBack() : root.close() }
       Rectangle{ anchors.fill: parent; color: Theme.dim }
       Rectangle {
-        width: 720; height: Math.min(560, col.implicitHeight + 32); anchors.centerIn: parent; radius: Theme.radiusLg; color: Theme.bg; border.color: Theme.border; border.width:1; clip:true
+        width: Math.max(320, col.implicitHeight * 4 / 3); height: Math.min(560, col.implicitHeight + 32); anchors.centerIn: parent; radius: Theme.radiusLg; color: Theme.bg; border.color: Theme.border; border.width:1; clip:true
         LayoutMirroring.enabled: false
         MouseArea{ anchors.fill: parent; hoverEnabled:true; onPositionChanged: if(root._blockHover) root._blockHover=false; onClicked:{} }
         ColumnLayout {

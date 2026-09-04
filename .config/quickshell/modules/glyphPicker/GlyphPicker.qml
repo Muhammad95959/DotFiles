@@ -371,6 +371,7 @@ Scope {
           }
 
           Flickable {
+            id: tabFlick
             Layout.fillWidth: true
             Layout.preferredHeight: 34
             contentWidth: tabRow.width
@@ -382,6 +383,7 @@ Scope {
               id: tabRow
               height: 34
               spacing: 8
+              x: Math.max(0, (tabFlick.width - width) / 2)
               Repeater {
                 model: root.tabs
                 Rectangle {
@@ -411,14 +413,11 @@ Scope {
                   MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.currentTab = modelData.key }
                 }
               }
-              Item { Layout.preferredWidth: 12 }
-              Rectangle { Layout.preferredWidth: 1; Layout.preferredHeight: 18; color: Theme.border; opacity: 0.5 }
-              Item { Layout.preferredWidth: 4 }
-              Text { text: "Alt+E/N/U switch • hold Alt for hints"; color: Theme.fg; opacity: 0.40; font.family: Theme.monoFont; font.pixelSize: 10; Layout.alignment: Qt.AlignVCenter }
             }
           }
 
           Flickable {
+            id: sectionFlick
             Layout.fillWidth: true
             Layout.preferredHeight: 32
             contentWidth: sectionRow.width
@@ -430,6 +429,7 @@ Scope {
               id: sectionRow
               height: 32
               spacing: 8
+              x: Math.max(0, (sectionFlick.width - width) / 2)
               Repeater {
                 model: root.currentSectionList
                 Rectangle {
@@ -460,12 +460,62 @@ Scope {
                   }
                 }
               }
-              Item { Layout.preferredWidth: 8 }
-              Text { text: root.filtered.length + " / " + root._activeSource.length; color: Theme.fg; opacity: 0.45; font.family: Theme.monoFont; font.pixelSize: 11; Layout.alignment: Qt.AlignVCenter }
             }
           }
 
-          Rectangle { Layout.fillWidth: true; height: 1; color: Theme.border; opacity: 0.6 }
+          Item {
+            id: sepContainer
+            Layout.fillWidth: true
+            Layout.preferredHeight: 8
+            clip: false
+            Rectangle {
+              id: sepLine
+              anchors.left: parent.left
+              anchors.right: parent.right
+              anchors.verticalCenter: parent.verticalCenter
+              height: 1
+              color: Theme.border
+              opacity: 0.6
+            }
+            Rectangle {
+              id: sepThumb
+              height: 3
+              radius: 1.5
+              width: Math.max(32, sepContainer.width * (grid ? grid.visibleArea.heightRatio : 0))
+              y: (sepContainer.height - height) / 2
+              x: {
+                if (!grid || grid.contentHeight <= grid.height) return 0
+                const maxY = grid.contentHeight - grid.height
+                return (grid.contentY / Math.max(1, maxY)) * (sepContainer.width - width)
+              }
+              color: sepMouse.containsMouse || sepMouse.drag.active ? Theme.fg : Qt.alpha(Theme.fg, 0.55)
+              opacity: grid && grid.contentHeight > grid.height ? 1 : 0
+              visible: grid && grid.contentHeight > grid.height
+              Behavior on color { ColorAnimation { duration: 120 } }
+              Behavior on opacity { NumberAnimation { duration: 150 } }
+            }
+            MouseArea {
+              id: sepMouse
+              anchors.fill: parent
+              hoverEnabled: true
+              drag.target: sepThumb
+              drag.axis: Drag.XAxis
+              drag.minimumX: 0
+              drag.maximumX: sepContainer.width - sepThumb.width
+              onPositionChanged: if (drag.active) {
+                const ratio = sepThumb.x / Math.max(1, sepContainer.width - sepThumb.width)
+                if (grid) grid.contentY = ratio * (grid.contentHeight - grid.height)
+              }
+              onPressed: mouse => {
+                if (mouse.x < sepThumb.x || mouse.x > sepThumb.x + sepThumb.width) {
+                  const ratio = (mouse.x - sepThumb.width / 2) / Math.max(1, sepContainer.width - sepThumb.width)
+                  const clamped = Math.max(0, Math.min(1, ratio))
+                  if (grid) grid.contentY = clamped * (grid.contentHeight - grid.height)
+                }
+              }
+              onWheel: wheel => wheel.accepted = false
+            }
+          }
 
           Item {
             Layout.fillWidth: true
@@ -473,11 +523,13 @@ Scope {
             clip: true
             GridView {
               id: grid
-              anchors.fill: parent
-              anchors.rightMargin: 8
+              anchors.top: parent.top
+              anchors.bottom: parent.bottom
+              anchors.horizontalCenter: parent.horizontalCenter
+              width: Math.min(parent.width, root.columns * cellWidth)
               clip: true
-              cellWidth: 153
-              cellHeight: 153
+              cellWidth: 154
+              cellHeight: 154
               model: root.filtered
               currentIndex: root.selectedIndex
               onCurrentIndexChanged: { root.selectedIndex = currentIndex; if (currentIndex >= 0) positionViewAtIndex(currentIndex, GridView.Contain) }
@@ -503,7 +555,14 @@ Scope {
                 id: del
                 required property var modelData
                 required property int index
-                width: grid.cellWidth - 10
+                readonly property bool _isRight: {
+                  const cols = root.columns
+                  const n = root.filtered.length
+                  const row = Math.floor(index / cols)
+                  const rowEnd = Math.min(row * cols + cols, n) - 1
+                  return index === rowEnd
+                }
+                width: grid.cellWidth - (_isRight ? 0 : 10)
                 height: grid.cellHeight - 10
                 radius: Theme.radiusMd
                 color: root.selectedIndex === index ? Theme.surfaceHover : "transparent"
@@ -551,25 +610,6 @@ Scope {
                 opacity: 0.55
                 font.family: Theme.monoFont
                 font.pixelSize: 13
-              }
-            }
-            Rectangle {
-              anchors.top: parent.top
-              anchors.bottom: parent.bottom
-              anchors.right: parent.right
-              width: 8
-              radius: 3
-              color: "transparent"
-              visible: grid.contentHeight > grid.height
-              Rectangle {
-                id: thumb
-                width: 5
-                radius: 3
-                x: (parent.width - width) / 2
-                color: Theme.fg
-                opacity: 0.35
-                height: Math.max(24, grid.height * grid.visibleArea.heightRatio)
-                y: grid.visibleArea.yPosition * grid.height
               }
             }
           }

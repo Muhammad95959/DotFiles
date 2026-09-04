@@ -19,7 +19,7 @@ Scope {
 
   // ── Selection ──────────────────────────────────────────────────────
   property int selectedIndex: 0
-  property int columns: 2
+  property int columns: 3
   property bool _blockHover: false
   function _markKeyboard() { _blockHover = true }
 
@@ -102,16 +102,12 @@ Scope {
       MouseArea { anchors.fill: parent; onClicked: pmRoot.close() }
       Rectangle { anchors.fill: parent; color: Theme.dim }
 
-      // ── Right tall container (below bar) ──────────────────────────
-      Rectangle {
-        id: box
-        width: 454
-        anchors.right: parent.right
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        anchors.rightMargin: 12
-        anchors.topMargin: Config.barHeight + 12
-        anchors.bottomMargin: 12
+// ── Centered container ──────────────────────────────────────
+        Rectangle {
+          id: box
+          width: 640
+          height: 360
+          anchors.centerIn: parent
         radius: Theme.radiusLg
         color: Theme.bg
         LayoutMirroring.enabled: false
@@ -228,11 +224,11 @@ Scope {
             opacity: 0.6
           }
 
-          // ── Grid - tall 2-column, fills remaining height ───────────
+          // ── Grid - 3x2, fills remaining height ─────────────────────
           GridLayout {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            columns: 2
+            columns: 3
             rowSpacing: 12
             columnSpacing: 12
 

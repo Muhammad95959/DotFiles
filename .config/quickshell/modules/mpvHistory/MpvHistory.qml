@@ -288,15 +288,11 @@ Scope {
           }
 
           RowLayout { Layout.alignment: Qt.AlignHCenter; spacing: 10
-            Text { text:"󰘳+F Files"; color:Theme.fg; opacity:0.85; font.family:Theme.nerdFont; font.pixelSize:10; font.bold:true }
-            Rectangle { Layout.preferredWidth: 1; Layout.preferredHeight: 10; color:Theme.border; opacity:0.6 }
-            Text { text:"󰘳+U URLs"; color:Theme.fg; opacity:0.85; font.family:Theme.nerdFont; font.pixelSize:10; font.bold:true }
-            Rectangle { Layout.preferredWidth: 1; Layout.preferredHeight: 10; color:Theme.border; opacity:0.6 }
-            Text { text:"󰘳+A All"; color:Theme.fg; opacity:0.85; font.family:Theme.nerdFont; font.pixelSize:10; font.bold:true }
-            Rectangle { Layout.preferredWidth: 1; Layout.preferredHeight: 10; color:Theme.border; opacity:0.6 }
             Text { text:"↵ Open"; color:Theme.fg; opacity:0.85; font.family:Theme.monoFont; font.pixelSize:10; font.bold:true }
             Rectangle { Layout.preferredWidth: 1; Layout.preferredHeight: 10; color:Theme.border; opacity:0.6 }
             Text { text:"Esc Close"; color:Theme.fg; opacity:0.85; font.family:Theme.monoFont; font.pixelSize:10; font.bold:true }
+            Rectangle { Layout.preferredWidth: 1; Layout.preferredHeight: 10; color:Theme.border; opacity:0.6 }
+            Text { text:"Alt+key filter"; color:Theme.fg; opacity:0.85; font.family:Theme.nerdFont; font.pixelSize:10; font.bold:true }
           }
         }
         Component.onCompleted: if(root.visible) searchField.forceActiveFocus()

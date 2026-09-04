@@ -219,7 +219,7 @@ Scope {
       // ── Centered 1600x900 ────────────────────────────────────────
       Rectangle {
         id: container
-        width: 1572
+        width: 1600
         height: 900
         anchors.centerIn: parent
         radius: Theme.radiusLg
@@ -304,11 +304,13 @@ Scope {
 
           // ── Categories ─────────────────────────────────────────────
           Flickable {
+            id: catFlick
             Layout.fillWidth: true; height: 32; contentWidth: catRow.width; contentHeight: 32; clip: true
         LayoutMirroring.enabled: false
             flickableDirection: Flickable.HorizontalFlick; boundsBehavior: Flickable.StopAtBounds
             RowLayout {
               id: catRow; height: 32; spacing: 8
+              x: Math.max(0, (catFlick.width - width) / 2)
               Repeater {
                 model: wallpaperRoot.categories
                 Rectangle {
@@ -323,13 +325,71 @@ Scope {
             }
           }
 
-          Rectangle { Layout.fillWidth: true; height: 1; color: Theme.border; opacity: 0.6 }
+          Item {
+            id: sepContainer
+            Layout.fillWidth: true
+            Layout.preferredHeight: 8
+            clip: false
+            Rectangle {
+              id: sepLine
+              anchors.left: parent.left
+              anchors.right: parent.right
+              anchors.verticalCenter: parent.verticalCenter
+              height: 1
+              color: Theme.border
+              opacity: 0.6
+            }
+            Rectangle {
+              id: sepThumb
+              height: 3
+              radius: 1.5
+              width: Math.max(32, sepContainer.width * (grid ? grid.visibleArea.heightRatio : 0))
+              y: (sepContainer.height - height) / 2
+              x: {
+                if (!grid || grid.contentHeight <= grid.height) return 0
+                const maxY = grid.contentHeight - grid.height
+                return (grid.contentY / Math.max(1, maxY)) * (sepContainer.width - width)
+              }
+              color: sepMouse.containsMouse || sepMouse.drag.active ? Theme.fg : Qt.alpha(Theme.fg, 0.55)
+              opacity: grid && grid.contentHeight > grid.height ? 1 : 0
+              visible: grid && grid.contentHeight > grid.height
+              Behavior on color { ColorAnimation { duration: 120 } }
+              Behavior on opacity { NumberAnimation { duration: 150 } }
+            }
+            MouseArea {
+              id: sepMouse
+              anchors.fill: parent
+              hoverEnabled: true
+              drag.target: sepThumb
+              drag.axis: Drag.XAxis
+              drag.minimumX: 0
+              drag.maximumX: sepContainer.width - sepThumb.width
+              onPositionChanged: if (drag.active) {
+                const ratio = sepThumb.x / Math.max(1, sepContainer.width - sepThumb.width)
+                if (grid) grid.contentY = ratio * (grid.contentHeight - grid.height)
+              }
+              onPressed: mouse => {
+                if (mouse.x < sepThumb.x || mouse.x > sepThumb.x + sepThumb.width) {
+                  const ratio = (mouse.x - sepThumb.width / 2) / Math.max(1, sepContainer.width - sepThumb.width)
+                  const clamped = Math.max(0, Math.min(1, ratio))
+                  if (grid) grid.contentY = clamped * (grid.contentHeight - grid.height)
+                }
+              }
+              onWheel: wheel => wheel.accepted = false
+            }
+          }
 
           // ── Grid ───────────────────────────────────────────────────
-          GridView {
-            id: grid
+          Item {
             Layout.fillWidth: true; Layout.fillHeight: true; clip: true
-            cellWidth: 308; cellHeight: 176
+            GridView {
+              id: grid
+              anchors.top: parent.top
+              anchors.bottom: parent.bottom
+              anchors.horizontalCenter: parent.horizontalCenter
+              width: Math.min(parent.width, wallpaperRoot.columns * cellWidth)
+              clip: true
+              cellWidth: 308; cellHeight: 176
             cacheBuffer: 200
             model: wallpaperRoot.filteredWallpapers
             currentIndex: wallpaperRoot.selectedIndex
@@ -340,7 +400,14 @@ Scope {
               id: del
               required property var modelData
               required property int index
-              width: grid.cellWidth - 8; height: grid.cellHeight - 8
+              readonly property bool _isRight: {
+                const cols = wallpaperRoot.columns
+                const n = wallpaperRoot.filteredWallpapers.length
+                const row = Math.floor(index / cols)
+                const rowEnd = Math.min(row * cols + cols, n) - 1
+                return index === rowEnd
+              }
+              width: grid.cellWidth - (_isRight ? 0 : 8); height: grid.cellHeight - 8
               radius: Theme.radiusMd
               color: wallpaperRoot.selectedIndex === index ? Theme.surfaceHover : Theme.surface
               border.color: wallpaperRoot.selectedIndex === index ? Qt.alpha(Theme.fg, 0.33) : Theme.border
@@ -410,6 +477,7 @@ Scope {
               anchors.centerIn: parent; visible: wallpaperRoot.filteredWallpapers.length === 0
               text: "No wallpapers"; color: Theme.fg; opacity: 0.55; font.family: Theme.monoFont; font.pixelSize: 13
             }
+          }
           }
 
         }

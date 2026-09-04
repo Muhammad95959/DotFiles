@@ -22,23 +22,26 @@ Scope {
   property string query: ""
   property string selectedCategory: "All"
   property int selectedIndex: 0
-  property int columns: 3
+  property int columns: 7
   // ── Hover block after keyboard/page ─────────────────────────────────
   property bool _blockHover: false
   function _markKeyboard() { _blockHover = true }
 
-  // freedesktop main categories + All
+  // ── Alt-hold for categories (like MpvHistory) ─────────────────────────
+  property bool _altHeld: false
+
+  // freedesktop main categories + All (hint = Alt+letter)
   readonly property var categories: [
-    { key: "All",        label: "All"        },
-    { key: "Development",label: "Dev"        },
-    { key: "Office",     label: "Office"     },
-    { key: "Graphics",   label: "Graphics"   },
-    { key: "Network",    label: "Internet"   },
-    { key: "AudioVideo", label: "Multimedia" },
-    { key: "Game",       label: "Games"      },
-    { key: "System",     label: "System"     },
-    { key: "Utility",    label: "Utility"    },
-    { key: "Settings",   label: "Settings"   }
+    { key: "All",        label: "All",        hint: "A" },
+    { key: "Development",label: "Dev",        hint: "D" },
+    { key: "Office",     label: "Office",     hint: "O" },
+    { key: "Graphics",   label: "Graphics",   hint: "G" },
+    { key: "Network",    label: "Internet",   hint: "I" },
+    { key: "AudioVideo", label: "Multimedia", hint: "M" },
+    { key: "Game",       label: "Games",      hint: "E" },
+    { key: "System",     label: "System",     hint: "S" },
+    { key: "Utility",    label: "Utility",    hint: "U" },
+    { key: "Settings",   label: "Settings",   hint: "T" }
   ]
 
   function matchesCategory(entry, cat) {
@@ -87,7 +90,8 @@ Scope {
   onQueryChanged: selectedIndex = 0
   onSelectedCategoryChanged: selectedIndex = 0
   onVisibleChanged: {
-    if (visible) { query = ""; selectedCategory = "All"; selectedIndex = 0; _blockHover = true }
+    if (visible) { query = ""; selectedCategory = "All"; selectedIndex = 0; _blockHover = true; _altHeld = false }
+    else { _altHeld = false }
   }
 
   function launchAt(idx) {
@@ -187,20 +191,37 @@ Scope {
         color: Theme.dim
       }
 
-      // ── Left tall container (below bar) ─────────────────────────────
+      // ── Centered container ─────────────────────────────────────
       Rectangle {
-        width: 454
-        anchors.left: parent.left
-        anchors.top: parent.top
-        anchors.bottom: parent.bottom
-        anchors.leftMargin: 12
-        anchors.topMargin: Config.barHeight + 12
-        anchors.bottomMargin: 12
+        id: container
+        width: 960
+        height: 720
+        anchors.centerIn: parent
         radius: Theme.radiusLg
         color: Theme.bg
         border.color: Theme.border
         border.width: 1
-
+        clip: true
+        focus: true
+        Keys.onPressed: event => {
+          const hasAlt = (event.modifiers & Qt.AltModifier) || event.key === Qt.Key_Alt
+          if (hasAlt) launcherRoot._altHeld = true
+          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_A) { launcherRoot.selectedCategory = "All"; event.accepted = true; return }
+          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_D) { launcherRoot.selectedCategory = "Development"; event.accepted = true; return }
+          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_O) { launcherRoot.selectedCategory = "Office"; event.accepted = true; return }
+          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_G) { launcherRoot.selectedCategory = "Graphics"; event.accepted = true; return }
+          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_I) { launcherRoot.selectedCategory = "Network"; event.accepted = true; return }
+          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_M) { launcherRoot.selectedCategory = "AudioVideo"; event.accepted = true; return }
+          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_E) { launcherRoot.selectedCategory = "Game"; event.accepted = true; return }
+          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_S) { launcherRoot.selectedCategory = "System"; event.accepted = true; return }
+          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_U) { launcherRoot.selectedCategory = "Utility"; event.accepted = true; return }
+          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_T) { launcherRoot.selectedCategory = "Settings"; event.accepted = true; return }
+          if (event.key === Qt.Key_Alt) launcherRoot._altHeld = true
+        }
+        Keys.onReleased: event => {
+          if (event.key === Qt.Key_Alt) launcherRoot._altHeld = false
+          else launcherRoot._altHeld = Boolean(event.modifiers & Qt.AltModifier)
+        }
         MouseArea { anchors.fill: parent; hoverEnabled: true; onPositionChanged: { if (launcherRoot._blockHover) { launcherRoot._blockHover = false } }
                 onClicked: {} }
 
@@ -244,6 +265,19 @@ Scope {
                 onAccepted: launcherRoot.launchAt(launcherRoot.selectedIndex)
 
                 Keys.onPressed: event => {
+                  const hasAlt = (event.modifiers & Qt.AltModifier) || event.key === Qt.Key_Alt
+                  if (hasAlt) launcherRoot._altHeld = true
+                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_A) { launcherRoot.selectedCategory = "All"; event.accepted = true; return }
+                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_D) { launcherRoot.selectedCategory = "Development"; event.accepted = true; return }
+                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_O) { launcherRoot.selectedCategory = "Office"; event.accepted = true; return }
+                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_G) { launcherRoot.selectedCategory = "Graphics"; event.accepted = true; return }
+                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_I) { launcherRoot.selectedCategory = "Network"; event.accepted = true; return }
+                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_M) { launcherRoot.selectedCategory = "AudioVideo"; event.accepted = true; return }
+                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_E) { launcherRoot.selectedCategory = "Game"; event.accepted = true; return }
+                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_S) { launcherRoot.selectedCategory = "System"; event.accepted = true; return }
+                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_U) { launcherRoot.selectedCategory = "Utility"; event.accepted = true; return }
+if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_T) { launcherRoot.selectedCategory = "Settings"; event.accepted = true; return }
+                  if (event.key === Qt.Key_Alt) launcherRoot._altHeld = true
                   if (event.key === Qt.Key_Escape) { launcherRoot.close(); event.accepted = true }
                   else if (event.key === Qt.Key_Backtab) { launcherRoot.moveHorizontal(-1); event.accepted = true }
                   else if (event.key === Qt.Key_Tab) {
@@ -259,6 +293,10 @@ Scope {
                   else if (event.key === Qt.Key_PageUp) { launcherRoot.pageMove(-1); event.accepted = true }
                   else if (event.key === Qt.Key_PageDown) { launcherRoot.pageMove(1); event.accepted = true }
                   else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) { launcherRoot.launchAt(launcherRoot.selectedIndex); event.accepted = true }
+                }
+                Keys.onReleased: event => {
+                  if (event.key === Qt.Key_Alt) launcherRoot._altHeld = false
+                  else launcherRoot._altHeld = Boolean(event.modifiers & Qt.AltModifier)
                 }
 
                 Text {
@@ -291,6 +329,7 @@ Scope {
 
           // ── Categories ─────────────────────────────────────────────
           Flickable {
+            id: catFlick
             Layout.fillWidth: true
             height: 32
             contentWidth: catRow.width
@@ -304,6 +343,7 @@ Scope {
               id: catRow
               height: 32
               spacing: 8
+              x: Math.max(0, (catFlick.width - width) / 2)
 
               Repeater {
                 model: launcherRoot.categories
@@ -320,7 +360,18 @@ Scope {
                   Text {
                     id: catLabel
                     anchors.centerIn: parent
-                    text: modelData.label
+                    text: {
+                      if (!launcherRoot._altHeld) return modelData.label
+                      const hint = modelData.hint || ""
+                      const lbl = modelData.label
+                      const idx = lbl.toLowerCase().indexOf(hint.toLowerCase())
+                      if (idx >= 0) {
+                        return lbl.slice(0, idx) + "<u>" + lbl[idx] + "</u>" + lbl.slice(idx+1)
+                      } else {
+                        return "<u>" + hint + "</u> " + lbl
+                      }
+                    }
+                    textFormat: launcherRoot._altHeld ? Text.RichText : Text.PlainText
                     color: launcherRoot.selectedCategory === modelData.key ? Theme.bg : Theme.fg
                     font.family: Theme.monoFont
                     font.pixelSize: 11
@@ -337,10 +388,63 @@ Scope {
             }
           }
 
-          Rectangle { Layout.fillWidth: true; height: 1; color: Theme.border; opacity: 0.6 }
+          Item {
+            id: sepContainer
+            Layout.fillWidth: true
+            Layout.preferredHeight: 8
+            clip: false
+            Rectangle {
+              id: sepLine
+              anchors.left: parent.left
+              anchors.right: parent.right
+              anchors.verticalCenter: parent.verticalCenter
+              height: 1
+              color: Theme.border
+              opacity: 0.6
+            }
+            Rectangle {
+              id: sepThumb
+              height: 3
+              radius: 1.5
+              width: 20
+              y: (sepContainer.height - height) / 2
+              x: {
+                if (!grid || grid.contentHeight <= grid.height) return 0
+                const maxY = grid.contentHeight - grid.height
+                return (grid.contentY / Math.max(1, maxY)) * (sepContainer.width - width)
+              }
+              color: sepMouse.containsMouse || sepMouse.drag.active ? Theme.fg : Qt.alpha(Theme.fg, 0.55)
+              opacity: grid && grid.contentHeight > grid.height ? 1 : 0
+              visible: grid && grid.contentHeight > grid.height
+              Behavior on color { ColorAnimation { duration: 120 } }
+              Behavior on opacity { NumberAnimation { duration: 150 } }
+            }
+            MouseArea {
+              id: sepMouse
+              anchors.fill: parent
+              hoverEnabled: true
+              drag.target: sepThumb
+              drag.axis: Drag.XAxis
+              drag.minimumX: 0
+              drag.maximumX: sepContainer.width - sepThumb.width
+              onPositionChanged: if (drag.active) {
+                const ratio = sepThumb.x / Math.max(1, sepContainer.width - sepThumb.width)
+                if (grid) grid.contentY = ratio * (grid.contentHeight - grid.height)
+              }
+              onPressed: mouse => {
+                if (mouse.x < sepThumb.x || mouse.x > sepThumb.x + sepThumb.width) {
+                  const ratio = (mouse.x - sepThumb.width / 2) / Math.max(1, sepContainer.width - sepThumb.width)
+                  const clamped = Math.max(0, Math.min(1, ratio))
+                  if (grid) grid.contentY = clamped * (grid.contentHeight - grid.height)
+                }
+              }
+              onWheel: wheel => wheel.accepted = false
+            }
+          }
 
           Text {
             text: launcherRoot.filteredApps.length + " apps" + (launcherRoot.selectedCategory !== "All" ? " · " + launcherRoot.selectedCategory : "")
+            anchors.horizontalCenter: parent.horizontalCenter
             color: Theme.fg
             opacity: 0.55
             font.family: Theme.monoFont
@@ -355,11 +459,13 @@ Scope {
 
             GridView {
               id: grid
-              anchors.fill: parent
-              anchors.rightMargin: 14
+              anchors.top: parent.top
+              anchors.bottom: parent.bottom
+              anchors.horizontalCenter: parent.horizontalCenter
+              width: Math.min(parent.width, launcherRoot.columns * cellWidth)
               clip: true
-              cellWidth: 136
-              cellHeight: 92
+              cellWidth: 132
+              cellHeight: 104
               model: launcherRoot.filteredApps
               currentIndex: launcherRoot.selectedIndex
               onCurrentIndexChanged: launcherRoot.selectedIndex = currentIndex
@@ -388,7 +494,14 @@ Scope {
                 id: del
                 required property var modelData
                 required property int index
-                width: grid.cellWidth - 8
+                readonly property bool _isRight: {
+                  const cols = launcherRoot.columns
+                  const n = launcherRoot.filteredApps.length
+                  const row = Math.floor(index / cols)
+                  const rowEnd = Math.min(row * cols + cols, n) - 1
+                  return index === rowEnd
+                }
+                width: grid.cellWidth - (_isRight ? 0 : 8)
                 height: grid.cellHeight - 8
                 radius: Theme.radiusMd
                 color: launcherRoot.selectedIndex === index ? Theme.surfaceHover : "transparent"
@@ -439,60 +552,14 @@ Scope {
                 font.pixelSize: 13
               }
             }
+          }
 
-            // Subtle overlay scrollbar (theme-aware) — gutter outside icons
-            Rectangle {
-              anchors.top: parent.top
-              anchors.bottom: parent.bottom
-              anchors.right: parent.right
-              width: 10
-              radius: 3
-              color: "transparent"
-              visible: grid.contentHeight > grid.height
-
-              Rectangle {
-                id: sbThumb
-                width: 6
-                radius: 3
-                x: (parent.width - width) / 2
-                color: (sbDrag.drag.active || sbDrag.containsMouse || sbHover.containsMouse) ? Theme.fg : Qt.alpha(Theme.fg, 0.22)
-                opacity: grid.moving || sbDrag.containsMouse || sbHover.containsMouse || sbDrag.drag.active ? 1 : 0.85
-                Behavior on color { ColorAnimation { duration: 120 } }
-                Behavior on opacity { NumberAnimation { duration: 150 } }
-                height: Math.max(28, grid.height * grid.visibleArea.heightRatio)
-                y: grid.visibleArea.yPosition * grid.height
-                visible: grid.contentHeight > grid.height
-              }
-
-              MouseArea {
-                id: sbHover
-                anchors.fill: parent
-                hoverEnabled: true
-                acceptedButtons: Qt.NoButton
-              }
-
-              MouseArea {
-                id: sbDrag
-                anchors.fill: parent
-                hoverEnabled: true
-                drag.target: sbThumb
-                drag.axis: Drag.YAxis
-                drag.minimumY: 0
-                drag.maximumY: grid.height - sbThumb.height
-                onPositionChanged: if (drag.active) {
-                  const ratio = sbThumb.y / Math.max(1, grid.height - sbThumb.height)
-                  grid.contentY = ratio * (grid.contentHeight - grid.height)
-                }
-                onPressed: mouse => {
-                  if (mouse.y < sbThumb.y || mouse.y > sbThumb.y + sbThumb.height) {
-                    const ratio = (mouse.y - sbThumb.height / 2) / Math.max(1, grid.height - sbThumb.height)
-                    const clamped = Math.max(0, Math.min(1, ratio))
-                    grid.contentY = clamped * (grid.contentHeight - grid.height)
-                  }
-                }
-                onWheel: wheel => wheel.accepted = false
-              }
-            }
+          RowLayout {
+            Layout.alignment: Qt.AlignHCenter
+            spacing: 10
+            Text { text: "↵ Launch"; color: Theme.fg; opacity: 0.85; font.family: Theme.monoFont; font.pixelSize: 10; font.bold: true }
+            Rectangle { Layout.preferredWidth: 1; Layout.preferredHeight: 10; color: Theme.border; opacity: 0.6 }
+            Text { text: "Esc Close"; color: Theme.fg; opacity: 0.85; font.family: Theme.monoFont; font.pixelSize: 10; font.bold: true }
           }
         }
 
