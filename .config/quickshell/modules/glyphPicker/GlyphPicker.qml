@@ -18,7 +18,7 @@ Scope {
   function openEmoji() { currentTab = "emoji"; sectionEmoji = "All"; visible = true; query = ""; selectedIndex = 0; _altHeld = false; _blockHover = true; ensureData() }
   function openNerd() { currentTab = "nerd"; sectionNerd = "All"; visible = true; query = ""; selectedIndex = 0; _altHeld = false; _blockHover = true; ensureData() }
   function openGlyphs() { currentTab = "unicode"; sectionUnicode = "All"; visible = true; query = ""; selectedIndex = 0; _altHeld = false; _blockHover = true; ensureData() }
-  function close() { visible = false; _altHeld = false }
+  function close() { visible = false; _altHeld = false; sectionEmoji = "All"; sectionNerd = "All"; sectionUnicode = "All" }
 
   property string currentTab: "emoji"
   property string query: ""
