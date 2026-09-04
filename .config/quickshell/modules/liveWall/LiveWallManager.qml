@@ -51,8 +51,8 @@ Scope {
       isLiveActive = false
     } else {
       if (!activeFile && !currentPath) {
-        const link = Quickshell.env("HOME") + "/Backgrounds/Live/active"
-        // fallback handled by loadProc; just try to load
+        skipNextAnimation = false
+        isLiveActive = true
         loadCurrent()
         return
       }

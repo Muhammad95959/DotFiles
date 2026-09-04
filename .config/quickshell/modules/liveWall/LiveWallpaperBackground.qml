@@ -12,25 +12,24 @@ import "../common"
 Scope {
   id: bgRoot
 
-  Variants {
-    model: Quickshell.screens
-    PanelWindow {
-      id: win
-      required property var modelData
-      screen: modelData
-      visible: LiveWallManager.currentPath !== ""
-      color: "transparent"
-      exclusionMode: ExclusionMode.Ignore
-      WlrLayershell.layer: WlrLayer.Bottom
-      anchors { top: true; bottom: true; left: true; right: true }
-
-      LazyLoader {
-        active: LiveWallManager.isLiveActive
+  LazyLoader {
+    active: LiveWallManager.isLiveActive && LiveWallManager.currentPath !== ""
+    Variants {
+      model: Quickshell.screens
+      PanelWindow {
+        id: win
+        required property var modelData
+        screen: modelData
+        visible: true
+        color: "transparent"
+        exclusionMode: ExclusionMode.Ignore
+        WlrLayershell.layer: WlrLayer.Bottom
+        anchors { top: true; bottom: true; left: true; right: true }
 
         Item {
           id: crossFadeContainer
           anchors.fill: parent
-          opacity: LiveWallManager.isLiveActive ? 1 : 0
+          opacity: 1
           Behavior on opacity { NumberAnimation { duration: 500; easing.type: Easing.InOutCubic } }
 
           function _crossFadeTo(path) {
@@ -101,7 +100,7 @@ Scope {
 
           Timer {
             interval: 1000
-            running: LiveWallManager.isLiveActive
+            running: true
             repeat: true
             onTriggered: pauseCheck.running = true
           }
@@ -109,7 +108,7 @@ Scope {
           Process {
             id: pauseCheck
             command: ["sh", "-c",
-              "hyprctl clients -j 2>/dev/null | python3 -c \"\nimport json, subprocess, re, sys\ntry:\n    clients=json.load(sys.stdin)\nexcept:\n    sys.exit(0)\ntry:\n    mon=json.loads(subprocess.check_output(['hyprctl','monitors','-j']))\nexcept:\n    mon=[]\nactiveWs=None\nfor m in mon:\n    if m.get('focused'):\n        activeWs=m.get('activeWorkspace',{}).get('id'); break\nif activeWs is None and mon:\n    activeWs=mon[0].get('activeWorkspace',{}).get('id')\nfocused=[c for c in clients if c.get('focusHistoryID')==0]\nactiveClass=focused[0].get('class','') if focused else ''\nfs=set(c.get('workspace',{}).get('id') for c in clients if c.get('fullscreen')!=0)\ntiled=[c for c in clients if not c.get('floating') and c.get('workspace',{}).get('id')==activeWs]\nclasses=[c.get('class','') for c in tiled]\npat=re.compile(r'(kitty|Yazi)')\npause='yes' if (classes and not any(pat.search(x) for x in classes)) or (activeWs in fs and not pat.search(activeClass)) else 'no'\nprint(pause)\n\" 2>/dev/null | tr -d '\\n'"
+              "hyprctl clients -j 2>/dev/null | python3 -c \"\nimport json, subprocess, re, sys\ntry:\n    clients=json.load(sys.stdin)\nexcept:\n    sys.exit(0)\ntry:\n    mon=json.loads(subprocess.check_output(['hyprctl','monitors','-j']))\nexcept:\n    mon=[]\nactiveWs=None\nfor m in mon:\n    if m.get('focused'):\n        activeWs=m.get('activeWorkspace',{}).get('id'); break\nif activeWs is None and mon:\n    activeWs=mon[0].get('activeWorkspace',{}).get('id')\nfocused=[c for c in clients if c.get('focusHistoryID')==0]\nactiveClass=focused[0].get('class','') if focused else ''\nfs=set(c.get('workspace',{}).get('id') for c in clients if c.get('fullscreen')!=0)\ntiled=[c for c in clients if not c.get('floating') and c.get('workspace',{}).get('id')==activeWs]\nclasses=[c.get('class','') for c in tiled]\npat=re.compile(r'(kitty|Yazi)')\npause='yes' if (classes and not any(pat.search(x) for x in classes)) or (activeWs in fs and not pat.search(activeClass)) else 'no'\nprint(pause)\n\" 2>/dev/null"
             ]
             stdout: SplitParser {
               onRead: data => {
@@ -130,27 +129,12 @@ Scope {
             function onCurrentPathChanged() {
               const p = LiveWallManager.currentPath
               if (!p) return
-              if (!LiveWallManager.isLiveActive) return
               if (bottomVideo.source === "" && topVideo.source === "") {
-                _instantTo(p)
+                crossFadeContainer._instantTo(p)
                 return
               }
-              if (LiveWallManager.skipNextAnimation) _instantTo(p)
-              else _crossFadeTo(p)
-            }
-            function onIsLiveActiveChanged() {
-              if (LiveWallManager.isLiveActive) {
-                const p = LiveWallManager.currentPath
-                if (!p) return
-                if (bottomVideo.source === "" || topVideo.source === "") _instantTo(p)
-                else if (LiveWallManager.skipNextAnimation) _instantTo(p)
-                else _crossFadeTo(p)
-                if (bottomVideo.playbackState !== MediaPlayer.PlayingState) bottomVideo.play()
-                if (topVideo.playbackState !== MediaPlayer.PlayingState) topVideo.play()
-              } else {
-                bottomVideo.pause()
-                topVideo.pause()
-              }
+              if (LiveWallManager.skipNextAnimation) crossFadeContainer._instantTo(p)
+              else crossFadeContainer._crossFadeTo(p)
             }
           }
         }
