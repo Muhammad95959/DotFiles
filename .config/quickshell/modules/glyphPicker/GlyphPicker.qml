@@ -245,8 +245,8 @@ Scope {
 
       Rectangle {
         id: container
-        width: 860
-        height: 620
+        width: 960
+        height: 720
         anchors.centerIn: parent
         radius: Theme.radiusLg
         color: Theme.bg
@@ -458,8 +458,8 @@ Scope {
               anchors.fill: parent
               anchors.rightMargin: 8
               clip: true
-              cellWidth: 116
-              cellHeight: 116
+              cellWidth: 153
+              cellHeight: 153
               model: root.filtered
               currentIndex: root.selectedIndex
               onCurrentIndexChanged: { root.selectedIndex = currentIndex; if (currentIndex >= 0) positionViewAtIndex(currentIndex, GridView.Contain) }
@@ -500,7 +500,7 @@ Scope {
                     text: del.modelData.char
                     color: Theme.fg
                     font.family: root.currentTab === "emoji" ? "Noto Color Emoji" : Theme.nerdFont
-                    font.pixelSize: 42
+                    font.pixelSize: 72
                     horizontalAlignment: Text.AlignHCenter
                     elide: Text.ElideRight
                   }
@@ -511,7 +511,7 @@ Scope {
                     color: Theme.fg
                     opacity: 0.75
                     font.family: Theme.monoFont
-                    font.pixelSize: 9
+                    font.pixelSize: 12
                     elide: Text.ElideRight
                     maximumLineCount: 2
                     wrapMode: Text.WordWrap

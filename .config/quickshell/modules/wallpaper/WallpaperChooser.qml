@@ -215,7 +215,7 @@ Scope {
       // ── Centered 1600x900 ────────────────────────────────────────
       Rectangle {
         id: container
-        width: 1600
+        width: 1572
         height: 900
         anchors.centerIn: parent
         radius: Theme.radiusLg

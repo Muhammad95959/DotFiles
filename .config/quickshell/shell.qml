@@ -88,16 +88,16 @@ ShellRoot {
   LiveWallpaperBackground {}
   LiveWall {}
 
-  // ── Generic Qmenu (rofi replacement) ─────────────────────────────────
+  // ── Generic Qmenu  ─────────────────────────────────────────────────
   Qmenu {}
 
-  // ── Glyph Picker (emoji + nerd + unicode) ────────────────────────────
+  // ── Glyph Picker (emoji + nerd + unicode) ──────────────────────────
   GlyphPicker {}
 
-  // ── Systemd (rofi-systemd replacement) ───────────────────────────────
+  // ── Systemd  ───────────────────────────────────────────────────────
   Systemd {}
 
-  // ── Pass (rofi-pass replacement) ─────────────────────────────────
+  // ── Pass  ──────────────────────────────────────────────────────────
   Pass {}
 
 }

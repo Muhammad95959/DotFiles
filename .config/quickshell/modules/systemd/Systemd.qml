@@ -246,8 +246,8 @@ Scope {
 
       Rectangle {
         id: container
-        width: 780
-        height: 520
+        width: 800
+        height: 600
         anchors.centerIn: parent
         radius: Theme.radiusLg
         color: Theme.bg

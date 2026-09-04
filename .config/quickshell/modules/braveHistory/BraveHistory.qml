@@ -79,7 +79,7 @@ Scope {
       MouseArea{ anchors.fill: parent; onClicked: root.close()}
       Rectangle{ anchors.fill: parent; color: Theme.dim}
       Rectangle{
-        width: 780; height: 480; anchors.centerIn: parent; radius: Theme.radiusLg; color: Theme.bg; border.color: Theme.border; border.width:1; clip:true
+        width: 800; height: 600; anchors.centerIn: parent; radius: Theme.radiusLg; color: Theme.bg; border.color: Theme.border; border.width:1; clip:true
         LayoutMirroring.enabled: false
         MouseArea{ anchors.fill: parent; hoverEnabled:true; onPositionChanged: if(root._blockHover) root._blockHover=false; onClicked:{}}
 
