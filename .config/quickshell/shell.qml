@@ -3,6 +3,7 @@ import QtQuick
 
 import Quickshell
 
+import "modules/ambient"
 import "modules/appkiller"
 import "modules/bar"
 import "modules/braveHistory"
@@ -97,5 +98,8 @@ ShellRoot {
 
   // ── Pass  ──────────────────────────────────────────────────────────
   Pass {}
+
+  // ── Ambient Audio  ─────────────────────────────────────────────────
+  Ambient {}
 
 }
