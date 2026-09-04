@@ -13,7 +13,7 @@ Scope {
   id: root
   property bool visible: false
   function toggle() { visible ? close() : open() }
-  function open() { visible = true; Qt.callLater(() => onelinerBar.focusInput()) }
+  function open() { visible = true }
   function close() { visible = false; _query="" }
 
   property string _query: ""
@@ -34,11 +34,7 @@ Scope {
     let url
     let browser = "brave-origin"
     if (arabic > english) {
-      // urlencode od -An -tx1 style
-      let enc=""
-      const bytes = new TextEncoder().encode(t)
-      for (let b of bytes){ enc+= "%"+b.toString(16).toUpperCase().padStart(2,"0") }
-      url = ar_to_en + "&text=" + enc
+      url = ar_to_en + "&text=" + encodeURIComponent(t)
     } else {
       url = en_to_ar + "&text=" + encodeURIComponent(t)
     }
@@ -81,7 +77,7 @@ Scope {
           inputOnly: true
           placeholder: "Type to translate (auto AR ↔ EN)"
           onQueryChangedStr: newQuery => root._query = newQuery
-          onAccepted: { root.doTranslate(root._query) }
+          onAccepted: (index, query) => { if (index === -1) root.doTranslate(query) }
           onCancelled: root.close()
         }
       }

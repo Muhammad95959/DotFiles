@@ -17,7 +17,7 @@ Item {
   property bool inputOnly: false
   property string placeholder: ""
   signal queryChangedStr(string newQuery)
-  signal accepted(int index)
+  signal accepted(int index, string query)
   signal cancelled()
   signal moved(int delta)
   signal movedNoWrap(int delta)
@@ -70,11 +70,11 @@ Item {
           onAccepted: {
             if (root.inputOnly) {
               if (text.trim().length > 0) {
-                root.accepted(-1)
+                root.accepted(-1, text)
                 text = ""
               }
             } else {
-              root.accepted(root.selectedIndex)
+              root.accepted(root.selectedIndex, text)
               text = ""
             }
           }
@@ -156,7 +156,7 @@ Item {
           onClicked: mouse => {
             if (mouse.button === Qt.LeftButton) {
               root.hovered(del.index)
-              root.accepted(del.index)
+              root.accepted(del.index, entry.text)
               root.clear()
             }
           }

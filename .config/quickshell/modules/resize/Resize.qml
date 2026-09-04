@@ -13,7 +13,7 @@ Scope {
   id: root
   property bool visible: false
   function toggle(){ visible ? close() : open() }
-  function open(){ visible = true; _query=""; selectedIndex=0; Qt.callLater(()=>onelinerBar.focusInput())}
+  function open(){ visible = true; _query=""; selectedIndex=0 }
   function close(){ visible=false }
 
   property string _query: ""
@@ -95,7 +95,7 @@ Scope {
           inputOnly: false
           placeholder: "filter size"
           onQueryChangedStr: newQuery=>{ root._query=newQuery; root.selectedIndex=0 }
-          onAccepted: idx=>{
+          onAccepted: (idx, query)=>{
             // idx is selectedIndex; if filtered empty ignore
             if(root.filtered.length===0) return
             const effective = idx>=0 ? idx : root.selectedIndex

@@ -13,7 +13,7 @@ Scope {
   id: root
   property bool visible: false
   function toggle(){ visible?close():open()}
-  function open(){ visible=true; _query=""; selectedIndex=0; refresh(); Qt.callLater(()=>onelinerBar.focusInput())}
+  function open(){ visible=true; _query=""; selectedIndex=0; refresh() }
   function close(){ visible=false}
 
   property string _query:""
@@ -83,7 +83,7 @@ Scope {
         OnelinerBar{
           id: onelinerBar; anchors.fill: parent; prompt:"Bookmark:"; query: root._query; model: root.filtered; selectedIndex: root.selectedIndex; inputOnly:false; placeholder:"search bookmarks…"
           onQueryChangedStr: newQuery=>{ root._query=newQuery; root.selectedIndex=0}
-          onAccepted: idx=>{ const eff= idx>=0?idx:root.selectedIndex; if(root.filtered.length>0) root.activateAt(eff)}
+          onAccepted: (idx, query)=>{ const eff= idx>=0?idx:root.selectedIndex; if(root.filtered.length>0) root.activateAt(eff)}
           onCancelled: root.close()
           onMoved: delta=> root.move(delta)
           onMovedNoWrap: delta=> root.moveNoWrap(delta)
