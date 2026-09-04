@@ -109,23 +109,6 @@ Scope {
         actionIndex = 0
         _fieldIndex = 0
     }
-    function _primeOnOpen() {
-        if (_showActions || _showFieldPicker) return
-        if (showProc.running) return
-        const lst = filtered
-        if (lst.length === 0) return
-        const idx = selectedIndex >= 0 && selectedIndex < lst.length ? selectedIndex : 0
-        const e = lst[idx]
-        const key = cacheKey(e.store || _currentStore, e.label)
-        // Force immediate GPG decrypt on window open so pinentry appears immediately
-        // rather than after choosing an action. Ignore cache to guarantee gpg-agent unlock.
-        _pendingKey = key
-        _decrypting = true
-        _decryptFallback.restart()
-        showProc.command = ["sh", "-c", "PASSWORD_STORE_DIR=" + shellEscape(e.store || _currentStore) + " pass show " + shellEscape(e.label) + " 2>&1"]
-        showProc.running = true
-    }
-
     onVisibleChanged: {
         _altHeld = false
         if (visible) {
@@ -219,11 +202,14 @@ Scope {
             _decryptFallback.stop()
             return
         }
-        _pendingKey = key
-        _decrypting = true
-        _decryptFallback.restart()
-        showProc.command = ["sh", "-c", "PASSWORD_STORE_DIR=" + shellEscape(e.store || _currentStore) + " pass show " + shellEscape(e.label) + " 2>&1"]
-        showProc.running = true
+        // Action-only: do not auto-decrypt; wait for explicit action
+        _decrypting = false
+        _pendingKey = ""
+        _decryptFallback.stop()
+        _previewTimer.stop()
+        _fieldsMap = {}
+        _fieldsList = []
+        _previewPass = ""
     }
     function executeAction(entry, key) {
         if (!entry || !key) return
@@ -619,12 +605,14 @@ Scope {
             _previewPass = hit.pass
             return
         }
-        if (_pendingKey !== key) {
-            _pendingKey = key
-        }
-        _decrypting = true
-        _decryptFallback.restart()
-        _previewTimer.restart()
+        // Action-only: do not auto-decrypt preview; only use cache
+        _previewTimer.stop()
+        _decryptFallback.stop()
+        _decrypting = false
+        _pendingKey = ""
+        _fieldsMap = {}
+        _fieldsList = []
+        _previewPass = ""
     }
     function shellEscape(s) { return "'" + String(s).replace(/'/g, "'\\''") + "'" }
     function switchStore(dir) {
@@ -690,12 +678,12 @@ Scope {
             _decryptFallback.stop()
             _previewTimer.stop()
         } else {
+            // Action-only: do not decrypt until an explicit action is chosen
             _actionFieldsMap = null
-            _pendingKey = tk
-            _decrypting = true
-            _decryptFallback.restart()
-            showProc.command = ["sh", "-c", "PASSWORD_STORE_DIR=" + shellEscape(entry.store || _currentStore) + " pass show " + shellEscape(entry.label) + " 2>&1"]
-            showProc.running = true
+            _decrypting = false
+            _pendingKey = ""
+            _decryptFallback.stop()
+            _previewTimer.stop()
         }
         _revealPass = false
         _showActions = true
@@ -801,8 +789,7 @@ Scope {
                     }
                     root.allEntries = out
                     if (root.selectedIndex >= root.filtered.length) root.selectedIndex = 0
-                    if (root.visible && !root._showActions && !root._showFieldPicker && root.filtered.length > 0) root._primeOnOpen()
-                    else root.schedulePreview()
+                    root.schedulePreview()
                 } catch (e) { root.allEntries = []; root.notifyErr("Failed to list store") }
             }
         }
