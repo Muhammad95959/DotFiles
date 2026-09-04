@@ -618,6 +618,7 @@ Scope {
                           if (!/[1-9]/.test(v)) return ""
                           let n = 0
                           while (n < v.length && v[n] === "0") n++
+                          if (v[n] === ".") n--
                           return v.slice(0, n)
                         }
                         color: barScope.fg
@@ -632,6 +633,7 @@ Scope {
                           if (!/[1-9]/.test(v)) return v
                           let n = 0
                           while (n < v.length && v[n] === "0") n++
+                          if (v[n] === ".") n--
                           return v.slice(n)
                         }
                         color: barScope.fg
