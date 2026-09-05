@@ -18,6 +18,10 @@ Scope {
   property string filePath: ""
   property real volume: 0.75
   property bool otherPlaying: false
+  // Auto-pause ambient while any other system audio is playing.
+  // Toggleable from the popup window (and via IPC). When off, ambient
+  // never ducks for other audio.
+  property bool autoPause: true
   property string lastError: ""
   property bool pathOk: true
 
@@ -35,8 +39,8 @@ Scope {
   }
 
   // True only when audio is actually needed. Used to gate expensive work
-  // (MediaPlayer/AudioOutput creation, playerctl polling) so quickshell
-  // doesn't pay the cost at startup when ambient is disabled.
+  // (MediaPlayer/AudioOutput creation, external-audio polling) so
+  // quickshell doesn't pay the cost at startup when ambient is disabled.
   readonly property bool _audioActive: enabled && filePath !== ""
 
   // ── Paste from clipboard ───────────────────────────────────────────
@@ -59,7 +63,8 @@ Scope {
     const payload = JSON.stringify({
       enabled: enabled,
       filePath: filePath,
-      volume: volume
+      volume: volume,
+      autoPause: autoPause
     })
     Quickshell.execDetached(["sh", "-c", "cat > ~/.config/quickshell/ambient.json <<'EOF'\n" + payload + "\nEOF\n"])
   }
@@ -113,8 +118,23 @@ Scope {
     }
   }
 
-  onEnabledChanged: { _save(); _applyPlayback(); if (root.visible || enabled) _startPolling(); else _stopPolling() }
+  onEnabledChanged: { _save(); _applyPlayback(); _updatePolling() }
   onOtherPlayingChanged: _applyPlayback()
+  onAutoPauseChanged: {
+    _save()
+    if (!autoPause) {
+      // Feature turned off: never duck. Clear any latched pause state and
+      // cancel a pending delayed resume so ambient plays immediately.
+      resumeTimer.stop()
+      if (otherPlaying) otherPlaying = false
+      else _applyPlayback()
+    } else {
+      // Turned on: probe immediately so ambient ducks without waiting for
+      // the next poll tick.
+      if (enabled && !pollProc.running) pollProc.running = true
+    }
+    _updatePolling()
+  }
 
   // ── Audio engine ───────────────────────────────────────────────────
   // Lazy-instantiated: QtMultimedia's MediaPlayer/AudioOutput are expensive
@@ -201,36 +221,71 @@ Scope {
     statProc.running = true
   }
 
-  // ── External player polling (playerctl) ────────────────────────────
-  // Only poll while the panel is open or audio is actively playing. The
-  // initial playerctl spawn at startup was the main ambient-related
-  // contributor to slow quickshell boot.
+  // ── External audio detection (PipeWire + MPRIS fallback) ─────────
+  // Pauses ambient while ANY other system audio plays (music, video,
+  // games, calls, browser output) and resumes ~0.5s after it goes silent.
+  // Only polls while the panel is open or auto-pause can actually fire.
+  // The initial spawn at startup was the main ambient-related contributor
+  // to slow quickshell boot, hence the on-demand gating.
+  //
+  // Detection runs in a single python3 process (no shell, argv-direct like
+  // _runStat). Trust rules, in order:
+  //   1. Any MPRIS player reporting Playing -> busy (instant, user intent).
+  //   2. Any running PipeWire output stream that is NOT quickshell itself
+  //      (ambient + muted live-wallpapers are excluded so we never detect
+  //      ourselves), NOT corked (paused browser tabs keep the device open
+  //      but corked), and NOT owned by an app whose MPRIS state is known
+  //      and not Playing (browsers keep the stream node running for
+  //      several seconds after pause - MPRIS knows the truth sooner).
+  // Apps without MPRIS (games, calls, paplay) are covered purely by 2.
   Timer {
     id: pollTimer
     interval: 500
     repeat: true
     running: false
-    triggeredOnStart: false
-    onTriggered: pollProc.running = true
+    triggeredOnStart: true
+    onTriggered: { if (!pollProc.running) pollProc.running = true }
+  }
+
+  // Delayed resume: require ~0.5s of continuous silence before unpausing so
+  // seeks, buffering and notification blips don't flap ambient on/off.
+  Timer {
+    id: resumeTimer
+    interval: 500
+    repeat: false
+    onTriggered: { if (root.autoPause && root.otherPlaying) root.otherPlaying = false }
+  }
+
+  function _onExternalBusy() {
+    if (!root.autoPause) return
+    resumeTimer.stop()
+    if (!root.otherPlaying) root.otherPlaying = true
+  }
+  function _onExternalIdle() {
+    if (!root.autoPause) return
+    // Start (but never restart) the delayed resume: polls arrive every 0.5s
+    // and restarting here would postpone the countdown forever, so ambient
+    // would never resume. A BUSY in between still cancels via stop().
+    if (root.otherPlaying && !resumeTimer.running) resumeTimer.start()
   }
 
   // Start/stop polling on demand.
+  function _wantPolling() { return root.visible || (root.enabled && root.autoPause) }
   function _startPolling() { if (!pollTimer.running) pollTimer.start() }
   function _stopPolling() { if (pollTimer.running) pollTimer.stop() }
+  function _updatePolling() { if (_wantPolling()) _startPolling(); else _stopPolling() }
 
-  onVisibleChanged: { if (visible) _startPolling(); else if (!enabled) _stopPolling() }
+  onVisibleChanged: _updatePolling()
 
   Process {
     id: pollProc
-    command: ["sh", "-c", "timeout 1 players=$(playerctl -l 2>/dev/null); if [ -z \"$players\" ]; then echo IDLE; else for p in $players; do s=$(timeout 1 playerctl -s -p \"$p\" status 2>/dev/null); if [ \"$s\" = \"Playing\" ]; then echo BUSY; exit 0; fi; done; echo IDLE; fi"]
+    command: ["python3", "-c",
+      "import json,subprocess,re\ndef mpris_statuses():\n try:\n  out=subprocess.check_output(['playerctl','-l'],timeout=1,stderr=subprocess.DEVNULL).decode()\n except Exception:\n  return {}\n sts={}\n for p in out.split():\n  try:\n   s=subprocess.check_output(['playerctl','-s','-p',p,'status'],timeout=1,stderr=subprocess.DEVNULL).decode().strip()\n  except Exception:\n   continue\n  sts[p]=s\n return sts\ndef appkey(name):\n return re.split(r'[._]',name,maxsplit=1)[0].lower()\ndef pw_busy(paused_apps):\n try:\n  out=subprocess.check_output(['pw-dump'],timeout=2,stderr=subprocess.DEVNULL)\n  data=json.loads(out)\n except Exception:\n  return False\n for o in data:\n  if 'PipeWire:Interface:Node' not in str(o.get('type','')):\n   continue\n  info=o.get('info',{}) or {}\n  if info.get('state')!='running':\n   continue\n  props=info.get('props',{}) or {}\n  if props.get('media.class')!='Stream/Output/Audio':\n   continue\n  app=str(props.get('application.name','') or '').lower()\n  nn=str(props.get('node.name','') or '').lower()\n  if 'quickshell' in app or 'quickshell' in nn:\n   continue\n  if str(props.get('pulse.corked','false')).lower()=='true':\n   continue\n  if app and app in paused_apps:\n   continue\n  return True\n return False\nsts=mpris_statuses()\nplaying=any(s=='Playing' for s in sts.values())\npaused_apps={appkey(p) for p,s in sts.items() if s!='Playing'}\nprint('BUSY' if (playing or pw_busy(paused_apps)) else 'IDLE')"]
     stdout: SplitParser {
       onRead: data => {
-        const v = String(data).trim()
-        if (v === "BUSY") {
-          if (!root.otherPlaying) root.otherPlaying = true
-        } else if (v === "IDLE") {
-          if (root.otherPlaying) root.otherPlaying = false
-        }
+        const v = String(data)
+        if (v.includes("BUSY")) root._onExternalBusy()
+        else if (v.includes("IDLE")) root._onExternalIdle()
       }
     }
   }
@@ -245,6 +300,7 @@ Scope {
         if (typeof d.enabled === "boolean") root.enabled = d.enabled
         if (typeof d.filePath === "string") root.filePath = d.filePath
         if (typeof d.volume === "number") root.volume = Math.max(0, Math.min(1, d.volume))
+        if (typeof d.autoPause === "boolean") root.autoPause = d.autoPause
         // Setting filePath (when it actually changes) already triggers
         // onFilePathChanged, which sets player.source, restarts the stat
         // check timer and re-applies playback - no need to duplicate that
@@ -281,8 +337,8 @@ Scope {
 
         Rectangle {
           id: container
-          width: 400
-          height: 300
+          width: (content.implicitHeight + 32) * 4 / 3
+          height: content.implicitHeight + 32
           anchors.centerIn: parent
           radius: Theme.radiusLg
           color: Theme.bg
@@ -296,9 +352,10 @@ Scope {
             if (event.key === Qt.Key_Escape) { root.close(); event.accepted = true }
             else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) { root.close(); event.accepted = true }
             else if (event.key === Qt.Key_Space) { root.enabled = !root.enabled; event.accepted = true }
+            else if (event.key === Qt.Key_A) { root.autoPause = !root.autoPause; event.accepted = true }
             else if (event.key === Qt.Key_Left) { root._setVolume(root.volume - 0.05); event.accepted = true }
             else if (event.key === Qt.Key_Right) { root._setVolume(root.volume + 0.05); event.accepted = true }
-            else if ((event.modifiers & Qt.ControlModifier) && event.key === Qt.Key_V) { root._paste(); event.accepted = true }
+            else if (event.key === Qt.Key_P) { root._paste(); event.accepted = true }
           }
           Component.onCompleted: forceActiveFocus()
           Connections { target: root; function onVisibleChanged() { if (root.visible) container.forceActiveFocus() } }
@@ -308,6 +365,7 @@ Scope {
           MouseArea { anchors.fill: parent }
 
           ColumnLayout {
+            id: content
             anchors.fill: parent
             anchors.margins: 16
             spacing: 12
@@ -364,6 +422,43 @@ Scope {
                     Behavior on x { NumberAnimation { duration: 120 } }
                   }
                   MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.enabled = !root.enabled }
+                }
+              }
+            }
+
+            // ── Auto-pause row ──────────────────────────────────────
+            Rectangle {
+              Layout.fillWidth: true
+              height: 56
+              radius: Theme.radiusMd
+              color: Theme.surface
+              border.color: Theme.border
+              border.width: 1
+              RowLayout {
+                anchors.fill: parent
+                anchors.leftMargin: 12
+                anchors.rightMargin: 8
+                spacing: 10
+                ColumnLayout {
+                  spacing: 2
+                  Layout.alignment: Qt.AlignVCenter
+                  Text { text: "Auto-pause"; color: Theme.fg; font.family: Theme.monoFont; font.pixelSize: 12; font.bold: true }
+                  Text { text: "Pause when other audio plays"; color: Theme.fg; opacity: 0.55; font.family: Theme.monoFont; font.pixelSize: 10 }
+                }
+                Item { Layout.fillWidth: true }
+                Rectangle {
+                  width: 44; height: 24; radius: 12
+                  color: root.autoPause ? Theme.accent : Qt.alpha(Theme.fg, 0.15)
+                  border.color: root.autoPause ? Theme.accent : Theme.border
+                  border.width: 1
+                  Rectangle {
+                    width: 18; height: 18; radius: 9
+                    anchors.verticalCenter: parent.verticalCenter
+                    x: root.autoPause ? parent.width - width - 3 : 3
+                    color: root.autoPause ? Theme.bg : Theme.fg
+                    Behavior on x { NumberAnimation { duration: 120 } }
+                  }
+                  MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: root.autoPause = !root.autoPause }
                 }
               }
             }
@@ -472,19 +567,19 @@ Scope {
               }
             }
 
-            Item { Layout.fillHeight: true }
+            Item { Layout.fillHeight: true; Layout.preferredHeight: 0 }
 
-            // ── Footer hint ─────────────────────────────────────────
+            // ── Footer hints (single row — dialog is wide enough) ──────
             RowLayout {
               Layout.alignment: Qt.AlignHCenter
               spacing: 10
               Text { text: "Space Toggle"; color: Theme.fg; opacity: 0.85; font.family: Theme.monoFont; font.pixelSize: 10; font.bold: true }
               Rectangle { Layout.preferredWidth: 1; Layout.preferredHeight: 10; color: Theme.border; opacity: 0.6 }
+              Text { text: "A Auto-pause"; color: Theme.fg; opacity: 0.85; font.family: Theme.monoFont; font.pixelSize: 10; font.bold: true }
+              Rectangle { Layout.preferredWidth: 1; Layout.preferredHeight: 10; color: Theme.border; opacity: 0.6 }
+              Text { text: "P Paste"; color: Theme.fg; opacity: 0.85; font.family: Theme.monoFont; font.pixelSize: 10; font.bold: true }
+              Rectangle { Layout.preferredWidth: 1; Layout.preferredHeight: 10; color: Theme.border; opacity: 0.6 }
               Text { text: "←/→ Vol"; color: Theme.fg; opacity: 0.85; font.family: Theme.monoFont; font.pixelSize: 10; font.bold: true }
-              Rectangle { Layout.preferredWidth: 1; Layout.preferredHeight: 10; color: Theme.border; opacity: 0.6 }
-              Text { text: "Ctrl+V Paste"; color: Theme.fg; opacity: 0.85; font.family: Theme.monoFont; font.pixelSize: 10; font.bold: true }
-              Rectangle { Layout.preferredWidth: 1; Layout.preferredHeight: 10; color: Theme.border; opacity: 0.6 }
-              Text { text: "↵ Apply"; color: Theme.fg; opacity: 0.85; font.family: Theme.monoFont; font.pixelSize: 10; font.bold: true }
               Rectangle { Layout.preferredWidth: 1; Layout.preferredHeight: 10; color: Theme.border; opacity: 0.6 }
               Text { text: "Esc Close"; color: Theme.fg; opacity: 0.85; font.family: Theme.monoFont; font.pixelSize: 10; font.bold: true }
             }
@@ -502,9 +597,16 @@ Scope {
     function close() { root.close(); return "ok" }
     function enable() { root.enabled = true; return "ok" }
     function disable() { root.enabled = false; return "ok" }
-    function status() { return root.status + " file=" + root.filePath + " vol=" + root.volume.toFixed(2) }
+    function status() { return root.status + " autopause=" + (root.autoPause ? "on" : "off") + " file=" + root.filePath + " vol=" + root.volume.toFixed(2) }
     function setFile(p: string) { root._setFile(p); return "ok" }
     function setVolume(v: double) { root._setVolume(v); return "ok" }
+    function autopause(v: string) {
+      const s = String(v || "toggle").toLowerCase()
+      if (s === "on" || s === "1" || s === "true") root.autoPause = true
+      else if (s === "off" || s === "0" || s === "false") root.autoPause = false
+      else root.autoPause = !root.autoPause
+      return root.autoPause ? "on" : "off"
+    }
   }
 
   GlobalShortcut {
