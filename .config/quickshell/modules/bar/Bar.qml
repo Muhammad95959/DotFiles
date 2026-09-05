@@ -112,6 +112,7 @@ Scope {
       // ── Commands ───────────────────────────────────────────────────
       property var screenshotCmd: ["flameshot", "gui"]
       property var systemMonitorCmd: ["kitty", "-e", "--hold", "btm"]
+      property var nmtuiCmd: ["kitty", "-e", "--hold", "nmtui"]
       property string bilalScriptPath: "~/Scripts/bilal.sh"
 
       // ── Window Title ───────────────────────────────────────────────
@@ -875,6 +876,12 @@ Scope {
                   text: (batRect.pct < 10 ? "0" : "") + batRect.pct + "%"
                 }
               }
+              MouseArea {
+                cursorShape: Qt.PointingHandCursor
+                hoverEnabled: true
+                anchors.fill: parent
+                onClicked: Quickshell.execDetached(["sh", "-c", "notify-send -t 5000 \"$(acpi)\""])
+              }
             }
             Item { width: bar.mBatteryPad; height: 1 }
           }
@@ -923,6 +930,12 @@ Scope {
                     return (v < 10 ? "0" : "") + v + "%"
                   }
                 }
+              }
+              MouseArea {
+                cursorShape: Qt.PointingHandCursor
+                hoverEnabled: true
+                anchors.fill: parent
+                onClicked: Quickshell.execDetached(bar.nmtuiCmd)
               }
             }
             Item { width: bar.mNetworkPad; height: 1 }
