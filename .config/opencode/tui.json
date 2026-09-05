@@ -10,7 +10,6 @@
         "vim_insert_after_submit": true,
         "vim_system_clipboard_register": true
       }
-    ],
-    "@slkiser/opencode-quota"
+    ]
   ]
 }
