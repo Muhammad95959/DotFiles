@@ -146,7 +146,7 @@ compdef _paru_all_packages paru
 
 ### Environment variables -------------------------------------------------
 
-export PATH="$HOME/.local/bin:$HOME/.local/share/pnpm/bin:$PATH"
+export PATH="$HOME/.local/bin:$PATH"
 export MANPAGER='nvim +Man!'
 export TERMCMD=kitty
 export EDITOR=nvim
@@ -237,7 +237,7 @@ alias cppath="pwd | sed 's/\(^.*$\)/\"\1\"/' | wl-copy"
 alias salawat='printf "%s" "ﷺ" | wl-copy'
 alias copycmd='tail -n 2 ~/.zhistory | head -n 1 | tr -d "\n" | wl-copy'
 alias cbimage='wl-paste --type image/png > /tmp/clipboard.png && kitty +kitten icat /tmp/clipboard.png'
-alias free-coding-models='node ~/Projects/free-coding-models/bin/free-coding-models.js --config-dir ~/.config/free-coding-models'
+alias free-coding-models='free-coding-models --config-dir ~/.config/free-coding-models'
 alias systemd-plot='systemd-analyze plot > /tmp/plot.svg && brave-origin --test-type /tmp/plot.svg'
 alias fitwaydroid='for i in 1 2; do hyprctl dispatch "hl.dsp.window.resize({ x = 468, y = 1036 })"; done; adb connect 192.168.240.112:5555'
 
@@ -250,14 +250,6 @@ if command -v pacman &> /dev/null; then
     && pacman -Qme | awk '{print \$1}' \
     > $HOME/Arch-Setup/aur-packages.txt"
 fi
-
-### pnpm setup ------------------------------------------------------------
-
-export PNPM_HOME="/home/muhammad/.local/share/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
 
 ### zoxide setup ----------------------------------------------------------
 
