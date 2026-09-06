@@ -80,7 +80,23 @@ Scope {
     selectedIndex = ni
   }
 
-  onVisibleChanged: { if (visible) { selectedIndex = 0; _blockHover = true } }
+  onVisibleChanged: { if (visible) { selectedIndex = 0; _blockHover = true; uptimeProc.running = true } }
+
+  // ── Uptime ─────────────────────────────────────────────────────────
+  property string uptimeText: "—"
+  Process {
+    id: uptimeProc
+    command: ["sh", "-c", "uptime -p | sed -e 's/up //g'"]
+    stdout: SplitParser {
+      onRead: data => { const v = data.trim(); if (v.length > 0) pmRoot.uptimeText = v }
+    }
+  }
+  Timer {
+    interval: 30000
+    running: pmRoot.visible
+    repeat: true
+    onTriggered: uptimeProc.running = true
+  }
 
   // ── Windows ────────────────────────────────────────────────────────
   LazyLoader {
@@ -106,7 +122,7 @@ Scope {
         Rectangle {
           id: box
           width: 640
-          height: 360
+          height: 400
           anchors.centerIn: parent
         radius: Theme.radiusLg
         color: Theme.bg
@@ -322,6 +338,40 @@ Scope {
                 }
               }
             }
+          }
+
+          // ── Footer divider ─────────────────────────────────────────
+          Rectangle {
+            Layout.fillWidth: true
+            height: 1
+            color: Theme.border
+            opacity: 0.6
+          }
+
+          // ── Footer / Uptime ────────────────────────────────────────
+          RowLayout {
+            Layout.fillWidth: true
+            Layout.alignment: Qt.AlignHCenter
+            spacing: 8
+
+            Item { Layout.fillWidth: true }
+
+            Text {
+              text: ""
+              color: Theme.fg
+              opacity: 0.55
+              font.family: Theme.nerdFont
+              font.pixelSize: 12
+            }
+            Text {
+              text: "Uptime: " + pmRoot.uptimeText
+              color: Theme.fg
+              opacity: 0.75
+              font.family: Theme.monoFont
+              font.pixelSize: 11
+            }
+
+            Item { Layout.fillWidth: true }
           }
         }
       }

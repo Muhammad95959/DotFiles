@@ -26,7 +26,7 @@ PanelWindow {
   Rectangle { anchors.fill: parent; color: Theme.dim }
 
   Rectangle {
-    width: 560
+    width: 420
     height: Math.min(420, col.implicitHeight + 32)
     anchors.centerIn: parent
     radius: Theme.radiusLg

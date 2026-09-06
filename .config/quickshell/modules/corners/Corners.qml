@@ -19,6 +19,7 @@ Scope {
   property string _query:""
   property int selectedIndex:0
   property var options: [
+    { label:"(0) center", key:"center" },
     { label:"(1) topleft", key:"topleft" },
     { label:"(2) topright", key:"topright" },
     { label:"(3) bottomleft", key:"bottomleft" },
@@ -59,6 +60,12 @@ Scope {
       root.windowAddress=addr
       // ensure float
       Quickshell.execDetached(["hyprctl","dispatch","hl.dsp.window.float({ action = \"on\" })"])
+      // center doesn't need window size — use hyprland center dispatcher
+      if(root.pendingCorner==="center"){
+        Quickshell.execDetached(["hyprctl","dispatch","hl.dsp.window.center()"])
+        root.close()
+        return
+      }
       // get clients for size
       root._accumClients=""
       clientsProc.running=true
@@ -82,7 +89,8 @@ Scope {
         }catch(e){}
         let x=10, y=30
         const corner=root.pendingCorner
-        if(corner==="topright") x=screenW-w-10
+        if(corner==="center"){ x=Math.round((screenW-w)/2); y=Math.round((screenH-h)/2) }
+        else if(corner==="topright") x=screenW-w-10
         else if(corner==="bottomleft") y=screenH-h-10
         else if(corner==="bottomright"){ x=screenW-w-10; y=screenH-h-10}
         Quickshell.execDetached(["hyprctl","dispatch","hl.dsp.window.move({ x = "+x+", y = "+y+" })"])
