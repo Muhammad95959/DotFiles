@@ -12,8 +12,57 @@ import "../common"
 Scope {
   id: clipRoot
   property bool visible: false
+  property bool _everOpened: false
+  property bool _loading: false
+  property bool _everLoaded: false
+  property var _thumbReady: ({})
+  property int _thumbTick: 0
+  property var _pendingDecoded: []
+  property var _thumbAttempted: ({})
+  property var _decodeQueue: []
+  property var _decodeBatch: []
+  property var _previewCache: ({})
+  property var _previewCacheOrder: []
+  readonly property int previewCacheMax: 50
+  property string _previewRequestId: ""
+  function thumbSource(path) {
+    if (!path) return ""
+    const tick = _thumbTick
+    const ready = tick >= 0 && _thumbReady[path]
+    return fileUrl(path) + (ready ? "?r=1" : "")
+  }
+  function previewCached(id) { return _previewCache[id] !== undefined ? _previewCache[id] : null }
+  function previewStore(id, text) {
+    if (!id) return
+    const c = Object.assign({}, _previewCache)
+    const order = _previewCacheOrder.slice()
+    c[id] = text
+    const at = order.indexOf(id)
+    if (at >= 0) order.splice(at, 1)
+    order.push(id)
+    while (order.length > previewCacheMax) delete c[order.shift()]
+    _previewCache = c
+    _previewCacheOrder = order
+  }
+  function previewDrop(id) {
+    if (!id || _previewCache[id] === undefined) return
+    const c = Object.assign({}, _previewCache)
+    delete c[id]
+    _previewCache = c
+    _previewCacheOrder = _previewCacheOrder.filter(k => k !== id)
+  }
+  function markThumbsReady(paths) {
+    if (!paths || paths.length === 0) return
+    const next = Object.assign({}, _thumbReady)
+    let changed = false
+    for (let i = 0; i < paths.length; i++) {
+      const p = paths[i]
+      if (p && !next[p]) { next[p] = 1; changed = true }
+    }
+    if (changed) { _thumbReady = next; _thumbTick++ }
+  }
   function toggle() { visible ? close() : open() }
-  function open() { visible = true; refresh() }
+  function open() { _everOpened = true; visible = true; query = ""; selectedIndex = 0; showPreview(); schedulePreview(); refresh() }
   function close() { visible = false }
 
   property string query: ""
@@ -24,50 +73,74 @@ Scope {
     if (q === "") return allEntries
     const toks = q.split(/\s+/)
     return allEntries.filter(e => {
-      const hay = (e.preview + " " + e.id).toLowerCase()
-      for (let t = 0; t < toks.length; t++) if (!hay.includes(toks[t])) return false
+      for (let t = 0; t < toks.length; t++) if (!e.hay.includes(toks[t])) return false
       return true
     })
   }
 
-  onQueryChanged: { selectedIndex = 0; updatePreview() }
-  onVisibleChanged: if (visible) { selectedIndex = 0; updatePreview() }
+  onQueryChanged: { selectedIndex = 0 }
+  onVisibleChanged: if (visible) { showPreview(); schedulePreview() }
+  readonly property int maxThumbs: 80
+  readonly property int previewDebounceMs: 80
+  readonly property int postActivateRefreshMs: 600
+  readonly property int drawerHeight: 470
+  readonly property int contentHeight: 360
+  readonly property int rowHeight: 42
+  function shQuote(s) { return "'" + String(s).replace(/'/g, "'\\''") + "'" }
 
-  property string _accum: ""
+  property var _lines: []
   property string thumbDir: "/tmp/quickshell-clipboard"
-  property var _imageIds: []
   property string previewFullText: ""
   property string previewImagePath: ""
   property bool previewIsImage: false
   property string previewUpdateId: ""
 
+  Timer {
+    id: previewTimer
+    interval: clipRoot.previewDebounceMs
+    repeat: false
+    onTriggered: clipRoot.fetchPreview()
+  }
+  function schedulePreview() {
+    previewTimer.restart()
+  }
+  Timer {
+    id: postActivateTimer
+    interval: clipRoot.postActivateRefreshMs
+    repeat: false
+    onTriggered: clipRoot.refresh()
+  }
+
   function refresh() {
-    _accum = ""; _imageIds = []; allEntries = []; clipProc.running = true
-    previewFullText = ""; previewImagePath = ""; previewIsImage = false
+    if (clipProc.running) return
+    _lines = []; _pendingDecoded = []; _loading = true; clipProc.running = true
   }
   function decodeId(id) {
-    Quickshell.execDetached(["sh", "-c", "cliphist decode '" + id.replace(/'/g,"'\\''") + "' | wl-copy"])
+    Quickshell.execDetached(["sh", "-c", "cliphist decode " + shQuote(id) + " | wl-copy"])
     close()
+    postActivateTimer.restart()
   }
   function deleteId(id) {
-    Quickshell.execDetached(["sh", "-c", "printf '%s' '" + id.replace(/'/g,"'\\''") + "' | cliphist delete"])
+    previewDrop(id)
+    Quickshell.execDetached(["sh", "-c", "printf '%s' " + shQuote(id) + " | cliphist delete; rm -f " + shQuote(thumbDir + "/" + id + ".png") + " " + shQuote(thumbDir + "/" + id + ".jpg") + " " + shQuote(thumbDir + "/" + id + ".gif") + " " + shQuote(thumbDir + "/" + id + ".webp") + " " + shQuote(thumbDir + "/" + id + ".bmp") + " 2>/dev/null || true"])
     Qt.callLater(() => { if (clipRoot.visible) refresh() })
   }
   function wipe() {
-    Quickshell.execDetached(["sh", "-c", "cliphist wipe; rm -rf '" + thumbDir + "'/* 2>/dev/null || true"])
+    _previewCache = ({}); _previewCacheOrder = []
+    Quickshell.execDetached(["sh", "-c", "cliphist wipe; rm -rf " + shQuote(thumbDir) + "/* 2>/dev/null || true"])
     allEntries = []
   }
 
   Process {
     id: clipProc
-    command: ["sh", "-c", "mkdir -p '" + clipRoot.thumbDir + "'; cliphist list 2>/dev/null"]
-    stdout: SplitParser { onRead: data => clipRoot._accum += data + "\n" }
+    command: ["sh", "-c", "mkdir -p " + clipRoot.shQuote(clipRoot.thumbDir) + "; cliphist list 2>/dev/null"]
+    stdout: SplitParser { onRead: data => clipRoot._lines.push(data) }
     onExited: {
-      const lines = clipRoot._accum.split("\n").filter(s => s.trim().length > 0)
+      const lines = clipRoot._lines
       let out = []
-      let imgIds = []
       for (let i = 0; i < lines.length; i++) {
         const line = lines[i]
+        if (line.trim().length === 0) continue
         const tab = line.indexOf("\t")
         if (tab < 0) continue
         const id = line.substring(0, tab).trim()
@@ -79,42 +152,85 @@ Scope {
         const m = preview.match(/binary data.*(png|jpg|jpeg|bmp|gif|webp)/i)
         if (m) ext = m[1].toLowerCase().replace("jpeg","jpg")
         const thumbPath = isImage ? clipRoot.thumbDir + "/" + id + "." + ext : ""
-        if (isImage) imgIds.push({id: id, path: thumbPath})
-        out.push({ id: id, preview: preview, isImage: isImage, thumbPath: thumbPath })
+        out.push({ id: id, preview: preview, isImage: isImage, thumbPath: thumbPath, hay: (preview + " " + id).toLowerCase() })
       }
-      clipRoot.allEntries = out
-      clipRoot._imageIds = imgIds
-      if (clipRoot.selectedIndex >= clipRoot.filtered.length) clipRoot.selectedIndex = 0
-      clipRoot.updatePreview()
-      if (imgIds.length > 0) decodeImagesProc.running = true
+      let same = false
+      try {
+        const old = clipRoot.allEntries
+        if (old.length === out.length) {
+          same = true
+          for (let k = 0; k < out.length; k++) {
+            if (old[k].id !== out[k].id || old[k].preview !== out[k].preview) { same = false; break }
+          }
+        }
+      } catch (e) { same = false }
+      if (!same) clipRoot.allEntries = out
+      clipRoot._loading = false
+      clipRoot._everLoaded = true
+      clipRoot.selectedIndex = 0
+      clipRoot.schedulePreview()
+      const first = []
+      for (let v = 0; v < out.length && first.length < 12; v++) if (out[v].isImage) first.push(out[v])
+      clipRoot.requestThumbs(first)
     }
+  }
+
+  function requestThumbs(entries) {
+    if (!entries || entries.length === 0) return
+    const q = _decodeQueue.slice()
+    let added = false
+    for (let i = 0; i < entries.length; i++) {
+      const e = entries[i]
+      if (!e || !e.isImage || !e.thumbPath) continue
+      if (_thumbReady[e.thumbPath] || _thumbAttempted[e.thumbPath]) continue
+      _thumbAttempted[e.thumbPath] = 1
+      q.push(e.id + ":" + e.thumbPath)
+      added = true
+    }
+    if (!added) return
+    if (decodeImagesProc.running) {
+      _decodeQueue = q
+      return
+    }
+    _decodeBatch = q.slice(0, maxThumbs)
+    _decodeQueue = q.slice(_decodeBatch.length)
+    decodeImagesProc.running = true
   }
 
   Process {
     id: decodeImagesProc
     running: false
-    command: ["sh", "-c", "for entry in " + clipRoot._imageIds.slice(0,80).map(e => "'" + e.id + ":" + e.path + "'").join(" ") + "; do id=\"${entry%%:*}\"; path=\"${entry#*:}\"; [ -f \"$path\" ] && continue; cliphist decode \"$id\" > \"$path\" 2>/dev/null || rm -f \"$path\"; done; echo done"]
-    stdout: SplitParser { onRead: d => {} }
+    command: ["sh", "-c", "for entry in " + clipRoot._decodeBatch.map(s => "'" + s.replace(/'/g, "'\\''") + "'").join(" ") + "; do id=\"${entry%%:*}\"; path=\"${entry#*:}\"; [ -f \"$path\" ] && continue; if cliphist decode \"$id\" > \"$path\" 2>/dev/null; then echo \"READY:$path\"; else rm -f \"$path\"; fi; done; echo done"]
+    stdout: SplitParser { onRead: d => {
+      const s = String(d || "")
+      if (s.startsWith("READY:")) clipRoot._pendingDecoded.push(s.slice(6).trim())
+    } }
     onExited: {
-      const cur = clipRoot.allEntries
-      clipRoot.allEntries = []
-      clipRoot.allEntries = cur
-      updatePreview()
+      clipRoot.markThumbsReady(clipRoot._pendingDecoded)
+      clipRoot._pendingDecoded = []
+      clipRoot._decodeBatch = []
+      const rest = clipRoot._decodeQueue
+      if (rest.length > 0) {
+        clipRoot._decodeBatch = rest.slice(0, clipRoot.maxThumbs)
+        clipRoot._decodeQueue = rest.slice(clipRoot._decodeBatch.length)
+        decodeImagesProc.running = true
+      } else {
+        clipRoot.schedulePreview()
+      }
     }
   }
 
   Process {
     id: previewProc
+    property string targetId: ""
     running: false
     stdout: StdioCollector {
       waitForEnd: true
       onStreamFinished: {
-        // Preserve internal new lines exactly; only strip a single trailing newline added by shell
         let t = String(text||"")
         if (t.endsWith("\n")) t = t.slice(0, -1)
-        // Do not trim interior spaces/newlines — preview must show them
-        if (clipRoot.previewIsImage === false) {
-          // Only apply if still on same id (avoid race when user moves fast)
+        clipRoot.previewStore(previewProc.targetId, t)
+        if (clipRoot.previewIsImage === false && clipRoot._previewRequestId === clipRoot.previewUpdateId) {
           clipRoot.previewFullText = t
         }
       }
@@ -122,11 +238,14 @@ Scope {
   }
   Process {
     id: imagePreviewProc
+    property string targetPath: ""
     running: false
-    stdout: SplitParser { onRead: d => {} }
+    stdout: SplitParser { onRead: d => {
+      const s = String(d || "")
+      if (s.startsWith("READY:")) clipRoot.markThumbsReady([s.slice(6).trim()])
+    } }
     onExited: {
-      // bust cache for preview image after decode
-      clipRoot.previewUpdateId = clipRoot.previewUpdateId + "_"
+      imagePreviewProc.targetPath = ""
     }
   }
 
@@ -135,56 +254,75 @@ Scope {
     return "file://" + String(path).split("/").map(p => p===""?"":encodeURIComponent(p)).join("/")
   }
 
-  function updatePreview() {
+  function showPreview() {
+    if (!clipRoot.visible) return
     const lst = filtered
     if (lst.length === 0 || selectedIndex < 0 || selectedIndex >= lst.length) {
       previewFullText = ""; previewImagePath = ""; previewIsImage = false
+      _previewRequestId = ""
       return
     }
     const e = lst[selectedIndex]
+    if (e.id === previewUpdateId && ((e.isImage && previewIsImage && previewImagePath === e.thumbPath) || (!e.isImage && !previewIsImage))) return
     previewIsImage = e.isImage
+    previewUpdateId = e.id
+    _previewRequestId = e.id
     if (e.isImage) {
       previewImagePath = e.thumbPath
       previewFullText = e.preview
-      previewUpdateId = e.id
-      imagePreviewProc.command = ["sh", "-c", "[ -f '" + e.thumbPath.replace(/'/g,"'\\''") + "' ] || cliphist decode '" + e.id.replace(/'/g,"'\\''") + "' > '" + e.thumbPath.replace(/'/g,"'\\''") + "' 2>/dev/null"]
-      imagePreviewProc.running = true
     } else {
       previewImagePath = ""
-      previewUpdateId = e.id
-      // Show truncated preview immediately, then replace with full decode (preserves \n)
-      previewFullText = e.preview
-      // Fetch full content with new lines intact
-      previewProc.command = ["sh", "-c", "cliphist decode '" + e.id.replace(/'/g,"'\\''") + "' 2>/dev/null"]
+      const hit = previewCached(e.id)
+      previewFullText = hit !== null ? hit : e.preview
+    }
+  }
+  function fetchPreview() {
+    if (!clipRoot.visible) return
+    const lst = filtered
+    if (lst.length === 0 || selectedIndex < 0 || selectedIndex >= lst.length) return
+    const e = lst[selectedIndex]
+    if (e.id !== _previewRequestId) return
+    if (e.isImage) {
+      if (_thumbReady[e.thumbPath]) return
+      if (imagePreviewProc.running && imagePreviewProc.targetPath === e.thumbPath) return
+      previewProc.running = false
+      imagePreviewProc.targetPath = e.thumbPath
+      imagePreviewProc.command = ["sh", "-c", "p=" + shQuote(e.thumbPath) + "; [ -f \"$p\" ] && exit 0; if cliphist decode " + shQuote(e.id) + " > \"$p\" 2>/dev/null; then echo \"READY:$p\"; else rm -f \"$p\"; fi"]
+      imagePreviewProc.running = true
+    } else {
+      if (previewCached(e.id) !== null) return
+      if (previewProc.running && previewProc.targetId === e.id) return
+      imagePreviewProc.running = false
+      previewProc.running = false
+      previewProc.targetId = e.id
+      previewProc.command = ["sh", "-c", "cliphist decode " + shQuote(e.id) + " 2>/dev/null"]
       previewProc.running = true
     }
   }
-  onSelectedIndexChanged: updatePreview()
-  onFilteredChanged: updatePreview()
+  onSelectedIndexChanged: { showPreview(); schedulePreview() }
+  onFilteredChanged: { showPreview(); schedulePreview() }
 
   function move(delta) {
     const n = filtered.length; if(n===0) return
-    let ni = selectedIndex+delta; if(ni<0) ni=n-1; if(ni>=n) ni=0; selectedIndex=ni; updatePreview()
+    let ni = selectedIndex+delta; if(ni<0) ni=n-1; if(ni>=n) ni=0; selectedIndex=ni
   }
   function moveNoWrap(delta) {
     const n = filtered.length; if(n===0) return
-    const ni = selectedIndex+delta; if(ni<0||ni>=n) return; selectedIndex=ni; updatePreview()
+    const ni = selectedIndex+delta; if(ni<0||ni>=n) return; selectedIndex=ni
   }
-  function goHome(){ if(filtered.length>0) { selectedIndex=0; updatePreview() } }
-  function goEnd(){ const n=filtered.length; if(n>0) { selectedIndex=n-1; updatePreview() } }
+  function goHome(){ if(filtered.length>0) selectedIndex=0 }
+  function goEnd(){ const n=filtered.length; if(n>0) selectedIndex=n-1 }
   function pageMove(dir){
     const n=filtered.length; if(n===0) return
-    let page=8
-    try{ const h=listView?listView.height:0; if(h>0) page=Math.max(1, Math.floor(h/42)) }catch(e){}
-    let ni=selectedIndex+dir*page; if(ni<0) ni=0; if(ni>=n) ni=n-1; selectedIndex=ni; updatePreview()
-    try{ if(typeof listView!=="undefined"&&listView) listView.positionViewAtIndex(ni, ListView.Contain) }catch(e){}
+    const page=Math.max(1, Math.floor(clipRoot.contentHeight/clipRoot.rowHeight))
+    let ni=selectedIndex+dir*page; if(ni<0) ni=0; if(ni>=n) ni=n-1; selectedIndex=ni
   }
   function activateAt(idx){
     const list=filtered; if(idx<0||idx>=list.length) return; decodeId(list[idx].id)
   }
 
   LazyLoader {
-    active: clipRoot.visible
+    active: clipRoot.visible || clipRoot._everOpened
 
     Variants {
       model: Quickshell.screens
@@ -204,7 +342,7 @@ Scope {
 
       Rectangle {
         width: parent.width
-        height: 470
+        height: clipRoot.drawerHeight
         anchors.top: parent.top
         anchors.topMargin: 0
         anchors.left: parent.left
@@ -224,7 +362,7 @@ Scope {
 
           Rectangle {
             Layout.fillWidth: true
-            height: 42
+            height: clipRoot.rowHeight
             color: Theme.bg
             Rectangle { anchors.left: parent.left; anchors.right:parent.right; anchors.bottom: parent.bottom; height:2; color: Theme.border; opacity:0.6 }
             RowLayout {
@@ -274,13 +412,13 @@ Scope {
                 visible: searchField.text!==""; text:""; color:Theme.fg; opacity:0.55; font.family:Theme.nerdFont; font.pixelSize:12
                 MouseArea{ anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked:{ searchField.text=""; clipRoot.query="" } }
               }
-              Text { text: clipRoot.filtered.length + "/" + clipRoot.allEntries.length; color:Theme.fg; opacity:0.45; font.family:Theme.monoFont; font.pixelSize:11 }
+              Text { text: clipRoot.filtered.length + "/" + clipRoot.allEntries.length; color:Theme.fg; opacity: clipRoot._loading ? 0.25 : 0.45; font.family:Theme.monoFont; font.pixelSize:11 }
             }
           }
 
           Item {
             Layout.fillWidth: true
-            Layout.preferredHeight: 360
+            Layout.preferredHeight: clipRoot.contentHeight
             clip: true
             Row {
               anchors.fill: parent
@@ -299,14 +437,15 @@ Scope {
                   spacing: 2
                   model: clipRoot.filtered
                   currentIndex: clipRoot.selectedIndex
-                  onCurrentIndexChanged:{ clipRoot.selectedIndex=currentIndex; if(currentIndex>=0) positionViewAtIndex(currentIndex, ListView.Contain); clipRoot.updatePreview() }
-                  onCountChanged: if(currentIndex>=0) positionViewAtIndex(currentIndex, ListView.Contain)
+                  onCurrentIndexChanged:{ if(currentIndex>=0 && clipRoot._everLoaded) positionViewAtIndex(currentIndex, ListView.Contain); thumbTimer.restart() }
+                  onContentYChanged: thumbTimer.restart()
+                  onCountChanged: { if(clipRoot._everLoaded && currentIndex>=0 && count>0) positionViewAtIndex(currentIndex, ListView.Contain); thumbTimer.restart() }
                   delegate: Rectangle {
                     id: del
                     required property var modelData
                     required property int index
                     width: listView.width - 15
-                    height: 42
+                    height: clipRoot.rowHeight
                     color: clipRoot.selectedIndex===index ? Theme.surfaceHover : "transparent"
                     border.color: clipRoot.selectedIndex===index ? Theme.border : "transparent"
                     border.width: clipRoot.selectedIndex===index ? 1 : 0
@@ -317,19 +456,22 @@ Scope {
                       Item {
                         Layout.preferredWidth: 32; Layout.preferredHeight: 32
                         clip: true
-                        Text {
-                          visible: !del.modelData.isImage
-                          anchors.centerIn: parent
-                          text: "󰅍"
-                          color: Theme.fg; opacity:0.55; font.family:Theme.nerdFont; font.pixelSize:14
-                        }
                         Image {
+                          id: thumbImg
                           visible: del.modelData.isImage
                           anchors.fill: parent
-                          source: del.modelData.isImage ? clipRoot.fileUrl(del.modelData.thumbPath) : ""
+                          source: del.modelData.isImage ? clipRoot.thumbSource(del.modelData.thumbPath) : ""
                           asynchronous: true; cache: true; smooth: true
                           fillMode: Image.PreserveAspectCrop
                           sourceSize.width: 64; sourceSize.height: 64
+                          opacity: status === Image.Ready ? 1 : 0
+                          Behavior on opacity { NumberAnimation { duration: 150 } }
+                        }
+                        Text {
+                          visible: !del.modelData.isImage || thumbImg.status !== Image.Ready
+                          anchors.centerIn: parent
+                          text: "󰅍"
+                          color: Theme.fg; opacity:0.55; font.family:Theme.nerdFont; font.pixelSize:14
                         }
                         Rectangle {
                           visible: del.modelData.isImage
@@ -360,12 +502,12 @@ Scope {
                       onClicked: mouse=>{
                         if(mouse.button===Qt.RightButton||mouse.button===Qt.MiddleButton) clipRoot.deleteId(del.modelData.id)
                         else if (clipRoot.selectedIndex===del.index) clipRoot.activateAt(del.index)
-                        else { clipRoot.selectedIndex=del.index; clipRoot.updatePreview() }
+                        else clipRoot.selectedIndex = del.index
                       }
                     }
                   }
                   Text {
-                    anchors.centerIn: parent; visible: clipRoot.filtered.length===0
+                    anchors.centerIn: parent; visible: clipRoot._everLoaded && clipRoot.filtered.length===0
                     text: clipRoot.allEntries.length===0?"Clipboard empty — copy something first":"No matches for \""+clipRoot.query+"\""
                     color:Theme.fg; opacity:0.50; font.family:Theme.monoFont; font.pixelSize:12
                   }
@@ -383,6 +525,23 @@ Scope {
                     }
                   }
                 }
+                Timer {
+                  id: thumbTimer
+                  interval: 200
+                  repeat: false
+                  onTriggered: {
+                    const perRow = clipRoot.rowHeight
+                    const rows = Math.max(1, Math.floor(listView.height / perRow))
+                    const first = Math.max(0, Math.floor(listView.contentY / perRow))
+                    const last = Math.min(listView.count - 1, first + rows + 1)
+                    const items = []
+                    for (let i = first; i <= last; i++) {
+                      const e = clipRoot.filtered[i]
+                      if (e && e.isImage) items.push(e)
+                    }
+                    clipRoot.requestThumbs(items)
+                  }
+                }
               }
               Rectangle { width:1; height: parent.height; color:Theme.border; opacity:0.35 }
               Rectangle {
@@ -392,13 +551,16 @@ Scope {
                 border.color: "transparent"
                 clip: true
                 Image {
+                  id: previewImg
                   visible: clipRoot.previewIsImage && clipRoot.previewImagePath !== ""
                   anchors.fill: parent
                   anchors.margins: 8
-                  source: clipRoot.previewIsImage ? clipRoot.fileUrl(clipRoot.previewImagePath) + (clipRoot.previewUpdateId ? "?t=" + clipRoot.previewUpdateId : "") : ""
+                  source: clipRoot.previewIsImage ? clipRoot.thumbSource(clipRoot.previewImagePath) : ""
                   fillMode: Image.PreserveAspectFit
-                  asynchronous: true; cache: false; smooth: true
+                  asynchronous: true; cache: true; smooth: true
                   sourceSize.width: 512; sourceSize.height: 512
+                  opacity: status === Image.Ready ? 1 : 0
+                  Behavior on opacity { NumberAnimation { duration: 150 } }
                 }
                 Flickable {
                   visible: !clipRoot.previewIsImage
@@ -418,7 +580,7 @@ Scope {
                   }
                 }
                 Text {
-                  visible: clipRoot.filtered.length===0
+                  visible: clipRoot._everLoaded && clipRoot.filtered.length===0
                   anchors.centerIn: parent
                   text: "No preview"
                   color: Theme.fg; opacity:0.35; font.family:Theme.monoFont; font.pixelSize:11
