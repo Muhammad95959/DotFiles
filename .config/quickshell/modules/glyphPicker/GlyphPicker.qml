@@ -26,6 +26,7 @@ Scope {
   property bool _altHeld: false
   property bool _blockHover: false
   property int columns: 6
+  readonly property int visibleRows: 3
   function _effectiveCols(): int {
     try {
       if (typeof grid !== "undefined" && grid && grid.width > 0 && grid.cellWidth > 0)
@@ -189,13 +190,13 @@ Scope {
   }
   function goHome() { _markKeyboard(); if (filtered.length > 0) selectedIndex = 0 }
   function goEnd() { _markKeyboard(); const n = filtered.length; if (n > 0) selectedIndex = n - 1 }
+  function pageRows() { let r = 3; try { if (grid && grid.height > 0 && grid.cellHeight > 0) r = Math.max(1, Math.ceil(grid.height / grid.cellHeight)) } catch (e) {} return r }
   function pageMove(dir) {
     _markKeyboard()
     const n = filtered.length; if (n === 0) return
     const cols = _effectiveCols(); const col = selectedIndex % cols
     const row = Math.floor(selectedIndex / cols); const rows = Math.ceil(n / cols)
-    let pageRows = 4; try { if (grid && grid.height > 0 && grid.cellHeight > 0) pageRows = Math.max(1, Math.floor(grid.height / grid.cellHeight)) } catch (e) {}
-    let nr = row + dir * pageRows; if (nr < 0) nr = 0; if (nr >= rows) nr = rows - 1
+    let nr = row + dir * pageRows(); if (nr < 0) nr = 0; if (nr >= rows) nr = rows - 1
     let ni = nr * cols + col
     if (ni >= n) {
       for (let r = rows - 1; r >= 0; r--) { const cand = r * cols + col; if (cand < n) { ni = cand; break } }
@@ -263,8 +264,8 @@ Scope {
 
       Rectangle {
         id: container
-        width: 960
-        height: 720
+        width: 984
+        height: 738
         anchors.centerIn: parent
         radius: Theme.radiusLg
         color: Theme.bg
@@ -296,6 +297,7 @@ Scope {
 
           RowLayout {
             Layout.fillWidth: true
+            Layout.preferredHeight: 32
             spacing: 10
             Rectangle { width: 32; height: 32; radius: 8; color: Theme.surface; border.color: Theme.border; border.width: 1
               Text { anchors.centerIn: parent; text: root.currentTab === "emoji" ? "😀" : root.currentTab === "nerd" ? "󰀻" : "󰈚"; color: Theme.fg; font.family: root.currentTab === "emoji" ? "Noto Color Emoji" : Theme.nerdFont; font.pixelSize: 16 }
@@ -519,7 +521,7 @@ Scope {
 
           Item {
             Layout.fillWidth: true
-            Layout.fillHeight: true
+            Layout.preferredHeight: root.visibleRows * grid.cellHeight
             clip: true
             GridView {
               id: grid
@@ -532,7 +534,8 @@ Scope {
               cellHeight: 154
               model: root.filtered
               currentIndex: root.selectedIndex
-              onCurrentIndexChanged: { root.selectedIndex = currentIndex; if (currentIndex >= 0) positionViewAtIndex(currentIndex, GridView.Contain) }
+              function snapPage(idx) { if (idx < 0) return; const size = root.pageRows() * root._effectiveCols(); positionViewAtIndex(Math.floor(idx / size) * size, GridView.Beginning) }
+              onCurrentIndexChanged: { root.selectedIndex = currentIndex; snapPage(currentIndex) }
               highlightMoveDuration: 80
               boundsBehavior: Flickable.StopAtBounds
               flickDeceleration: 6000
@@ -615,7 +618,7 @@ Scope {
 
           Rectangle {
             Layout.fillWidth: true
-            Layout.preferredHeight: 26
+            Layout.preferredHeight: 24
             color: Theme.surface
             radius: Theme.radiusSm
             RowLayout {

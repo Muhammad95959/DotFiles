@@ -25,6 +25,9 @@ Scope {
   property var _previewCacheOrder: []
   readonly property int previewCacheMax: 50
   property string _previewRequestId: ""
+  property bool _restoreSel: false
+  property string _restoreId: ""
+  property int _restorePos: 0
   function thumbSource(path) {
     if (!path) return ""
     const tick = _thumbTick
@@ -84,8 +87,11 @@ Scope {
   readonly property int previewDebounceMs: 80
   readonly property int postActivateRefreshMs: 600
   readonly property int drawerHeight: 470
-  readonly property int contentHeight: 360
   readonly property int rowHeight: 42
+  readonly property int visibleRows: 8
+  readonly property int listSpacing: 2
+  readonly property int listMargins: 2
+  readonly property int contentHeight: visibleRows * rowHeight + (visibleRows - 1) * listSpacing + listMargins * 2
   function shQuote(s) { return "'" + String(s).replace(/'/g, "'\\''") + "'" }
 
   property var _lines: []
@@ -122,11 +128,21 @@ Scope {
   }
   function deleteId(id) {
     previewDrop(id)
+    const lst = filtered
+    if (selectedIndex >= 0 && selectedIndex < lst.length) {
+      _restoreId = lst[selectedIndex].id
+      _restorePos = selectedIndex
+    } else {
+      _restoreId = ""
+      _restorePos = 0
+    }
+    _restoreSel = true
     Quickshell.execDetached(["sh", "-c", "printf '%s' " + shQuote(id) + " | cliphist delete; rm -f " + shQuote(thumbDir + "/" + id + ".png") + " " + shQuote(thumbDir + "/" + id + ".jpg") + " " + shQuote(thumbDir + "/" + id + ".gif") + " " + shQuote(thumbDir + "/" + id + ".webp") + " " + shQuote(thumbDir + "/" + id + ".bmp") + " 2>/dev/null || true"])
     Qt.callLater(() => { if (clipRoot.visible) refresh() })
   }
   function wipe() {
     _previewCache = ({}); _previewCacheOrder = []
+    _restoreSel = false
     Quickshell.execDetached(["sh", "-c", "cliphist wipe; rm -rf " + shQuote(thumbDir) + "/* 2>/dev/null || true"])
     allEntries = []
   }
@@ -167,7 +183,21 @@ Scope {
       if (!same) clipRoot.allEntries = out
       clipRoot._loading = false
       clipRoot._everLoaded = true
-      clipRoot.selectedIndex = 0
+      if (clipRoot._restoreSel) {
+        clipRoot._restoreSel = false
+        const cur = clipRoot.filtered
+        let at = -1
+        for (let k = 0; k < cur.length; k++) if (cur[k].id === clipRoot._restoreId) { at = k; break }
+        if (at >= 0) {
+          clipRoot.selectedIndex = at
+        } else if (cur.length > 0) {
+          clipRoot.selectedIndex = Math.min(clipRoot._restorePos, cur.length - 1)
+        } else {
+          clipRoot.selectedIndex = 0
+        }
+      } else {
+        clipRoot.selectedIndex = 0
+      }
       clipRoot.schedulePreview()
       const first = []
       for (let v = 0; v < out.length && first.length < 12; v++) if (out[v].isImage) first.push(out[v])
@@ -314,7 +344,7 @@ Scope {
   function goEnd(){ const n=filtered.length; if(n>0) selectedIndex=n-1 }
   function pageMove(dir){
     const n=filtered.length; if(n===0) return
-    const page=Math.max(1, Math.floor(clipRoot.contentHeight/clipRoot.rowHeight))
+    const page=clipRoot.visibleRows
     let ni=selectedIndex+dir*page; if(ni<0) ni=0; if(ni>=n) ni=n-1; selectedIndex=ni
   }
   function activateAt(idx){
@@ -430,16 +460,20 @@ Scope {
                 ListView {
                   id: listView
                   anchors.fill: parent
-                  anchors.margins: 2
+                  anchors.margins: clipRoot.listMargins
                   anchors.rightMargin: 10
                   clip: true
                   boundsBehavior: Flickable.StopAtBounds
-                  spacing: 2
+                  spacing: clipRoot.listSpacing
                   model: clipRoot.filtered
                   currentIndex: clipRoot.selectedIndex
-                  onCurrentIndexChanged:{ if(currentIndex>=0 && clipRoot._everLoaded) positionViewAtIndex(currentIndex, ListView.Contain); thumbTimer.restart() }
+                  function snapPage(idx) {
+                    if (idx < 0 || !clipRoot._everLoaded) return
+                    positionViewAtIndex(Math.floor(idx / clipRoot.visibleRows) * clipRoot.visibleRows, ListView.Beginning)
+                  }
+                  onCurrentIndexChanged:{ snapPage(currentIndex); thumbTimer.restart() }
                   onContentYChanged: thumbTimer.restart()
-                  onCountChanged: { if(clipRoot._everLoaded && currentIndex>=0 && count>0) positionViewAtIndex(currentIndex, ListView.Contain); thumbTimer.restart() }
+                  onCountChanged: { if (count > 0) snapPage(currentIndex); thumbTimer.restart() }
                   delegate: Rectangle {
                     id: del
                     required property var modelData

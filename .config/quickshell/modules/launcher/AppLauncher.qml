@@ -23,6 +23,7 @@ Scope {
   property string selectedCategory: "All"
   property int selectedIndex: 0
   property int columns: 7
+  readonly property int visibleRows: 5
   // ── Hover block after keyboard/page ─────────────────────────────────
   property bool _blockHover: false
   function _markKeyboard() { _blockHover = true }
@@ -148,13 +149,13 @@ Scope {
   }
   function goHome() { _markKeyboard(); if (filteredApps.length > 0) selectedIndex = 0 }
   function goEnd() { _markKeyboard(); const n = filteredApps.length; if (n > 0) selectedIndex = n - 1 }
+  function pageRows() { let r = 5; try { if (grid && grid.height > 0 && grid.cellHeight > 0) r = Math.max(1, Math.ceil(grid.height / grid.cellHeight)) } catch(e) {} return r }
   function pageMove(dir) {
     _markKeyboard()
     const n = filteredApps.length; if (n === 0) return
     const cols = columns; const col = selectedIndex % cols
     const row = Math.floor(selectedIndex / cols); const rows = Math.ceil(n / cols)
-    let pageRows = 4; try { if (grid && grid.height > 0 && grid.cellHeight > 0) pageRows = Math.max(1, Math.floor(grid.height / grid.cellHeight)) } catch(e) {}
-    let nr = row + dir * pageRows; if (nr < 0) nr = 0; if (nr >= rows) nr = rows - 1
+    let nr = row + dir * pageRows(); if (nr < 0) nr = 0; if (nr >= rows) nr = rows - 1
     let ni = nr * cols + col
     if (ni >= n) { // incomplete last row -> stay in column if possible else clamp
       for (let r = rows - 1; r >= 0; r--) { const cand = r * cols + col; if (cand < n) { ni = cand; break } }
@@ -194,8 +195,8 @@ Scope {
       // ── Centered container ─────────────────────────────────────
       Rectangle {
         id: container
-        width: 960
-        height: 720
+        width: 968
+        height: 726
         anchors.centerIn: parent
         radius: Theme.radiusLg
         color: Theme.bg
@@ -444,6 +445,7 @@ if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_T) { launcherRoot
 
           Text {
             text: launcherRoot.filteredApps.length + " apps" + (launcherRoot.selectedCategory !== "All" ? " · " + launcherRoot.selectedCategory : "")
+            Layout.preferredHeight: 16
             anchors.horizontalCenter: parent.horizontalCenter
             color: Theme.fg
             opacity: 0.55
@@ -454,7 +456,7 @@ if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_T) { launcherRoot
           // ── Grid ───────────────────────────────────────────────────
           Item {
             Layout.fillWidth: true
-            Layout.fillHeight: true
+            Layout.preferredHeight: launcherRoot.visibleRows * grid.cellHeight
             clip: true
 
             GridView {
@@ -468,7 +470,8 @@ if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_T) { launcherRoot
               cellHeight: 104
               model: launcherRoot.filteredApps
               currentIndex: launcherRoot.selectedIndex
-              onCurrentIndexChanged: launcherRoot.selectedIndex = currentIndex
+              function snapPage(idx) { if (idx < 0) return; const size = launcherRoot.pageRows() * launcherRoot.columns; positionViewAtIndex(Math.floor(idx / size) * size, GridView.Beginning) }
+              onCurrentIndexChanged: { launcherRoot.selectedIndex = currentIndex; snapPage(currentIndex) }
               highlightMoveDuration: 80
               boundsBehavior: Flickable.StopAtBounds
               flickDeceleration: 6000
@@ -555,6 +558,7 @@ if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_T) { launcherRoot
 
           RowLayout {
             Layout.alignment: Qt.AlignHCenter
+            Layout.preferredHeight: 16
             spacing: 10
             Text { text: "↵ Launch"; color: Theme.fg; opacity: 0.85; font.family: Theme.monoFont; font.pixelSize: 10; font.bold: true }
             Rectangle { Layout.preferredWidth: 1; Layout.preferredHeight: 10; color: Theme.border; opacity: 0.6 }

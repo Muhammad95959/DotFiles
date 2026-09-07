@@ -23,7 +23,8 @@ Scope {
   property string query: ""
   property string selectedCategory: "All"
   property int selectedIndex: 0
-  property int columns: 5
+  property int columns: 4
+  readonly property int visibleRows: 3
   property bool _blockHover: false
   function _markKeyboard() { _blockHover = true }
   property string wallpapersPaths: Quickshell.env("HOME") + "/Backgrounds"
@@ -185,12 +186,12 @@ Scope {
   }
   function goHome() { _markKeyboard(); if (filteredWallpapers.length > 0) selectedIndex = 0 }
   function goEnd() { _markKeyboard(); const n = filteredWallpapers.length; if (n > 0) selectedIndex = n - 1 }
+  function pageRows() { let r = 3; try { if (grid && grid.height > 0 && grid.cellHeight > 0) r = Math.max(1, Math.ceil(grid.height / grid.cellHeight)) } catch(e) {} return r }
   function pageMove(dir) {
     _markKeyboard()
     const n = filteredWallpapers.length; if (n === 0) return
     const cols = columns; const col = selectedIndex % cols; const row = Math.floor(selectedIndex / cols); const rows = Math.ceil(n / cols)
-    let pageRows = 3; try { if (grid && grid.height > 0 && grid.cellHeight > 0) pageRows = Math.max(1, Math.floor(grid.height / grid.cellHeight)) } catch(e) {}
-    let nr = row + dir * pageRows; if (nr < 0) nr = 0; if (nr >= rows) nr = rows - 1
+    let nr = row + dir * pageRows(); if (nr < 0) nr = 0; if (nr >= rows) nr = rows - 1
     let ni = nr * cols + col
     if (ni >= n) { for (let r = rows - 1; r >= 0; r--) { const cand = r * cols + col; if (cand < n) { ni = cand; break } } if (ni >= n) ni = n - 1 }
     selectedIndex = ni
@@ -216,11 +217,11 @@ Scope {
       MouseArea { anchors.fill: parent; onClicked: wallpaperRoot.close() }
       Rectangle { anchors.fill: parent; color: Theme.dim }
 
-      // ── Centered 1600x900 ────────────────────────────────────────
+      // ── Centered 1280x720 ────────────────────────────────────────
       Rectangle {
         id: container
-        width: 1600
-        height: 900
+        width: 1280
+        height: 720
         anchors.centerIn: parent
         radius: Theme.radiusLg
         color: Theme.bg
@@ -237,6 +238,7 @@ Scope {
           // ── Header ─────────────────────────────────────────────────
           RowLayout {
             Layout.fillWidth: true
+            Layout.preferredHeight: 32
             spacing: 10
             Rectangle {
               width: 32; height: 32; radius: 8
@@ -328,7 +330,7 @@ Scope {
           Item {
             id: sepContainer
             Layout.fillWidth: true
-            Layout.preferredHeight: 8
+            Layout.preferredHeight: 6
             clip: false
             Rectangle {
               id: sepLine
@@ -381,7 +383,7 @@ Scope {
 
           // ── Grid ───────────────────────────────────────────────────
           Item {
-            Layout.fillWidth: true; Layout.fillHeight: true; clip: true
+            Layout.fillWidth: true; Layout.preferredHeight: wallpaperRoot.visibleRows * grid.cellHeight; clip: true
             GridView {
               id: grid
               anchors.top: parent.top
@@ -393,7 +395,8 @@ Scope {
             cacheBuffer: 200
             model: wallpaperRoot.filteredWallpapers
             currentIndex: wallpaperRoot.selectedIndex
-            onCurrentIndexChanged: wallpaperRoot.selectedIndex = currentIndex
+            function snapPage(idx) { if (idx < 0) return; const size = wallpaperRoot.pageRows() * wallpaperRoot.columns; positionViewAtIndex(Math.floor(idx / size) * size, GridView.Beginning) }
+            onCurrentIndexChanged: { wallpaperRoot.selectedIndex = currentIndex; snapPage(currentIndex) }
             highlightMoveDuration: 80
 
             WheelHandler {
