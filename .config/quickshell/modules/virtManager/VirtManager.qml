@@ -14,7 +14,7 @@ Scope {
   property bool visible: false
   function toggle() { visible ? close() : open() }
   function open() { visible = true; stage = "vms"; selectedIndex = 0; query = ""; refreshVms() }
-  function close() { visible = false }
+  function close() { visible = false; query = ""; selectedIndex = 0 }
 
   // stage: vms | actions
   property string stage: "vms"
@@ -60,7 +60,7 @@ Scope {
   property int currentCount: stage === "vms" ? filteredVms.length : filteredActions.length
 
   onQueryChanged: selectedIndex = 0
-  onVisibleChanged: if (visible) { selectedIndex = 0; _blockHover = true }
+  onVisibleChanged: { if (visible) { query=""; selectedIndex = 0; _blockHover = true } else { query=""; selectedIndex = 0 } }
 
   function refreshVms() {
     _accum = ""; vms = []

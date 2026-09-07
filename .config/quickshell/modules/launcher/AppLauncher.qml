@@ -16,7 +16,7 @@ Scope {
 
   function toggle() { visible = !visible }
   function open() { visible = true }
-  function close() { visible = false }
+  function close() { visible = false; query = ""; selectedCategory = "All"; selectedIndex = 0; _altHeld = false }
 
   // ── Search / category state ────────────────────────────────────────
   property string query: ""
@@ -92,7 +92,7 @@ Scope {
   onSelectedCategoryChanged: selectedIndex = 0
   onVisibleChanged: {
     if (visible) { query = ""; selectedCategory = "All"; selectedIndex = 0; _blockHover = true; _altHeld = false }
-    else { _altHeld = false }
+    else { query = ""; selectedCategory = "All"; selectedIndex = 0; _altHeld = false }
   }
 
   function launchAt(idx) {
@@ -574,6 +574,7 @@ if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_T) { launcherRoot
           function onVisibleChanged() {
             if (launcherRoot.visible) {
               searchField.text = ""
+              launcherRoot.query = ""
               searchField.forceActiveFocus()
             }
           }

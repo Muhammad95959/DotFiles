@@ -66,7 +66,7 @@ Scope {
   }
   function toggle() { visible ? close() : open() }
   function open() { _everOpened = true; visible = true; query = ""; selectedIndex = 0; showPreview(); schedulePreview(); refresh() }
-  function close() { visible = false }
+  function close() { visible = false; query = ""; selectedIndex = 0 }
 
   property string query: ""
   property int selectedIndex: 0
@@ -82,7 +82,7 @@ Scope {
   }
 
   onQueryChanged: { selectedIndex = 0 }
-  onVisibleChanged: if (visible) { showPreview(); schedulePreview() }
+  onVisibleChanged: { if (visible) { query=""; selectedIndex=0; showPreview(); schedulePreview() } else { query=""; selectedIndex=0 } }
   readonly property int maxThumbs: 80
   readonly property int previewDebounceMs: 80
   readonly property int postActivateRefreshMs: 600
@@ -647,7 +647,7 @@ Scope {
         }
 
         Component.onCompleted: if(clipRoot.visible) searchField.forceActiveFocus()
-        Connections{ target:clipRoot; function onVisibleChanged(){ if(clipRoot.visible){ searchField.text=""; searchField.forceActiveFocus() } } }
+        Connections{ target:clipRoot; function onVisibleChanged(){ if(clipRoot.visible){ searchField.text=""; clipRoot.query=""; searchField.forceActiveFocus() } } }
       }
     }
   }

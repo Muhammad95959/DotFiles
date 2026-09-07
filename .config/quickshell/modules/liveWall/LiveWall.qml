@@ -15,7 +15,7 @@ Scope {
   property bool visible: false
   function toggle() { visible ? close() : open() }
   function open() { visible = true; query = ""; selectedIndex = 0; refresh() }
-  function close() { visible = false }
+  function close() { visible = false; query = ""; selectedIndex = 0 }
 
   property string query: ""
   property int selectedIndex: 0
@@ -36,7 +36,7 @@ Scope {
   }
 
   onQueryChanged: selectedIndex = 0
-  onVisibleChanged: if (visible) { selectedIndex = 0; _blockHover = true }
+  onVisibleChanged: { if (visible) { query=""; selectedIndex = 0; _blockHover = true } else { query=""; selectedIndex = 0 } }
 
   function refresh() {
     _accum = ""; allFiles = []; scanProc.running = true
@@ -219,7 +219,7 @@ Scope {
         }
 
         Component.onCompleted: if(root.visible) searchField.forceActiveFocus()
-        Connections{ target: root; function onVisibleChanged(){ if(root.visible){ searchField.text=""; searchField.forceActiveFocus() } } }
+        Connections{ target: root; function onVisibleChanged(){ if(root.visible){ searchField.text=""; root.query=""; searchField.forceActiveFocus() } } }
       }
     }
   }

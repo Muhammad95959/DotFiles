@@ -13,8 +13,8 @@ Scope {
   id: root
   property bool visible: false
   function toggle() { visible ? close() : open() }
-  function open() { visible = true; refresh() }
-  function close() { visible = false }
+  function open() { visible = true; query = ""; selectedIndex = 0; refresh() }
+  function close() { visible = false; query = ""; selectedIndex = 0 }
 
   property string query: ""
   property string sourceFilter: "All"
@@ -54,7 +54,7 @@ Scope {
 
   onQueryChanged: selectedIndex = 0
   onSourceFilterChanged: selectedIndex = 0
-  onVisibleChanged: { _altHeld = false; if (visible) { selectedIndex = 0; _blockHover = true; refresh() } }
+  onVisibleChanged: { _altHeld = false; if (visible) { query=""; selectedIndex = 0; _blockHover = true; refresh() } else { query=""; selectedIndex = 0 } }
 
   function refresh() {
     allEntries = []; proc.running = true
@@ -296,7 +296,7 @@ Scope {
           }
         }
         Component.onCompleted: if(root.visible) searchField.forceActiveFocus()
-        Connections{ target: root; function onVisibleChanged(){ if(root.visible){ searchField.text=""; searchField.forceActiveFocus(); container.forceActiveFocus(); searchField.forceActiveFocus() } } }
+        Connections{ target: root; function onVisibleChanged(){ if(root.visible){ searchField.text=""; root.query=""; searchField.forceActiveFocus(); container.forceActiveFocus(); searchField.forceActiveFocus() } } }
       }
     }
   }

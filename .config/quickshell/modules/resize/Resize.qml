@@ -14,7 +14,7 @@ Scope {
   property bool visible: false
   function toggle(){ visible ? close() : open() }
   function open(){ visible = true; _query=""; selectedIndex=0 }
-  function close(){ visible=false }
+  function close(){ visible=false; _query=""; selectedIndex=0 }
 
   property string _query: ""
   property int selectedIndex: 0
@@ -38,7 +38,7 @@ Scope {
       const toks=q.split(/\s+/); for(let t=0;t<toks.length;t++) if(!hay.includes(toks[t])) return false; return true
     })
   }
-  onVisibleChanged: if(visible) selectedIndex=0
+  onVisibleChanged: { if(visible) { _query=""; selectedIndex=0 } else { _query=""; selectedIndex=0 } }
 
   function activateAt(idx){
     const list=filtered; if(idx<0||idx>=list.length) return
@@ -109,7 +109,7 @@ Scope {
           onHovered: idx=> root.selectedIndex=idx
         }
         Component.onCompleted: if(root.visible) onelinerBar.focusInput()
-        Connections{ target: root; function onVisibleChanged(){ if(root.visible) onelinerBar.focusInput() } }
+        Connections{ target: root; function onVisibleChanged(){ if(root.visible){ root._query=""; onelinerBar.clear(); onelinerBar.focusInput() } } }
       }
     }
   }

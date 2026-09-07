@@ -27,8 +27,10 @@ Scope {
   function close() {
     if (_resultState === "pending") { _resultState = "cancel"; _lastResult = "" }
     visible = false
+    query = ""
+    selectedIndex = 0
   }
-  function forceClose() { visible = false }
+  function forceClose() { visible = false; query = ""; selectedIndex = 0 }
 
   // ── API ────────────────────────────────────────────────────────────────
   property string prompt: ""
@@ -78,7 +80,7 @@ Scope {
   }
 
   onQueryChanged: selectedIndex = 0
-  onVisibleChanged: if (visible) { selectedIndex = 0; _blockHover = true }
+  onVisibleChanged: { if (visible) { query=""; selectedIndex = 0; _blockHover = true } else { query=""; selectedIndex = 0 } }
   onItemsChanged: { const f = filtered; if (f && selectedIndex >= f.length) selectedIndex = 0 }
 
   // Callbacks — override via Connections or set handlers

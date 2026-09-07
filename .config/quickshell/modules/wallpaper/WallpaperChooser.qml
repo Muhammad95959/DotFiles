@@ -17,7 +17,7 @@ Scope {
 
   function toggle() { visible = !visible }
   function open() { visible = true }
-  function close() { visible = false }
+  function close() { visible = false; query = ""; selectedCategory = "All"; selectedIndex = 0 }
 
   // ── Search / category ─────────────────────────────────────────────
   property string query: ""
@@ -575,7 +575,7 @@ Scope {
         }
 
         Component.onCompleted: if (wallpaperRoot.visible) searchField.forceActiveFocus()
-        Connections { target: wallpaperRoot; function onVisibleChanged() { if (wallpaperRoot.visible) { searchField.text = ""; searchField.forceActiveFocus(); wallpaperRoot.refreshWallpapers() } } }
+        Connections { target: wallpaperRoot; function onVisibleChanged() { if (wallpaperRoot.visible) { searchField.text = ""; wallpaperRoot.query = ""; searchField.forceActiveFocus(); wallpaperRoot.refreshWallpapers() } } }
       }
     }
   }

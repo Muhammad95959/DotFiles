@@ -18,7 +18,7 @@ Scope {
   function openEmoji() { currentTab = "emoji"; sectionEmoji = "All"; visible = true; query = ""; selectedIndex = 0; _altHeld = false; _blockHover = true; ensureData() }
   function openNerd() { currentTab = "nerd"; sectionNerd = "All"; visible = true; query = ""; selectedIndex = 0; _altHeld = false; _blockHover = true; ensureData() }
   function openGlyphs() { currentTab = "unicode"; sectionUnicode = "All"; visible = true; query = ""; selectedIndex = 0; _altHeld = false; _blockHover = true; ensureData() }
-  function close() { visible = false; _altHeld = false; sectionEmoji = "All"; sectionNerd = "All"; sectionUnicode = "All" }
+  function close() { visible = false; query = ""; selectedIndex = 0; _altHeld = false; sectionEmoji = "All"; sectionNerd = "All"; sectionUnicode = "All" }
 
   property string currentTab: "emoji"
   property string query: ""
@@ -138,7 +138,7 @@ Scope {
   onSectionEmojiChanged: selectedIndex = 0
   onSectionNerdChanged: selectedIndex = 0
   onSectionUnicodeChanged: selectedIndex = 0
-  onVisibleChanged: { if (visible) { selectedIndex = 0; _blockHover = true; _altHeld = false } else { _altHeld = false } }
+  onVisibleChanged: { if (visible) { query=""; selectedIndex = 0; _blockHover = true; _altHeld = false } else { query=""; selectedIndex = 0; _altHeld = false } }
 
   function ensureData() {
     if (currentTab === "emoji" && !_emojiLoaded) { _emojiLoaded = true; emojiProc.running = true }
@@ -639,7 +639,7 @@ Scope {
           }
         }
         Component.onCompleted: if (root.visible) searchField.forceActiveFocus()
-        Connections { target: root; function onVisibleChanged() { if (root.visible) { searchField.text = ""; searchField.forceActiveFocus(); container.forceActiveFocus(); searchField.forceActiveFocus() } } }
+        Connections { target: root; function onVisibleChanged() { if (root.visible) { searchField.text = ""; root.query = ""; searchField.forceActiveFocus(); container.forceActiveFocus(); searchField.forceActiveFocus() } } }
       }
     }
   }

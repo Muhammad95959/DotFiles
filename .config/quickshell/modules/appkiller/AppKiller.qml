@@ -13,8 +13,8 @@ Scope {
   id: killerRoot
   property bool visible: false
   function toggle() { visible = !visible }
-  function open() { visible = true; refresh() }
-  function close() { visible = false }
+  function open() { visible = true; query = ""; selectedIndex = 0; refresh() }
+  function close() { visible = false; query = ""; selectedIndex = 0 }
 
   // ── Search state ───────────────────────────────────────────────────
   property string query: ""
@@ -33,7 +33,7 @@ Scope {
   }
 
   onQueryChanged: selectedIndex = 0
-  onVisibleChanged: { if (visible) { selectedIndex = 0; _blockHover = true; refresh() } }
+  onVisibleChanged: { if (visible) { query = ""; selectedIndex = 0; _blockHover = true; refresh() } else { query = ""; selectedIndex = 0 } }
 
   function refresh() {
     _accum = ""; allApps = []; psProc.running = true
@@ -316,7 +316,7 @@ Scope {
         }
 
         Component.onCompleted: if (killerRoot.visible) searchField.forceActiveFocus()
-        Connections { target: killerRoot; function onVisibleChanged() { if (killerRoot.visible) { searchField.text = ""; searchField.forceActiveFocus() } } }
+        Connections { target: killerRoot; function onVisibleChanged() { if (killerRoot.visible) { searchField.text = ""; killerRoot.query = ""; searchField.forceActiveFocus() } } }
       }
     }
   }

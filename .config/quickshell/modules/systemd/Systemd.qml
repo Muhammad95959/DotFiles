@@ -15,7 +15,7 @@ Scope {
   property bool visible: false
   function toggle() { visible ? close() : open() }
   function open() { visible = true; query = ""; selectedIndex = 0; _altHeld = false; _blockHover = true; _showActions = false; refresh() }
-  function close() { visible = false; _altHeld = false; _showActions = false }
+  function close() { visible = false; query = ""; selectedIndex = 0; _altHeld = false; _showActions = false }
 
   property string query: ""
   property int selectedIndex: 0
@@ -100,11 +100,15 @@ Scope {
   onVisibleChanged: {
     _altHeld = false
     if (visible) {
+      query = ""
       selectedIndex = 0
       actionIndex = 0
       _showActions = false
       _blockHover = true
       refresh()
+    } else {
+      query = ""
+      selectedIndex = 0
     }
   }
 
@@ -580,7 +584,7 @@ Scope {
           }
         }
         Component.onCompleted: if (root.visible) searchField.forceActiveFocus()
-        Connections { target: root; function onVisibleChanged() { if (root.visible) { searchField.text = ""; searchField.forceActiveFocus(); container.forceActiveFocus(); searchField.forceActiveFocus() } } }
+        Connections { target: root; function onVisibleChanged() { if (root.visible) { searchField.text = ""; root.query = ""; searchField.forceActiveFocus(); container.forceActiveFocus(); searchField.forceActiveFocus() } } }
       }
     }
   }

@@ -122,6 +122,6 @@ PanelWindow {
     }
 
     Component.onCompleted: if(qmenuRoot.visible) searchField.forceActiveFocus()
-    Connections{ target: qmenuRoot; function onVisibleChanged(){ if(qmenuRoot.visible){ searchField.text=""; searchField.forceActiveFocus() } } }
+    Connections{ target: qmenuRoot; function onVisibleChanged(){ if(qmenuRoot.visible){ searchField.text=""; qmenuRoot.query=""; searchField.forceActiveFocus() } } }
   }
 }

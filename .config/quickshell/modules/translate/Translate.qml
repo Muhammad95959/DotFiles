@@ -13,10 +13,12 @@ Scope {
   id: root
   property bool visible: false
   function toggle() { visible ? close() : open() }
-  function open() { visible = true }
+  function open() { visible = true; _query = "" }
   function close() { visible = false; _query="" }
 
   property string _query: ""
+
+  onVisibleChanged: { if(!visible) _query = "" }
 
   function doTranslate(text) {
     const t = String(text||"").trim()
@@ -81,7 +83,7 @@ Scope {
           onCancelled: root.close()
         }
       }
-      Connections{ target: root; function onVisibleChanged(){ if(root.visible) onelinerBar.focusInput() } }
+      Connections{ target: root; function onVisibleChanged(){ if(root.visible){ root._query=""; onelinerBar.clear(); onelinerBar.focusInput() } } }
     }
   }
 

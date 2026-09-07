@@ -112,6 +112,7 @@ Scope {
     onVisibleChanged: {
         _altHeld = false
         if (visible) {
+            query = ""
             selectedIndex = 0
             actionIndex = 0
             _fieldIndex = 0
@@ -124,6 +125,8 @@ Scope {
             if (_roots.length > 0) refresh()
             else schedulePreview()
         } else {
+            query = ""
+            selectedIndex = 0
             _previewTimer.stop()
             _decryptFallback.stop()
             _decrypting = false
@@ -137,6 +140,8 @@ Scope {
     function cacheKey(store, label) { return String(store) + "|" + String(label) }
     function close() {
         visible = false
+        query = ""
+        selectedIndex = 0
         _altHeld = false
         _showActions = false
         _showFieldPicker = false
@@ -1273,6 +1278,7 @@ Scope {
                         function onVisibleChanged() {
                             if (root.visible) {
                                 searchField.text = ""
+                                root.query = ""
                                 searchField.forceActiveFocus()
                                 container.forceActiveFocus()
                                 searchField.forceActiveFocus()
