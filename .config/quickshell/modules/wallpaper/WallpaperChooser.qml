@@ -26,6 +26,7 @@ Scope {
   property int columns: 4
   readonly property int visibleRows: 3
   property bool _blockHover: false
+  property bool _altHeld: false
   function _markKeyboard() { _blockHover = true }
   property string wallpapersPaths: Quickshell.env("HOME") + "/Backgrounds"
   property var allWallpapers: []
@@ -50,6 +51,51 @@ Scope {
     { key: "Arabic_Calligraphy", label: "Arabic" },
     { key: "Catppuccin",         label: "Catppuccin" }
   ]
+
+  // ── Dynamic Alt accelerators: first unique char, else next unique char ──
+  readonly property var categoryAccelerators: {
+    const used = {}
+    const out = {}
+    for (let i = 0; i < categories.length; i++) {
+      const cat = categories[i]
+      const label = cat.label || ""
+      const low = label.toLowerCase()
+      let found = -1
+      for (let j = 0; j < label.length; j++) {
+        const c = low[j]
+        if (c === " " || c === "_" || c === "-" || c === "/") continue
+        if (!/[a-z0-9]/.test(c)) continue
+        if (!used[c]) { found = j; used[c] = true; break }
+      }
+      out[cat.key] = found
+    }
+    return out
+  }
+
+  function categoryHint(label, key) {
+    if (!_altHeld) return label
+    const ai = categoryAccelerators[key]
+    if (ai === undefined || ai < 0 || ai >= label.length) return label
+    return label.slice(0, ai) + "<u>" + label[ai] + "</u>" + label.slice(ai + 1)
+  }
+
+  function handleAltCategory(keyCode) {
+    let ch = ""
+    if (keyCode >= Qt.Key_A && keyCode <= Qt.Key_Z) ch = String.fromCharCode(keyCode).toLowerCase()
+    else if (keyCode >= Qt.Key_0 && keyCode <= Qt.Key_9) ch = String.fromCharCode(keyCode)
+    else return false
+    for (let i = 0; i < categories.length; i++) {
+      const cat = categories[i]
+      const ai = categoryAccelerators[cat.key]
+      if (ai === undefined || ai < 0) continue
+      const label = cat.label || ""
+      if (ai < label.length && label[ai].toLowerCase() === ch) {
+        selectedCategory = cat.key
+        return true
+      }
+    }
+    return false
+  }
 
   function categoryOf(path) {
     // path like /home/.../Backgrounds/Arch/arch1.jpg -> Arch
@@ -91,7 +137,7 @@ Scope {
 
   onQueryChanged: selectedIndex = 0
   onSelectedCategoryChanged: selectedIndex = 0
-  onVisibleChanged: { if (visible) { selectedIndex = 0; _blockHover = true; refreshWallpapers() } }
+  onVisibleChanged: { _altHeld = false; if (visible) { selectedCategory = "All"; selectedIndex = 0; _blockHover = true; refreshWallpapers() } else { selectedCategory = "All"; query = ""; selectedIndex = 0 } }
 
   function setWallpaper(path) {
     WallpaperManager.setWallpaper(path)
@@ -227,6 +273,21 @@ Scope {
         color: Theme.bg
         border.color: Theme.border
         border.width: 1
+        focus: true
+        Keys.onPressed: event => {
+          const hasAlt = (event.modifiers & Qt.AltModifier) || event.key === Qt.Key_Alt
+          if (hasAlt) wallpaperRoot._altHeld = true
+          if ((event.modifiers & Qt.AltModifier) && wallpaperRoot.handleAltCategory(event.key)) { event.accepted = true; return }
+          const inSearch = searchField.activeFocus
+          if (event.key === Qt.Key_Escape) { wallpaperRoot.close(); event.accepted = true }
+          else if (event.key === Qt.Key_Slash && !inSearch && !(event.modifiers & Qt.AltModifier)) { searchField.forceActiveFocus(); event.accepted = true }
+          else if (event.key === Qt.Key_R && !inSearch && !(event.modifiers & Qt.AltModifier) && !(event.modifiers & Qt.ControlModifier)) { wallpaperRoot.refreshWallpapers(); event.accepted = true }
+          if (event.key === Qt.Key_Alt) wallpaperRoot._altHeld = true
+        }
+        Keys.onReleased: event => {
+          if (event.key === Qt.Key_Alt) wallpaperRoot._altHeld = false
+          else wallpaperRoot._altHeld = Boolean(event.modifiers & Qt.AltModifier)
+        }
         MouseArea { anchors.fill: parent; hoverEnabled: true; onPositionChanged: { if (wallpaperRoot._blockHover) { wallpaperRoot._blockHover = false } }
                 onClicked: {} }
 
@@ -276,6 +337,9 @@ Scope {
                 onTextChanged: wallpaperRoot.query = text
                 onAccepted: { if (wallpaperRoot.filteredWallpapers.length > 0) wallpaperRoot.setWallpaper(wallpaperRoot.filteredWallpapers[wallpaperRoot.selectedIndex]) }
                 Keys.onPressed: event => {
+                  const hasAlt = (event.modifiers & Qt.AltModifier) || event.key === Qt.Key_Alt
+                  if (hasAlt) wallpaperRoot._altHeld = true
+                  if ((event.modifiers & Qt.AltModifier) && wallpaperRoot.handleAltCategory(event.key)) { event.accepted = true; return }
                   if (event.key === Qt.Key_Escape) { wallpaperRoot.close(); event.accepted = true }
                   else if (event.key === Qt.Key_Backtab) { wallpaperRoot.moveHorizontal(-1); event.accepted = true }
                   else if (event.key === Qt.Key_Tab) {
@@ -291,6 +355,11 @@ Scope {
                   else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                     if (wallpaperRoot.filteredWallpapers.length > 0) wallpaperRoot.setWallpaper(wallpaperRoot.filteredWallpapers[wallpaperRoot.selectedIndex]); event.accepted = true
                   }
+                  if (event.key === Qt.Key_Alt) wallpaperRoot._altHeld = true
+                }
+                Keys.onReleased: event => {
+                  if (event.key === Qt.Key_Alt) wallpaperRoot._altHeld = false
+                  else wallpaperRoot._altHeld = Boolean(event.modifiers & Qt.AltModifier)
                 }
                 Text {
                   anchors.left: parent.left; anchors.verticalCenter: parent.verticalCenter
@@ -320,7 +389,12 @@ Scope {
                   height: 28; width: catLabel.width + 22; radius: 14
                   color: wallpaperRoot.selectedCategory === modelData.key ? Theme.fg : Theme.surface
                   border.color: wallpaperRoot.selectedCategory === modelData.key ? Theme.fg : Theme.border; border.width: 1
-                  Text { id: catLabel; anchors.centerIn: parent; text: modelData.label; color: wallpaperRoot.selectedCategory === modelData.key ? Theme.bg : Theme.fg; font.family: Theme.monoFont; font.pixelSize: 11; font.bold: wallpaperRoot.selectedCategory === modelData.key }
+                  Text {
+                    id: catLabel; anchors.centerIn: parent
+                    text: wallpaperRoot.categoryHint(modelData.label, modelData.key)
+                    textFormat: wallpaperRoot._altHeld ? Text.RichText : Text.PlainText
+                    color: wallpaperRoot.selectedCategory === modelData.key ? Theme.bg : Theme.fg; font.family: Theme.monoFont; font.pixelSize: 11; font.bold: wallpaperRoot.selectedCategory === modelData.key
+                  }
                   MouseArea { anchors.fill: parent; cursorShape: Qt.PointingHandCursor; onClicked: wallpaperRoot.selectedCategory = modelData.key }
                 }
               }
