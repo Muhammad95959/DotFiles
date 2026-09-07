@@ -27,7 +27,6 @@ local reset                = "hyprctl dispatch 'hl.dsp.submap(\"reset\")' && "
 local scratchpad_window    = nil
 local last_tiled_window    = {}
 local last_floating_window = {}
-local wshowkeys_active     = false
 local smart_gaps           = true
 
 -------------------
@@ -278,18 +277,6 @@ local function roalbert()
     hl.dispatch(hl.dsp.exec_cmd("rofi -show run -theme ~/.config/rofi/launcher.rasi"))
   else
     hl.dispatch(hl.dsp.exec_cmd("/usr/bin/albert toggle || /usr/bin/albert"))
-  end
-end
-
-local function wshowkeys()
-  if wshowkeys_active then
-    wshowkeys_active = false
-    hl.dispatch(hl.dsp.exec_cmd("killall wshowkeys"))
-    hl.dispatch(hl.dsp.exec_cmd("notify-send -t 1500 'wshowkeys' '󱎘   Disabled'"))
-  else
-    wshowkeys_active = true
-    hl.dispatch(hl.dsp.exec_cmd("killall wshowkeys; wshowkeys -a bottom -t 1000 -f '#e1e2e7ff' -b '#1a1b26aa'"))
-    hl.dispatch(hl.dsp.exec_cmd("notify-send -t 1500 'wshowkeys' '   Enabled'"))
   end
 end
 
@@ -581,7 +568,6 @@ hl.define_submap("apps", function()
   hl.bind("y", hl.dsp.exec_cmd(reset .. "kitty --class yt-dlp -e ~/Scripts/yt-dlp_script.sh"))
   hl.bind("SHIFT + b", hl.dsp.exec_cmd(reset .. "notify-send -t 5000 \"$(acpi)\""))
   hl.bind("SHIFT + c", hl.dsp.exec_cmd(reset .. "hyprpicker -a"))
-  hl.bind("SHIFT + k", wshowkeys) hl.bind("SHIFT + k", hl.dsp.submap("reset"))
   hl.bind("SHIFT + m", hl.dsp.exec_cmd(reset .. "kitty --class pulsemixer --hold -e pulsemixer"))
   hl.bind("SHIFT + s", hl.dsp.exec_cmd(reset .. "notify-send -t 30000 \"$(~/Scripts/bilal.sh -a)\""))
   hl.bind("SHIFT + t", hl.dsp.exec_cmd(reset .. "blanket"))
@@ -594,6 +580,7 @@ end)
 hl.define_submap("shell", function()
   hl.bind("a", hl.dsp.exec_cmd(reset .. "quickshell ipc call launcher toggle"))
   hl.bind("c", hl.dsp.exec_cmd(reset .. "quickshell ipc call corners toggle"))
+  hl.bind("d", hl.dsp.exec_cmd(reset .. "quickshell ipc call systemd toggle"))
   hl.bind("h", hl.dsp.exec_cmd(reset .. "quickshell ipc call braveHistory toggle"))
   hl.bind("i", hl.dsp.exec_cmd(reset .. "quickshell ipc call glyphPicker toggle"))
   hl.bind("k", hl.dsp.exec_cmd(reset .. "quickshell ipc call appkiller toggle"))
@@ -602,7 +589,7 @@ hl.define_submap("shell", function()
   hl.bind("n", hl.dsp.exec_cmd(reset .. "quickshell ipc call wallpaper toggle"))
   hl.bind("p", hl.dsp.exec_cmd(reset .. "quickshell ipc call pass toggle"))
   hl.bind("r", hl.dsp.exec_cmd(reset .. "quickshell ipc call resize toggle"))
-  hl.bind("s", hl.dsp.exec_cmd(reset .. "quickshell ipc call systemd toggle"))
+  hl.bind("s", hl.dsp.exec_cmd(reset .. "quickshell ipc call showkeys toggle"))
   hl.bind("t", hl.dsp.exec_cmd(reset .. "quickshell ipc call ambient toggle"))
   hl.bind("u", hl.dsp.exec_cmd(reset .. "quickshell ipc call urlMpv toggle"))
   hl.bind("v", hl.dsp.exec_cmd(reset .. "quickshell ipc call virtManager toggle"))

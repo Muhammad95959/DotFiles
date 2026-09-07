@@ -18,6 +18,7 @@ import "modules/powermenu"
 import "modules/glyphPicker"
 import "modules/pass"
 import "modules/qmenu"
+import "modules/showkeys"
 import "modules/systemd"
 import "modules/reload"
 import "modules/resize"
@@ -98,6 +99,9 @@ ShellRoot {
 
   // ── Pass  ──────────────────────────────────────────────────────────
   Pass {}
+
+  // ── Showkeys ───────────────────────────────────────────────────────
+  Showkeys {}
 
   // ── Ambient Audio  ─────────────────────────────────────────────────
   Ambient {}
