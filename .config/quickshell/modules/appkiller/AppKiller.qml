@@ -20,6 +20,12 @@ Scope {
   property string query: ""
   property int selectedIndex: 0
   property var allApps: [] // {pid, mem, comm}
+  // Show exactly 8 rows per page; width follows original 800x600 aspect.
+  property int rowsVisible: 8
+  property real aspect: 4 / 3
+  readonly property int _rowH: 36
+  readonly property int _rowGap: 6
+  readonly property int listH: rowsVisible * _rowH + (rowsVisible - 1) * _rowGap
 
   readonly property var filteredApps: {
     const q = query.toLowerCase().trim()
@@ -103,17 +109,16 @@ Scope {
   }
   function goHome() { _markKeyboard(); if(filteredApps.length>0) selectedIndex=0 }
   function goEnd() { _markKeyboard(); const n=filteredApps.length; if(n>0) selectedIndex=n-1 }
+  function snapPage(list, idx) {
+    if (!list || idx < 0) return
+    try { list.positionViewAtIndex(Math.floor(idx / killerRoot.rowsVisible) * killerRoot.rowsVisible, ListView.Beginning) } catch(e) {}
+  }
   function pageMove(dir) {
     _markKeyboard()
     const n=filteredApps.length; if(n===0) return
-    let page = 10
-    try {
-      const h = listView ? listView.height : 0
-      if (h > 0) page = Math.max(1, Math.floor(h / 42))
-      else page = Math.max(1, Math.floor(400 / 42))
-    } catch(e) { page = 10 }
+    let page = killerRoot.rowsVisible
     let ni = selectedIndex + dir*page; if(ni<0) ni=0; if(ni>=n) ni=n-1; selectedIndex=ni
-    try { if (typeof listView !== "undefined" && listView) listView.positionViewAtIndex(ni, ListView.Contain) } catch(e) {}
+    try { if (typeof listView !== "undefined" && listView) snapPage(listView, ni) } catch(e) {}
   }
 
   // ── Window ─────────────────────────────────────────────────────────
@@ -137,8 +142,9 @@ Scope {
 
       // ── Centered 900x600 ──────────────────────────────────────────
       Rectangle {
-        width: 800
-        height: 600
+        id: container
+        height: mainCol.implicitHeight + 32
+        width: Math.round(height * killerRoot.aspect)
         anchors.centerIn: parent
         radius: Theme.radiusLg
         color: Theme.bg
@@ -150,6 +156,7 @@ Scope {
                 onClicked: {} }
 
         ColumnLayout {
+          id: mainCol
           anchors.fill: parent
           anchors.margins: 16
           spacing: 12
@@ -235,7 +242,7 @@ Scope {
           // clip + StopAtBounds prevents scrolling out of visible boundaries
           ListView {
             id: listView
-            Layout.fillWidth: true; Layout.fillHeight: true; clip: true
+            Layout.fillWidth: true; Layout.preferredHeight: killerRoot.listH; Layout.fillHeight: false; clip: true
             boundsBehavior: Flickable.StopAtBounds
             flickableDirection: Flickable.VerticalFlick
             highlightFollowsCurrentItem: true
@@ -245,9 +252,9 @@ Scope {
             currentIndex: killerRoot.selectedIndex
             onCurrentIndexChanged: {
               killerRoot.selectedIndex = currentIndex
-              if (currentIndex >= 0) positionViewAtIndex(currentIndex, ListView.Contain)
+              if (currentIndex >= 0) killerRoot.snapPage(listView, currentIndex)
             }
-            onCountChanged: if (currentIndex >= 0) positionViewAtIndex(currentIndex, ListView.Contain)
+            onCountChanged: if (currentIndex >= 0) killerRoot.snapPage(listView, currentIndex)
             spacing: 6
             delegate: Rectangle {
               id: del

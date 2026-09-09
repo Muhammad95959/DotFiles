@@ -623,7 +623,7 @@ Scope {
                           return v.slice(0, n)
                         }
                         color: barScope.fg
-                        opacity: 0.5
+                        opacity: 0.2
                         font.family: barScope.monoFont
                         font.pixelSize: bar.fontSizeText
                         font.bold: true
@@ -869,7 +869,7 @@ Scope {
                   font.pixelSize: 12
                   font.bold: true
                   color: {
-                    if (batRect.pct <= 10) return barScope.urgent
+                    if (batRect.pct <= 10 && !batRect.charging) return barScope.urgent
                     return barScope.fg
                   }
                   opacity: 0.7

@@ -20,6 +20,12 @@ Scope {
   property int selectedIndex:0
   property var allEntries: [] // {title, url, display}
   property bool _blockHover:false
+  // Show exactly 8 rows per page; width follows original 800x600 aspect.
+  property int rowsVisible: 8
+  property real aspect: 4 / 3
+  readonly property int _rowH: 48
+  readonly property int _rowGap: 6
+  readonly property int listH: rowsVisible * _rowH + (rowsVisible - 1) * _rowGap
   function _markKeyboard(){ _blockHover=true}
   readonly property var filtered: {
     const q=query.toLowerCase().trim()
@@ -45,7 +51,8 @@ Scope {
   function moveNoWrap(delta){ _markKeyboard(); const n=filtered.length; if(n===0) return; const ni=selectedIndex+delta; if(ni<0||ni>=n) return; selectedIndex=ni}
   function goHome(){ _markKeyboard(); if(filtered.length>0) selectedIndex=0}
   function goEnd(){ _markKeyboard(); const n=filtered.length; if(n>0) selectedIndex=n-1}
-  function pageMove(dir){ _markKeyboard(); const n=filtered.length; if(n===0) return; let page=10; try{ const h=listView?listView.height:0; if(h>0) page=Math.max(1, Math.floor(h/38))}catch(e){} let ni=selectedIndex+dir*page; if(ni<0) ni=0; if(ni>=n) ni=n-1; selectedIndex=ni; try{ if(typeof listView!=="undefined"&&listView) listView.positionViewAtIndex(ni, ListView.Contain)}catch(e){} }
+  function snapPage(list, idx){ if(!list||idx<0) return; try{ list.positionViewAtIndex(Math.floor(idx / root.rowsVisible) * root.rowsVisible, ListView.Beginning) }catch(e){} }
+  function pageMove(dir){ _markKeyboard(); const n=filtered.length; if(n===0) return; let page=root.rowsVisible; let ni=selectedIndex+dir*page; if(ni<0) ni=0; if(ni>=n) ni=n-1; selectedIndex=ni; try{ if(typeof listView!=="undefined"&&listView) snapPage(listView, ni)}catch(e){} }
 
   Process {
     id: proc
@@ -79,11 +86,12 @@ Scope {
       MouseArea{ anchors.fill: parent; onClicked: root.close()}
       Rectangle{ anchors.fill: parent; color: Theme.dim}
       Rectangle{
-        width: 800; height: 600; anchors.centerIn: parent; radius: Theme.radiusLg; color: Theme.bg; border.color: Theme.border; border.width:1; clip:true
+        height: mainCol.implicitHeight + 32; width: Math.round(height * root.aspect); anchors.centerIn: parent; radius: Theme.radiusLg; color: Theme.bg; border.color: Theme.border; border.width:1; clip:true
         LayoutMirroring.enabled: false
         MouseArea{ anchors.fill: parent; hoverEnabled:true; onPositionChanged: if(root._blockHover) root._blockHover=false; onClicked:{}}
 
         ColumnLayout{
+          id: mainCol
           anchors.fill: parent; anchors.margins:16; spacing:12
           RowLayout{ Layout.fillWidth:true; spacing:10
             Rectangle{width:32;height:32;radius:8;color:Theme.surface;border.color:Theme.border;border.width:1; Text{anchors.centerIn:parent;text:"󰃥";color:Theme.fg;font.family:Theme.nerdFont;font.pixelSize:14}}
@@ -107,8 +115,8 @@ Scope {
           }
 
           ListView{
-            id: listView; Layout.fillWidth:true; Layout.fillHeight:true; clip:true; boundsBehavior:Flickable.StopAtBounds; spacing:6; model: root.filtered; currentIndex: root.selectedIndex
-            onCurrentIndexChanged:{ root.selectedIndex=currentIndex; if(currentIndex>=0) positionViewAtIndex(currentIndex, ListView.Contain)}
+            id: listView; Layout.fillWidth:true; Layout.preferredHeight: root.listH; Layout.fillHeight:false; clip:true; boundsBehavior:Flickable.StopAtBounds; spacing:6; model: root.filtered; currentIndex: root.selectedIndex
+            onCurrentIndexChanged:{ root.selectedIndex=currentIndex; if(currentIndex>=0) root.snapPage(listView, currentIndex)}
             delegate: Rectangle{
               id: del; required property var modelData; required property int index; width:listView.width; height:48; radius:Theme.radiusSm; color: root.selectedIndex===index?Theme.surfaceHover:Theme.surface; border.color: root.selectedIndex===index?Qt.alpha(Theme.fg,0.33):Theme.border; border.width:1
               ColumnLayout{ anchors.fill:parent; anchors.leftMargin:12; anchors.rightMargin:12; anchors.topMargin:6; anchors.bottomMargin:6; spacing:2

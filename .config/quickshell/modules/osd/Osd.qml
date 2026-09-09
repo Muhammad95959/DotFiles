@@ -54,13 +54,60 @@ Scope {
   }
 
   // ── capslock / numlock monitor ─────────────────────────────────────
+  // Instant path: lockkeys.py blocks on keyboard evdev devices and reports
+  // lock-key presses the moment they happen. The sysfs poll below is only a
+  // slow fallback for drift (missed events, hotplug, external changes).
   property bool capsOn: false
   property bool numOn: false
   property bool _capsInit: false
   property bool _numInit: false
+  property string lockScriptPath: Quickshell.env("HOME") + "/.config/quickshell/modules/osd/lockkeys.py"
+  Process {
+    id: lockProc
+    running: true
+    command: ["python3", osdRoot.lockScriptPath]
+    stdout: SplitParser {
+      onRead: data => {
+        const parts = String(data || "").trim().split(/\s+/)
+        if (parts[0] === "init" && parts.length >= 5) {
+          osdRoot.capsOn = parts[2] === "1"
+          osdRoot.numOn = parts[4] === "1"
+          osdRoot._capsInit = true
+          osdRoot._numInit = true
+          return
+        }
+        if (parts[0] === "caps" && parts.length >= 2) {
+          const v = parts[1] === "1"
+          osdRoot.capsOn = v
+          if (!osdRoot._capsInit) { osdRoot._capsInit = true; return }
+          osdRoot.showCaps(v)
+          return
+        }
+        if (parts[0] === "num" && parts.length >= 2) {
+          const v = parts[1] === "1"
+          osdRoot.numOn = v
+          if (!osdRoot._numInit) { osdRoot._numInit = true; return }
+          osdRoot.showNum(v)
+          return
+        }
+      }
+    }
+    stderr: SplitParser {
+      onRead: data => console.warn("lockkeys:", String(data || "").trim())
+    }
+    onExited: (exitCode, exitStatus) => {
+      console.warn("lockkeys: daemon exited code=" + exitCode + " — retrying (in input group? check `groups | grep input`)")
+      lockRestartTimer.restart()
+    }
+  }
+  Timer {
+    id: lockRestartTimer
+    interval: 2000
+    onTriggered: { if (!lockProc.running) lockProc.running = true }
+  }
   Process {
     id: capsProc
-    command: ["sh", "-c", "c=$(cat /sys/class/leds/input*::capslock/brightness 2>/dev/null | head -n1); if [ -z \"$c\" ]; then xset q 2>/dev/null | grep -q 'Caps Lock:\\s*on' && c=1 || c=0; fi; echo $c"]
+    command: ["sh", "-c", "if cat /sys/class/leds/input*::capslock/brightness 2>/dev/null | grep -qx '1'; then echo 1; else xset q 2>/dev/null | grep -q 'Caps Lock:\\s*on' && echo 1 || echo 0; fi"]
     stdout: SplitParser {
       onRead: data => {
         const v = data.trim() === "1"
@@ -74,7 +121,7 @@ Scope {
   }
   Process {
     id: numProc
-    command: ["sh", "-c", "c=$(cat /sys/class/leds/input*::numlock/brightness 2>/dev/null | head -n1); if [ -z \"$c\" ]; then xset q 2>/dev/null | grep -q 'Num Lock:\\s*on' && c=1 || c=0; fi; echo $c"]
+    command: ["sh", "-c", "if cat /sys/class/leds/input*::numlock/brightness 2>/dev/null | grep -qx '1'; then echo 1; else xset q 2>/dev/null | grep -q 'Num Lock:\\s*on' && echo 1 || echo 0; fi"]
     stdout: SplitParser {
       onRead: data => {
         const v = data.trim() === "1"
@@ -86,7 +133,7 @@ Scope {
       }
     }
   }
-  Timer { interval: 350; running: true; repeat: true; triggeredOnStart: true; onTriggered: { capsProc.running = true; numProc.running = true } }
+  Timer { interval: 3000; running: true; repeat: true; triggeredOnStart: true; onTriggered: { capsProc.running = true; numProc.running = true } }
 
   function showCaps(on) {
     // tint indicates state like volume/mic — no :On/Off text

@@ -17,6 +17,12 @@ Scope {
     property string query: ""
     property int selectedIndex: 0
     property bool visible: false
+    // Show exactly 8 rows per page; width follows original 640x480 aspect.
+    property int rowsVisible: 8
+    property real aspect: 4 / 3
+    readonly property int _rowH: _showFieldPicker ? 38 : _showActions ? 38 : 42
+    readonly property int _rowGap: 4
+    readonly property int listH: rowsVisible * _rowH + (rowsVisible - 1) * _rowGap
 
     property var _actionFieldsMap: null
     property bool _altHeld: false
@@ -350,9 +356,13 @@ Scope {
         _fieldIndex = 0
         query = ""
     }
+    function snapPage(list, idx) {
+        if (!list || idx < 0) return
+        try { list.positionViewAtIndex(Math.floor(idx / root.rowsVisible) * root.rowsVisible, ListView.Beginning) } catch (e) {}
+    }
     function pageMove(dir) {
         _markKeyboard()
-        let page = 8
+        let page = root.rowsVisible
         if (_showFieldPicker) {
             const n = filteredFields.length; if (n === 0) return
             let ni = _fieldIndex + dir * page; if (ni < 0) ni = 0; if (ni >= n) ni = n - 1; _fieldIndex = ni; return
@@ -362,9 +372,8 @@ Scope {
             let ni = actionIndex + dir * page; if (ni < 0) ni = 0; if (ni >= n) ni = n - 1; actionIndex = ni; return
         }
         const n = filtered.length; if (n === 0) return
-        try { const h = listView ? listView.height : 0; if (h > 0) page = Math.max(1, Math.floor(h / 42)) } catch (e) {}
         let ni = selectedIndex + dir * page; if (ni < 0) ni = 0; if (ni >= n) ni = n - 1; selectedIndex = ni
-        try { if (typeof listView !== "undefined" && listView) listView.positionViewAtIndex(ni, ListView.Contain) } catch (e) {}
+        try { if (typeof listView !== "undefined" && listView) snapPage(listView, ni) } catch (e) {}
     }
     function parseShowOutput(text) {
         const raw = String(text || "")
@@ -871,8 +880,8 @@ Scope {
 
                 Rectangle {
                     id: container
-                    width: 640
-                    height: 480
+                    height: mainCol.implicitHeight + 32
+                    width: Math.round(height * root.aspect)
                     anchors.centerIn: parent
                     radius: Theme.radiusLg
                     color: Theme.bg
@@ -918,6 +927,7 @@ Scope {
                     MouseArea { anchors.fill: parent; hoverEnabled: true; onPositionChanged: if (root._blockHover) root._blockHover = false; onClicked: {} }
 
                     ColumnLayout {
+                        id: mainCol
                         anchors.fill: parent
                         anchors.margins: 16
                         spacing: 12
@@ -1070,7 +1080,8 @@ Scope {
 
                         Item {
                             Layout.fillWidth: true
-                            Layout.fillHeight: true
+                            Layout.preferredHeight: root.listH + 12
+                            Layout.fillHeight: false
                             clip: true
 
                             Rectangle {
@@ -1093,7 +1104,7 @@ Scope {
                                     currentIndex: root.selectedIndex
                                     onCurrentIndexChanged: {
                                         root.selectedIndex = currentIndex
-                                        if (currentIndex >= 0) positionViewAtIndex(currentIndex, ListView.Contain)
+                                        if (currentIndex >= 0) root.snapPage(listView, currentIndex)
                                     }
                                     delegate: Rectangle {
                                         id: del
@@ -1161,7 +1172,7 @@ Scope {
                                 spacing: 4
                                 model: root.filteredActions
                                 currentIndex: root.actionIndex
-                                onCurrentIndexChanged: { root.actionIndex = currentIndex; if (currentIndex >= 0) positionViewAtIndex(currentIndex, ListView.Contain) }
+                                onCurrentIndexChanged: { root.actionIndex = currentIndex; if (currentIndex >= 0) root.snapPage(actionList, currentIndex) }
                                 delegate: Rectangle {
                                     id: ad
                                     required property var modelData
@@ -1220,7 +1231,7 @@ Scope {
                                 spacing: 4
                                 model: root.filteredFields
                                 currentIndex: root._fieldIndex
-                                onCurrentIndexChanged: { root._fieldIndex = currentIndex; if (currentIndex >= 0) positionViewAtIndex(currentIndex, ListView.Contain) }
+                                onCurrentIndexChanged: { root._fieldIndex = currentIndex; if (currentIndex >= 0) root.snapPage(fieldList, currentIndex) }
                                 delegate: Rectangle {
                                     id: fd
                                     required property var modelData

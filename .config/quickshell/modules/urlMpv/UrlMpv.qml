@@ -22,6 +22,12 @@ Scope {
   property var qualities: ["144p","240p","360p","480p","720p","1080p"]
   property bool _blockHover: false
   function _markKeyboard(){ _blockHover=true }
+  // Show exactly 6 rows per page; width follows original 640x460 aspect.
+  property int rowsVisible: 6
+  property real aspect: 4 / 3
+  readonly property int _rowH: 40
+  readonly property int _rowGap: 6
+  readonly property int listH: rowsVisible * _rowH + (rowsVisible - 1) * _rowGap
 
   readonly property string currentQuality: qualities[selectedIndex] ?? "720p"
   readonly property string heightVal: currentQuality.replace("p","")
@@ -60,8 +66,9 @@ Scope {
   }
   function goHome(){ _markKeyboard(); selectedIndex=0 }
   function goEnd(){ _markKeyboard(); selectedIndex=qualities.length-1 }
+  function snapPage(list, idx){ if(!list||idx<0) return; try{ list.positionViewAtIndex(Math.floor(idx / root.rowsVisible) * root.rowsVisible, ListView.Beginning) }catch(e){} }
   function pageMove(dir){
-    _markKeyboard(); const n=qualities.length; let page=6; try{ const h=qList? qList.height:0; if(h>0) page=Math.max(1, Math.floor(h/38))}catch(e){} let ni=selectedIndex+dir*page; if(ni<0) ni=0; if(ni>=n) ni=n-1; selectedIndex=ni
+    _markKeyboard(); const n=qualities.length; let page=root.rowsVisible; let ni=selectedIndex+dir*page; if(ni<0) ni=0; if(ni>=n) ni=n-1; selectedIndex=ni
   }
 
   LazyLoader {
@@ -104,8 +111,8 @@ Scope {
         }
         Component.onCompleted: if(root.visible) forceActiveFocus()
         Connections{ target: root; function onVisibleChanged(){ if(root.visible) container.forceActiveFocus() } }
-        width: 640
-        height: 460
+        height: mainCol.implicitHeight + 32
+        width: Math.round(height * root.aspect)
         anchors.centerIn: parent
         radius: Theme.radiusLg
         color: Theme.bg
@@ -116,6 +123,7 @@ Scope {
         MouseArea{ anchors.fill: parent; hoverEnabled:true; onPositionChanged: if(root._blockHover) root._blockHover=false; onClicked:{} }
 
         ColumnLayout {
+          id: mainCol
           anchors.fill: parent
           anchors.margins: 16
           spacing: 12
@@ -167,11 +175,11 @@ Scope {
           // ── Quality list ─────────────────────────────────────────
           ListView {
             id: qList
-            Layout.fillWidth:true; Layout.fillHeight:true; clip:true; spacing:6
+            Layout.fillWidth:true; Layout.preferredHeight: root.listH; Layout.fillHeight:false; clip:true; spacing:6
             boundsBehavior: Flickable.StopAtBounds
             model: root.qualities
             currentIndex: root.selectedIndex
-            onCurrentIndexChanged:{ root.selectedIndex=currentIndex; if(currentIndex>=0) positionViewAtIndex(currentIndex, ListView.Contain)}
+            onCurrentIndexChanged:{ root.selectedIndex=currentIndex; if(currentIndex>=0) root.snapPage(qList, currentIndex)}
             delegate: Rectangle {
               id: del; required property var modelData; required property int index
               width: qList.width; height:40; radius:Theme.radiusSm
