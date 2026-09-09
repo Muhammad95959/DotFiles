@@ -146,11 +146,12 @@ compdef _paru_all_packages paru
 
 ### Environment variables -------------------------------------------------
 
-export PATH="$HOME/.local/bin:$PATH"
-export MANPAGER='nvim +Man!'
-export TERMCMD=kitty
 export EDITOR=nvim
+export TERMCMD=kitty
+export MANPAGER='nvim +Man!'
 export BAT_THEME="tokyonight_moon"
+export ANDROID_HOME="$HOME/Android/Sdk"
+export PATH="$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin:$HOME/.local/bin:$PATH"
 export CLOUDFLARE_ACCOUNT_ID=$([ -f ~/.config/opencode/api_keys/cloudflare_account_id ] && cat ~/.config/opencode/api_keys/cloudflare_account_id)
 export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS \
   --ansi \
