@@ -81,7 +81,7 @@ hl.config({
     resize_on_border = false,
     allow_tearing    = false,
     col = {
-      active_border   = "rgba(C0CAF5EE)",
+      active_border   = "rgba(E1E2E7EE)",
       inactive_border = "rgba(595959EE)",
     },
   },
@@ -119,21 +119,34 @@ hl.config({
 
   group = {
     col = {
-      border_active   = "rgba(C0CAF5EE)",
-      border_inactive = "rgba(595959AA)",
+      border_active           = "rgba(E1E2E7EE)",
+      border_inactive         = "rgba(595959AA)",
+      border_locked_active    = "rgba(E1E2E7EE)",
+      border_locked_inactive  = "rgba(595959AA)",
     },
     groupbar = {
-      gradients         = true,
-      gradient_rounding = 4,
-      indicator_gap     = 1,
-      indicator_height  = 0,
-      font_size         = 10,
-      text_color        = "rgba(24273aff)",
+      enabled               = true,
+      render_titles         = true,
+      gradients             = true,
+      gradient_rounding     = 4,
+      rounding              = 4,
+      height                = 16,
+      indicator_height      = 0,
+      indicator_gap         = 0,
+      gaps_in               = 2,
+      gaps_out              = 4,
+      font_size             = 10,
+      font_weight_active    = "bold",
+      font_weight_inactive  = "normal",
+      text_color                  = "rgba(1A1B26FF)",
+      text_color_inactive         = "rgba(E1E2E7B3)",
+      text_color_locked_active    = "rgba(1A1B26B3)",
+      text_color_locked_inactive  = "rgba(7AA2F7B3)",
       col = {
-        active          = "rgba(C0CAF5EE)",
-        inactive        = "rgba(595959AA)",
-        locked_active   = "rgba(E9E9EAEE)",
-        locked_inactive = "rgba(595959AA)",
+        active          = "rgba(E1E2E7EE)",
+        inactive        = "rgba(24273ACC)",
+        locked_active   = "rgba(7AA2F7EE)",
+        locked_inactive = "rgba(24273ACC)",
       },
     },
   },
@@ -235,7 +248,6 @@ hl.window_rule({ match = { float = true }, animation = "fade" })
 
 hl.window_rule({ match = { class = "^arandr$" }, float = true })
 hl.window_rule({ match = { class = "^timeshift-gtk$" }, float = true })
-hl.window_rule({ match = { class = "^nl.hjdskes.gcolor3$" }, float = true })
 hl.window_rule({ match = { class = "^nl%.hjdskes%.gcolor3$" }, float = true })
 hl.window_rule({ match = { class = "^hyprland-share-picker$" }, float = true })
 hl.window_rule({ match = { class = "^thunar$", title = "^Rename.*$" }, float = true })
@@ -263,9 +275,7 @@ hl.window_rule({ match = { class = "^brave-translate.google.com.eg__-Default$" }
 hl.window_rule({ match = { class = "^chrome-translate.google.com.eg__-Default$" }, float = true, size = "740 960", opacity = 0.8 })
 
 -- Layer rules
-hl.layer_rule({ match = { namespace = "nwg-drawer" },   blur = true })
 hl.layer_rule({ match = { namespace = "logout_dialog" }, blur = true })
-hl.layer_rule({ match = { namespace = "waybar" },        blur = true })
 
 -------------------
 ---- FUNCTIONS ----
