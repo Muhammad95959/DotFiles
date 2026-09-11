@@ -34,9 +34,9 @@ Scope {
     { label: "Lock",        icon: "", hint: "K", key: Qt.Key_K, cmd: ["loginctl", "lock-session"] },
     { label: "Suspend",     icon: "󰒲", hint: "U", key: Qt.Key_U, cmd: ["systemctl", "suspend"] },
     { label: "Logout",      icon: "󰍃", hint: "L", key: Qt.Key_L, cmd: ["hyprctl", "dispatch", "hl.dsp.exit()"] },
-    { label: "Soft-Reboot", icon: "", hint: "S", key: Qt.Key_H, cmd: ["systemctl", "soft-reboot"] },
+    { label: "Soft-Reboot", icon: "", hint: "S", key: Qt.Key_S, cmd: ["systemctl", "soft-reboot"] },
     { label: "Reboot",      icon: "", hint: "R", key: Qt.Key_R, cmd: ["systemctl", "reboot"] },
-    { label: "Poweroff",    icon: "", hint: "P", key: Qt.Key_S, cmd: ["systemctl", "poweroff"] }
+    { label: "Poweroff",    icon: "", hint: "P", key: Qt.Key_P, cmd: ["systemctl", "poweroff"] }
   ]
 
   function move(dir) {
