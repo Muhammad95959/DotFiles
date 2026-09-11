@@ -354,18 +354,3 @@ function audiosep() {
   done
   notify-send -t 7500 "Audio Separation Completed"
 }
-
-### opencode wrapper - clean up bun cache ----------------------------------
-
-function opencode() {
-  (
-    sleep 5
-    if [ -d "$HOME/.bun" ]; then
-      non_pile=$(find "$HOME/.bun" -type f ! -name '*.pile' 2>/dev/null | wc -l)
-      if [ "$non_pile" -eq 0 ]; then
-        rm -rf "$HOME/.bun"
-      fi
-    fi
-  ) &!
-  /usr/bin/opencode "$@"
-}
