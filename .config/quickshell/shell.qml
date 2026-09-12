@@ -23,6 +23,7 @@ import "modules/systemd"
 import "modules/reload"
 import "modules/resize"
 import "modules/translate"
+import "modules/todo"
 import "modules/urlMpv"
 import "modules/virtManager"
 import "modules/wallpaper"
@@ -70,6 +71,9 @@ ShellRoot {
 
   // ── Translate ──────────────────────────────────────────────────────
   Translate {}
+
+  // ── Todo ───────────────────────────────────────────────────────────
+  Todo {}
 
   // ── Window Ops ─────────────────────────────────────────────────────
   Resize {}
