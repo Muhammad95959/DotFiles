@@ -8,7 +8,7 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
 fi
 
 # To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
-[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+[[ ! -f $ZDOTDIR/.p10k.zsh ]] || source $ZDOTDIR/.p10k.zsh
 
 # Change cursor shape for different vi modes.
 function zle-keymap-select {
@@ -44,7 +44,7 @@ source ~/.config/zsh/zsh-history-substring-search/zsh-history-substring-search.z
 source ~/.config/zsh/zsh-completions/zsh-completions.plugin.zsh
 source ~/.config/zsh/fzf-tab-completion/zsh/fzf-zsh-completion.sh
 source ~/.config/zsh/zsh-auto-notify/auto-notify.plugin.zsh
-source ~/.config/zsh/dircycle.plugin.zsh
+source ~/.config/zsh/_dircycle/dircycle.plugin.zsh
 
 ### VI mode ---------------------------------------------------------------
 
@@ -103,7 +103,7 @@ setopt HIST_IGNORE_ALL_DUPS
 setopt HIST_FIND_NO_DUPS
 setopt HIST_SAVE_NO_DUPS
 setopt INC_APPEND_HISTORY
-HISTFILE=~/.zhistory
+HISTFILE=$ZDOTDIR/.zhistory
 HISTSIZE=100000
 SAVEHIST=100000
 
@@ -225,8 +225,8 @@ alias quit='pkill -KILL -u $USER'
 alias softreboot='sudo systemctl soft-reboot'
 alias tree='eza --tree'
 alias cmatrix='unimatrix -n -s 96 -l o'
-alias zrefresh='source $HOME/.zshrc'
-alias zshrc='nvim $HOME/.zshrc'
+alias zrefresh='source $ZDOTDIR/.zshrc'
+alias zshrc='nvim $ZDOTDIR/.zshrc'
 alias pgcli='echo -ne "\e[2 q" && pgcli'
 alias litecli='echo -ne "\e[2 q" && litecli'
 alias musicremover='~/Scripts/video_music_remover.sh'
