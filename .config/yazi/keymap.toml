@@ -484,13 +484,13 @@ on   = [ "g", "h", "d" ]
 run  = "cd ~/Downloads"
 desc = "Cd to ~/Downloads"
 [[mgr.prepend_keymap]]
-on   = [ "g", "h", "f" ]
-run  = "cd ~/.fonts"
-desc = "Cd to ~/.fonts"
-[[mgr.prepend_keymap]]
 on   = [ "g", "h", "l" ]
 run  = "cd ~/.local/share"
 desc = "Cd to ~/.local/share"
+[[mgr.prepend_keymap]]
+on   = [ "g", "h", "f" ]
+run  = "cd ~/.local/share/fonts"
+desc = "Cd to ~/.local/share/fonts"
 [[mgr.prepend_keymap]]
 on   = [ "g", "h", "p" ]
 run  = "cd ~/Projects"

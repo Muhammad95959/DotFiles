@@ -36,15 +36,15 @@ preexec() { echo -ne '\e[5 q' ;} # Use beam shape cursor for each new prompt.
 
 ### Plugins ---------------------------------------------------------------
 
-source ~/.config/zsh/powerlevel10k/powerlevel9k.zsh-theme
-source ~/.config/zsh/zsh-vim-mode/zsh-vim-mode.plugin.zsh
-source ~/.config/zsh/zsh-autosuggestions/zsh-autosuggestions.zsh
-source ~/.config/zsh/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-source ~/.config/zsh/zsh-history-substring-search/zsh-history-substring-search.zsh
-source ~/.config/zsh/zsh-completions/zsh-completions.plugin.zsh
-source ~/.config/zsh/fzf-tab-completion/zsh/fzf-zsh-completion.sh
-source ~/.config/zsh/zsh-auto-notify/auto-notify.plugin.zsh
-source ~/.config/zsh/_dircycle/dircycle.plugin.zsh
+source $ZDOTDIR/plugins/powerlevel10k/powerlevel9k.zsh-theme
+source $ZDOTDIR/plugins/zsh-vim-mode/zsh-vim-mode.plugin.zsh
+source $ZDOTDIR/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+source $ZDOTDIR/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source $ZDOTDIR/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
+source $ZDOTDIR/plugins/zsh-completions/zsh-completions.plugin.zsh
+source $ZDOTDIR/plugins/fzf-tab-completion/zsh/fzf-zsh-completion.sh
+source $ZDOTDIR/plugins/zsh-auto-notify/auto-notify.plugin.zsh
+source $ZDOTDIR/plugins/_dircycle/dircycle.plugin.zsh
 
 ### VI mode ---------------------------------------------------------------
 
