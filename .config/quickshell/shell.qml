@@ -70,13 +70,13 @@ ShellRoot {
   UrlMpv {}
 
   // ── Translate ──────────────────────────────────────────────────────
-  Translate {}
+  Translate { qmenu: qmenu }
 
   // ── Todo ───────────────────────────────────────────────────────────
   Todo {}
 
   // ── Window Ops ─────────────────────────────────────────────────────
-  Resize {}
+  Resize { qmenu: qmenu }
   Corners {}
 
   // ── Brave ──────────────────────────────────────────────────────────
@@ -93,7 +93,7 @@ ShellRoot {
   LiveWall {}
 
   // ── Generic Qmenu  ─────────────────────────────────────────────────
-  Qmenu {}
+  Qmenu { id: qmenu }
 
   // ── Glyph Picker (emoji + nerd + unicode) ──────────────────────────
   GlyphPicker {}

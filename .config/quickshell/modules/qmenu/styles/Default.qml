@@ -7,9 +7,9 @@ import Quickshell.Wayland
 
 import "../../common"
 
-// Style1 — Centered 560×420 card (original Dmenu style)
+// Default — Centered 560×420 card (original Dmenu style)
 // Extracted from Dmenu.qml so multiple styles can coexist.
-// Used by Dmenu.qml controller via Loader/Variants.
+// Used by Qmenu.qml controller via Loader/Variants.
 PanelWindow {
   required property var modelData
   required property var qmenuRoot

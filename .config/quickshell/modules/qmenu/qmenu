@@ -1,29 +1,29 @@
 #!/usr/bin/env bash
 # qs qmenu — quickshell menu
-# Usage: echo -e "a\nb" | qmenu -p "Prompt:" [--style Style1]
+# Usage: echo -e "a\nb" | qmenu -p "Prompt:" [--style Default]
 # Reads stdin lines, shows quickshell qmenu, prints selected line to stdout.
 
 set -euo pipefail
 
 prompt=""
-style="Style1"
+style="Default"
 
 show_help() {
   cat <<'EOF'
 Usage: qmenu [OPTIONS]
   Reads lines from stdin, shows quickshell qmenu, prints selected line to stdout.
 
-  echo -e "a\nb\nc" | qmenu -p "Prompt:" --style Style1
+  echo -e "a\nb\nc" | qmenu -p "Prompt:" --style Default
   quickshell ipc call qmenu openWith '["a","b"]' "Prompt:"
 
 Options:
   -p <prompt>              Prompt/header title (default: empty)
-  --style, -s <name>       QML style to use (default: Style1) — corresponds to styles/<name>.qml
+  --style, -s <name>       QML style to use (default: Default) — corresponds to styles/<name>.qml
   -h, --help               Show this help and exit
 
 Examples:
   echo -e "Firefox\nKitty" | qmenu -p "Launch:"
-  echo -e "a\nb" | qmenu --style Style1 -p "Pick one"
+  echo -e "a\nb" | qmenu --style Oneliner -p "Pick one"
   printf "one\ntwo\n" | qmenu -p "Select:"
 
 IPC (quickshell):
@@ -32,7 +32,7 @@ IPC (quickshell):
   quickshell ipc call qmenu toggle
   quickshell ipc call qmenu setItems '["a","b"]'
   quickshell ipc call qmenu setPrompt "Hello"
-  quickshell ipc call qmenu setStyle "Style1"
+  quickshell ipc call qmenu setStyle "Default"
   quickshell ipc call qmenu openWith '["a","b"]' "Prompt:"
   quickshell ipc call qmenu getResult
   quickshell ipc call qmenu clearResult
@@ -52,7 +52,7 @@ while [[ $# -gt 0 ]]; do
       fi
       shift 2 ;;
     --style|-style|-s)
-      style="${2:-Style1}"; shift 2 ;;
+      style="${2:-Default}"; shift 2 ;;
     -*)
       echo "qmenu: unknown option: $1" >&2
       show_help >&2
@@ -98,9 +98,9 @@ if ! command -v quickshell >/dev/null 2>&1; then
   exit 1
 fi
 
-# Clear previous result and set style (Style1, Style2, etc.)
+# Clear previous result and set style (Default, Oneliner, etc.)
 quickshell ipc call qmenu clearResult >/dev/null 2>&1 || true
-# --style selects which QML style to show (styles/Style1.qml, Style2.qml...)
+# --style selects which QML style to show (styles/Default.qml, Oneliner.qml...)
 if [[ -n "$style" ]]; then
   style_enc=$(printf '%s' "$style" | jq -Rs .)
   quickshell ipc call qmenu setStyle "$style_enc" >/dev/null 2>&1 || quickshell ipc call qmenu setStyle "$style" >/dev/null 2>&1 || true

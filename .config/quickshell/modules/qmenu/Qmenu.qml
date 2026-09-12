@@ -8,7 +8,7 @@ import Quickshell.Io
 import "styles"
 
 // Generic vertical qmenu — replacement for `rofi -dmenu -p "Prompt"`
-// Controller owns state + IPC; UI delegated to styles/Style1.qml (and future Style2..)
+// Controller owns state + IPC; UI delegated to styles/Default.qml and styles/Oneliner.qml
 // Usage:
 //   quickshell ipc call qmenu open
 //   quickshell ipc call qmenu setItems '["a","b","c"]'
@@ -20,8 +20,8 @@ Scope {
   // result handling for qmenu binary (hyprminimizer) — polled via getResult
   property string _lastResult: ""
   property string _resultState: "idle" // idle | pending | ok | cancel
-  // style selection — change via `quickshell ipc call qmenu setStyle "Style2"` or `qmenu --style Style2`
-  property string currentStyle: "Style1"
+  // style selection — change via `quickshell ipc call qmenu setStyle "Oneliner"` or `qmenu --style Oneliner`
+  property string currentStyle: "Default"
   function toggle() { visible ? close() : open() }
   function open() { visible = true; query = ""; selectedIndex = 0; _resultState = "pending"; _lastResult = "" }
   function close() {
@@ -102,6 +102,17 @@ Scope {
     forceClose()
   }
 
+  // free-text submit — used by the Oneliner style when there are no items
+  // (or no match) and the query is non-empty; emits accepted(text, -1)
+  function submitFreeText() {
+    const t = String(query || "").trim()
+    if (t.length === 0) return
+    _lastResult = t
+    _resultState = "ok"
+    root.accepted(t, -1)
+    forceClose()
+  }
+
   // keyboard helpers
   function move(delta) { _markKeyboard(); const n=filtered.length; if(n===0) return; let ni=selectedIndex+delta; if(ni<0) ni=n-1; if(ni>=n) ni=0; selectedIndex=ni }
   function moveNoWrap(delta) { _markKeyboard(); const n=filtered.length; if(n===0) return; const ni=selectedIndex+delta; if(ni<0||ni>=n) return; selectedIndex=ni }
@@ -114,15 +125,26 @@ Scope {
   }
 
   // ── Style loader ───────────────────────────────────────────────────────
-  // Delegates UI to styles/Style1.qml (and future Style2). Keeps logic single-source.
-  // To add Style2: copy styles/Style1.qml → styles/Style2.qml and change `Style1` → `Style2` below,
-  // or make `currentStyle` dynamic via Loader (future).
+  // Delegates UI to styles/Default.qml and styles/Oneliner.qml. Keeps logic single-source.
+  // To add a style: copy styles/Default.qml → styles/<Name>.qml and add a
+  // LazyLoader block below gated on `root.currentStyle === "<Name>"`.
   LazyLoader {
-    active: root.visible
+    active: root.visible && root.currentStyle === "Default"
 
     Variants {
       model: Quickshell.screens
-      Style1 {
+      Default {
+        qmenuRoot: root
+      }
+    }
+  }
+
+  LazyLoader {
+    active: root.visible && root.currentStyle === "Oneliner"
+
+    Variants {
+      model: Quickshell.screens
+      Oneliner {
         qmenuRoot: root
       }
     }
@@ -140,11 +162,11 @@ Scope {
     function setPlaceholder(p: string): string { root.placeholder = p; return "ok" }
     function setStyle(s: string): string {
       try {
-        // handle JSON-encoded string "\"Style1\"" vs raw "Style1"
+        // handle JSON-encoded string "\"Default\"" vs raw "Default"
         let v = s
         try { const parsed = JSON.parse(s); if (typeof parsed === "string") v = parsed } catch(e) {}
-        // sanitize: only allow alphanumeric + underscore, fallback to Style1
-        if (!/^[A-Za-z0-9_]+$/.test(v)) v = "Style1"
+        // sanitize: only allow alphanumeric + underscore, fallback to Default
+        if (!/^[A-Za-z0-9_]+$/.test(v)) v = "Default"
         root.currentStyle = v; return "ok "+v
       } catch(e){ return "err "+e }
     }
