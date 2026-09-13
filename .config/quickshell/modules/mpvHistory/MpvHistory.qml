@@ -22,7 +22,6 @@ Scope {
   property var allEntries: []
   property bool _altHeld: false
   property bool _blockHover: false
-  // Show exactly 8 rows per page; width follows original 800x600 aspect.
   property int rowsVisible: 8
   property real aspect: 4 / 3
   readonly property int _rowH: 40
@@ -57,6 +56,20 @@ Scope {
   }
 
   function _markKeyboard() { _blockHover = true }
+  function pressAlt(event) { if ((event.modifiers & Qt.AltModifier) || event.key === Qt.Key_Alt) _altHeld = true }
+  function releaseAlt(event) {
+    if (event.key === Qt.Key_Alt) _altHeld = false
+    else _altHeld = Boolean(event.modifiers & Qt.AltModifier)
+  }
+  function trySourceFilter(event) {
+    if (!(event.modifiers & Qt.AltModifier)) return false
+    if (event.key === Qt.Key_F) sourceFilter = "File"
+    else if (event.key === Qt.Key_U) sourceFilter = "Url"
+    else if (event.key === Qt.Key_A) sourceFilter = "All"
+    else return false
+    event.accepted = true
+    return true
+  }
 
   onQueryChanged: selectedIndex = 0
   onSourceFilterChanged: selectedIndex = 0
@@ -143,21 +156,15 @@ Scope {
         LayoutMirroring.enabled: false
         focus: true
         Keys.onPressed: event => {
-          const hasAlt = (event.modifiers & Qt.AltModifier) || event.key === Qt.Key_Alt
-          if (hasAlt) root._altHeld = true
-          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_F) { root.sourceFilter = "File"; event.accepted = true; return }
-          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_U) { root.sourceFilter = "Url"; event.accepted = true; return }
-          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_A) { root.sourceFilter = "All"; event.accepted = true; return }
+          root.pressAlt(event)
+          if (root.trySourceFilter(event)) return
           const inSearch = searchField.activeFocus
           if (event.key === Qt.Key_Escape) { root.close(); event.accepted = true }
           else if (event.key === Qt.Key_Slash && !inSearch && !(event.modifiers & Qt.AltModifier)) { searchField.forceActiveFocus(); event.accepted = true }
           else if (event.key === Qt.Key_R && !inSearch && !(event.modifiers & Qt.AltModifier) && !(event.modifiers & Qt.ControlModifier)) { root.refresh(); event.accepted = true }
           if (event.key === Qt.Key_Alt) root._altHeld = true
         }
-        Keys.onReleased: event => {
-          if (event.key === Qt.Key_Alt) root._altHeld = false
-          else root._altHeld = Boolean(event.modifiers & Qt.AltModifier)
-        }
+        Keys.onReleased: event => root.releaseAlt(event)
         MouseArea { anchors.fill: parent; hoverEnabled: true; onPositionChanged: if(root._blockHover) root._blockHover=false; onClicked:{} }
 
         ColumnLayout {
@@ -197,11 +204,8 @@ Scope {
                 onTextChanged: root.query = text
                 onAccepted: root.activateAt(root.selectedIndex)
                 Keys.onPressed: event => {
-                  const hasAlt = (event.modifiers & Qt.AltModifier) || event.key === Qt.Key_Alt
-                  if (hasAlt) root._altHeld = true
-                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_F) { root.sourceFilter = "File"; event.accepted = true; return }
-                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_U) { root.sourceFilter = "Url"; event.accepted = true; return }
-                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_A) { root.sourceFilter = "All"; event.accepted = true; return }
+                  root.pressAlt(event)
+                  if (root.trySourceFilter(event)) return
                   if (event.key===Qt.Key_Escape){ if(text.length>0){ text=""; root.query=""; event.accepted=true } else { root.close(); event.accepted=true } }
                   else if (event.key===Qt.Key_Backtab){ root.move(-1); event.accepted=true}
                   else if (event.key===Qt.Key_Tab){ if (event.modifiers & Qt.ShiftModifier) root.move(-1); else root.move(1); event.accepted=true }
@@ -216,10 +220,7 @@ Scope {
                   else if (event.key===Qt.Key_Return||event.key===Qt.Key_Enter){ root.activateAt(root.selectedIndex); event.accepted=true}
                   if (event.key === Qt.Key_Alt) root._altHeld = true
                 }
-                Keys.onReleased: event => {
-                  if (event.key === Qt.Key_Alt) root._altHeld = false
-                  else root._altHeld = Boolean(event.modifiers & Qt.AltModifier)
-                }
+                Keys.onReleased: event => root.releaseAlt(event)
                 Text { anchors.left: parent.left; anchors.verticalCenter: parent.verticalCenter; visible: searchField.text===""; text:"Search video…"; color:Theme.fg; opacity:0.45; font.family:Theme.monoFont; font.pixelSize:14 }
               }
               Text { visible: searchField.text!==""; text:""; color:Theme.fg; opacity:0.55; font.family:Theme.nerdFont; font.pixelSize:12

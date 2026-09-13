@@ -17,7 +17,6 @@ Scope {
   function open() { visible = true }
   function close() { visible = false }
 
-  // ── Selection ──────────────────────────────────────────────────────
   property int selectedIndex: 0
   property int columns: 3
   property bool _blockHover: false
@@ -47,7 +46,7 @@ Scope {
     if (ni >= n) ni = 0
     selectedIndex = ni
   }
-  function moveHorizontal(dir) { _markKeyboard(); move(dir) } // wrapping for Tab
+  function moveHorizontal(dir) { _markKeyboard(); move(dir) }
   function moveHorizontalNoWrap(dir) {
     _markKeyboard()
     const n = actions.length; if (n === 0) return
@@ -82,7 +81,6 @@ Scope {
 
   onVisibleChanged: { if (visible) { selectedIndex = 0; _blockHover = true; uptimeProc.running = true } }
 
-  // ── Uptime ─────────────────────────────────────────────────────────
   property string uptimeText: "—"
   Process {
     id: uptimeProc
@@ -98,287 +96,277 @@ Scope {
     onTriggered: uptimeProc.running = true
   }
 
-  // ── Windows ────────────────────────────────────────────────────────
   LazyLoader {
     active: pmRoot.visible
 
     Variants {
-    model: Quickshell.screens
+      model: Quickshell.screens
 
-    PanelWindow {
-      required property var modelData
-      screen: modelData
-      visible: pmRoot.visible
-      color: "transparent"
-      exclusionMode: ExclusionMode.Ignore
-      WlrLayershell.layer: WlrLayer.Overlay
-      WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
-      anchors { top: true; bottom: true; left: true; right: true }
+      PanelWindow {
+        required property var modelData
+        screen: modelData
+        visible: pmRoot.visible
+        color: "transparent"
+        exclusionMode: ExclusionMode.Ignore
+        WlrLayershell.layer: WlrLayer.Overlay
+        WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+        anchors { top: true; bottom: true; left: true; right: true }
 
-      MouseArea { anchors.fill: parent; onClicked: pmRoot.close() }
-      Rectangle { anchors.fill: parent; color: Theme.dim }
+        MouseArea { anchors.fill: parent; onClicked: pmRoot.close() }
+        Rectangle { anchors.fill: parent; color: Theme.dim }
 
-// ── Centered container ──────────────────────────────────────
         Rectangle {
           id: box
           width: 640
           height: 400
           anchors.centerIn: parent
-        radius: Theme.radiusLg
-        color: Theme.bg
-        LayoutMirroring.enabled: false
-        border.color: Theme.border
-        border.width: 1
-        focus: true
+          radius: Theme.radiusLg
+          color: Theme.bg
+          LayoutMirroring.enabled: false
+          border.color: Theme.border
+          border.width: 1
+          focus: true
 
-        MouseArea { anchors.fill: parent; hoverEnabled: true; onPositionChanged: { if (pmRoot._blockHover) { pmRoot._blockHover = false } }
-                onClicked: {} }
+          MouseArea { anchors.fill: parent; hoverEnabled: true; onPositionChanged: { if (pmRoot._blockHover) { pmRoot._blockHover = false } }
+                  onClicked: {} }
 
-        Keys.onPressed: event => {
-          if (event.key === Qt.Key_Escape) { pmRoot.close(); event.accepted = true; return }
-          if (event.key === Qt.Key_Backtab) { pmRoot.moveHorizontal(-1); event.accepted = true; return }
-          if (event.key === Qt.Key_Tab) {
-            if (event.modifiers & Qt.ShiftModifier) pmRoot.moveHorizontal(-1)
-            else pmRoot.moveHorizontal(1)
-            event.accepted = true; return
-          }
-          if (event.key === Qt.Key_Left) { pmRoot.moveHorizontalNoWrap(-1); event.accepted = true; return }
-          if (event.key === Qt.Key_Right) { pmRoot.moveHorizontalNoWrap(1); event.accepted = true; return }
-          if (event.key === Qt.Key_Up) { pmRoot.moveVerticalNoWrap(-1); event.accepted = true; return }
-          if (event.key === Qt.Key_Down) { pmRoot.moveVerticalNoWrap(1); event.accepted = true; return }
-          if (event.key === Qt.Key_Home) { pmRoot.goHome(); event.accepted = true; return }
-          if (event.key === Qt.Key_End) { pmRoot.goEnd(); event.accepted = true; return }
-          if (event.key === Qt.Key_PageUp) { pmRoot.pageMove(-1); event.accepted = true; return }
-          if (event.key === Qt.Key_PageDown) { pmRoot.pageMove(1); event.accepted = true; return }
-          if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space) { pmRoot.activate(pmRoot.selectedIndex); event.accepted = true; return }
-          for (let i = 0; i < pmRoot.actions.length; i++) {
-            if (event.key === pmRoot.actions[i].key) { pmRoot.activate(i); event.accepted = true; return }
-          }
-          if (event.key >= Qt.Key_1 && event.key <= Qt.Key_6) {
-            const idx = event.key - Qt.Key_1
-            pmRoot.activate(idx); event.accepted = true
-          }
-        }
-
-        Component.onCompleted: if (pmRoot.visible) forceActiveFocus()
-        Connections {
-          target: pmRoot
-          function onVisibleChanged() { if (pmRoot.visible) box.forceActiveFocus() }
-        }
-
-        ColumnLayout {
-          anchors.fill: parent
-          anchors.margins: 18
-          spacing: 16
-
-          // ── Header ─────────────────────────────────────────────────
-          RowLayout {
-            Layout.fillWidth: true
-            spacing: 10
-
-            Rectangle {
-              width: 32; height: 32
-              radius: 8
-              color: Theme.surface
-              border.color: Theme.border
-              border.width: 1
-              Text {
-                anchors.centerIn: parent
-                text: ""
-                color: Theme.fg
-                font.family: Theme.nerdFont
-                font.pixelSize: 14
-              }
+          Keys.onPressed: event => {
+            if (event.key === Qt.Key_Escape) { pmRoot.close(); event.accepted = true; return }
+            if (event.key === Qt.Key_Backtab) { pmRoot.moveHorizontal(-1); event.accepted = true; return }
+            if (event.key === Qt.Key_Tab) {
+              if (event.modifiers & Qt.ShiftModifier) pmRoot.moveHorizontal(-1)
+              else pmRoot.moveHorizontal(1)
+              event.accepted = true; return
             }
-
-            ColumnLayout {
-              spacing: 2
-              Text {
-                text: "Power Menu"
-                color: Theme.fg
-                font.family: Theme.monoFont
-                font.pixelSize: 14
-                font.bold: true
-              }
-              Text {
-                text: "Select an action"
-                color: Theme.fg
-                opacity: 0.55
-                font.family: Theme.monoFont
-                font.pixelSize: 11
-              }
+            if (event.key === Qt.Key_Left) { pmRoot.moveHorizontalNoWrap(-1); event.accepted = true; return }
+            if (event.key === Qt.Key_Right) { pmRoot.moveHorizontalNoWrap(1); event.accepted = true; return }
+            if (event.key === Qt.Key_Up) { pmRoot.moveVerticalNoWrap(-1); event.accepted = true; return }
+            if (event.key === Qt.Key_Down) { pmRoot.moveVerticalNoWrap(1); event.accepted = true; return }
+            if (event.key === Qt.Key_Home) { pmRoot.goHome(); event.accepted = true; return }
+            if (event.key === Qt.Key_End) { pmRoot.goEnd(); event.accepted = true; return }
+            if (event.key === Qt.Key_PageUp) { pmRoot.pageMove(-1); event.accepted = true; return }
+            if (event.key === Qt.Key_PageDown) { pmRoot.pageMove(1); event.accepted = true; return }
+            if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter || event.key === Qt.Key_Space) { pmRoot.activate(pmRoot.selectedIndex); event.accepted = true; return }
+            for (let i = 0; i < pmRoot.actions.length; i++) {
+              if (event.key === pmRoot.actions[i].key) { pmRoot.activate(i); event.accepted = true; return }
             }
-
-            Item { Layout.fillWidth: true }
-
-            Rectangle {
-              width: 28; height: 28
-              radius: 14
-              color: Theme.surface
-              border.color: Theme.border
-              border.width: 1
-              Text {
-                anchors.centerIn: parent
-                text: ""
-                color: Theme.fg
-                opacity: 0.55
-                font.family: Theme.nerdFont
-                font.pixelSize: 11
-              }
-              MouseArea {
-                anchors.fill: parent
-                cursorShape: Qt.PointingHandCursor
-                onClicked: pmRoot.close()
-              }
+            if (event.key >= Qt.Key_1 && event.key <= Qt.Key_6) {
+              const idx = event.key - Qt.Key_1
+              pmRoot.activate(idx); event.accepted = true
             }
           }
 
-          Rectangle {
-            Layout.fillWidth: true
-            height: 1
-            color: Theme.border
-            opacity: 0.6
+          Component.onCompleted: if (pmRoot.visible) forceActiveFocus()
+          Connections {
+            target: pmRoot
+            function onVisibleChanged() { if (pmRoot.visible) box.forceActiveFocus() }
           }
 
-          // ── Grid - 3x2, fills remaining height ─────────────────────
-          GridLayout {
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            columns: 3
-            rowSpacing: 12
-            columnSpacing: 12
+          ColumnLayout {
+            anchors.fill: parent
+            anchors.margins: 18
+            spacing: 16
 
-            Repeater {
-              model: pmRoot.actions
+            RowLayout {
+              Layout.fillWidth: true
+              spacing: 10
 
               Rectangle {
-                id: btn
-                required property var modelData
-                required property int index
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                radius: Theme.radiusLg
-                color: pmRoot.selectedIndex === index ? Theme.surfaceHover : Theme.surface
-                border.color: pmRoot.selectedIndex === index ? Theme.fg : Theme.border
-                border.width: pmRoot.selectedIndex === index ? 1.4 : 1
-
-                Behavior on color { ColorAnimation { duration: 120 } }
-                Behavior on border.color { ColorAnimation { duration: 120 } }
-                scale: pmRoot.selectedIndex === index ? 1.02 : 1
-                Behavior on scale { NumberAnimation { duration: 120; easing.type: Easing.OutCubic } }
-
-                // subtle selected glow - uses fg, not green/blue accent
-                Rectangle {
-                  anchors.fill: parent
-                  radius: parent.radius
-                  color: "transparent"
-                  border.color: Theme.fg
-                  border.width: pmRoot.selectedIndex === btn.index ? 1 : 0
-                  opacity: 0.10
-                  visible: pmRoot.selectedIndex === btn.index
-                }
-
-                ColumnLayout {
+                width: 32; height: 32
+                radius: 8
+                color: Theme.surface
+                border.color: Theme.border
+                border.width: 1
+                Text {
                   anchors.centerIn: parent
-                  spacing: 10
+                  text: ""
+                  color: Theme.fg
+                  font.family: Theme.nerdFont
+                  font.pixelSize: 14
+                }
+              }
+
+              ColumnLayout {
+                spacing: 2
+                Text {
+                  text: "Power Menu"
+                  color: Theme.fg
+                  font.family: Theme.monoFont
+                  font.pixelSize: 14
+                  font.bold: true
+                }
+                Text {
+                  text: "Select an action"
+                  color: Theme.fg
+                  opacity: 0.55
+                  font.family: Theme.monoFont
+                  font.pixelSize: 11
+                }
+              }
+
+              Item { Layout.fillWidth: true }
+
+              Rectangle {
+                width: 28; height: 28
+                radius: 14
+                color: Theme.surface
+                border.color: Theme.border
+                border.width: 1
+                Text {
+                  anchors.centerIn: parent
+                  text: ""
+                  color: Theme.fg
+                  opacity: 0.55
+                  font.family: Theme.nerdFont
+                  font.pixelSize: 11
+                }
+                MouseArea {
+                  anchors.fill: parent
+                  cursorShape: Qt.PointingHandCursor
+                  onClicked: pmRoot.close()
+                }
+              }
+            }
+
+            Rectangle {
+              Layout.fillWidth: true
+              height: 1
+              color: Theme.border
+              opacity: 0.6
+            }
+
+            GridLayout {
+              Layout.fillWidth: true
+              Layout.fillHeight: true
+              columns: 3
+              rowSpacing: 12
+              columnSpacing: 12
+
+              Repeater {
+                model: pmRoot.actions
+
+                Rectangle {
+                  id: btn
+                  required property var modelData
+                  required property int index
+                  Layout.fillWidth: true
+                  Layout.fillHeight: true
+                  radius: Theme.radiusLg
+                  color: pmRoot.selectedIndex === index ? Theme.surfaceHover : Theme.surface
+                  border.color: pmRoot.selectedIndex === index ? Theme.fg : Theme.border
+                  border.width: pmRoot.selectedIndex === index ? 1.4 : 1
+
+                  Behavior on color { ColorAnimation { duration: 120 } }
+                  Behavior on border.color { ColorAnimation { duration: 120 } }
+                  scale: pmRoot.selectedIndex === index ? 1.02 : 1
+                  Behavior on scale { NumberAnimation { duration: 120; easing.type: Easing.OutCubic } }
 
                   Rectangle {
-                    Layout.alignment: Qt.AlignHCenter
-                    width: 56; height: 56
-                    radius: 16
-                    color: pmRoot.selectedIndex === btn.index ? Qt.alpha(Theme.fg, 0.08) : Theme.bg
-                    border.color: pmRoot.selectedIndex === btn.index ? Qt.alpha(Theme.fg, 0.33) : Theme.border
-                    border.width: 1
+                    anchors.fill: parent
+                    radius: parent.radius
+                    color: "transparent"
+                    border.color: Theme.fg
+                    border.width: pmRoot.selectedIndex === btn.index ? 1 : 0
+                    opacity: 0.10
+                    visible: pmRoot.selectedIndex === btn.index
+                  }
+
+                  ColumnLayout {
+                    anchors.centerIn: parent
+                    spacing: 10
+
+                    Rectangle {
+                      Layout.alignment: Qt.AlignHCenter
+                      width: 56; height: 56
+                      radius: 16
+                      color: pmRoot.selectedIndex === btn.index ? Qt.alpha(Theme.fg, 0.08) : Theme.bg
+                      border.color: pmRoot.selectedIndex === btn.index ? Qt.alpha(Theme.fg, 0.33) : Theme.border
+                      border.width: 1
+                      Text {
+                        anchors.centerIn: parent
+                        text: btn.modelData.icon
+                        color: Theme.fg
+                        font.family: Theme.nerdFont
+                        font.pixelSize: 26
+                      }
+                    }
+
                     Text {
-                      anchors.centerIn: parent
-                      text: btn.modelData.icon
+                      Layout.alignment: Qt.AlignHCenter
+                      text: btn.modelData.label
                       color: Theme.fg
-                      font.family: Theme.nerdFont
-                      font.pixelSize: 26
+                      font.family: Theme.monoFont
+                      font.pixelSize: 12
+                      font.bold: pmRoot.selectedIndex === btn.index
                     }
                   }
 
-                  Text {
-                    Layout.alignment: Qt.AlignHCenter
-                    text: btn.modelData.label
-                    color: Theme.fg
-                    font.family: Theme.monoFont
-                    font.pixelSize: 12
-                    font.bold: pmRoot.selectedIndex === btn.index
+                  Rectangle {
+                    width: 22; height: 18
+                    radius: 4
+                    color: pmRoot.selectedIndex === btn.index ? Theme.fg : Theme.surfaceHover
+                    border.color: pmRoot.selectedIndex === btn.index ? Theme.fg : Theme.border
+                    border.width: 1
+                    anchors.top: parent.top
+                    anchors.right: parent.right
+                    anchors.topMargin: 8
+                    anchors.rightMargin: 8
+                    Text {
+                      anchors.centerIn: parent
+                      text: btn.modelData.hint
+                      color: pmRoot.selectedIndex === btn.index ? Theme.bg : Theme.fg
+                      opacity: pmRoot.selectedIndex === btn.index ? 1 : 0.6
+                      font.family: Theme.monoFont
+                      font.pixelSize: 10
+                      font.bold: true
+                    }
                   }
-                }
 
-                // ── Hint badge at top-right (not overlapping label) ───────
-                Rectangle {
-                  width: 22; height: 18
-                  radius: 4
-                  color: pmRoot.selectedIndex === btn.index ? Theme.fg : Theme.surfaceHover
-                  border.color: pmRoot.selectedIndex === btn.index ? Theme.fg : Theme.border
-                  border.width: 1
-                  anchors.top: parent.top
-                  anchors.right: parent.right
-                  anchors.topMargin: 8
-                  anchors.rightMargin: 8
-                  Text {
-                    anchors.centerIn: parent
-                    text: btn.modelData.hint
-                    color: pmRoot.selectedIndex === btn.index ? Theme.bg : Theme.fg
-                    opacity: pmRoot.selectedIndex === btn.index ? 1 : 0.6
-                    font.family: Theme.monoFont
-                    font.pixelSize: 10
-                    font.bold: true
+                  MouseArea {
+                    anchors.fill: parent
+                    hoverEnabled: true
+                    cursorShape: Qt.PointingHandCursor
+                    onClicked: { if (pmRoot.selectedIndex === btn.index) pmRoot.activate(btn.index); else pmRoot.selectedIndex = btn.index }
                   }
-                }
-
-                MouseArea {
-                  anchors.fill: parent
-                  hoverEnabled: true
-                  cursorShape: Qt.PointingHandCursor
-                  onClicked: { if (pmRoot.selectedIndex === btn.index) pmRoot.activate(btn.index); else pmRoot.selectedIndex = btn.index }
                 }
               }
             }
-          }
 
-          // ── Footer divider ─────────────────────────────────────────
-          Rectangle {
-            Layout.fillWidth: true
-            height: 1
-            color: Theme.border
-            opacity: 0.6
-          }
-
-          // ── Footer / Uptime ────────────────────────────────────────
-          RowLayout {
-            Layout.fillWidth: true
-            Layout.alignment: Qt.AlignHCenter
-            spacing: 8
-
-            Item { Layout.fillWidth: true }
-
-            Text {
-              text: ""
-              color: Theme.fg
-              opacity: 0.55
-              font.family: Theme.nerdFont
-              font.pixelSize: 12
-            }
-            Text {
-              text: "Uptime: " + pmRoot.uptimeText
-              color: Theme.fg
-              opacity: 0.75
-              font.family: Theme.monoFont
-              font.pixelSize: 11
+            Rectangle {
+              Layout.fillWidth: true
+              height: 1
+              color: Theme.border
+              opacity: 0.6
             }
 
-            Item { Layout.fillWidth: true }
+            RowLayout {
+              Layout.fillWidth: true
+              Layout.alignment: Qt.AlignHCenter
+              spacing: 8
+
+              Item { Layout.fillWidth: true }
+
+              Text {
+                text: ""
+                color: Theme.fg
+                opacity: 0.55
+                font.family: Theme.nerdFont
+                font.pixelSize: 12
+              }
+              Text {
+                text: "Uptime: " + pmRoot.uptimeText
+                color: Theme.fg
+                opacity: 0.75
+                font.family: Theme.monoFont
+                font.pixelSize: 11
+              }
+
+              Item { Layout.fillWidth: true }
+            }
           }
         }
       }
     }
-  }
-
-  // ── IPC ────────────────────────────────────────────────────────────
   }
 
   IpcHandler {

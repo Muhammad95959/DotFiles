@@ -230,7 +230,7 @@ Scope {
   Process {
     id: decodeImagesProc
     running: false
-    command: ["sh", "-c", "for entry in " + clipRoot._decodeBatch.map(s => "'" + s.replace(/'/g, "'\\''") + "'").join(" ") + "; do id=\"${entry%%:*}\"; path=\"${entry#*:}\"; [ -f \"$path\" ] && continue; if cliphist decode \"$id\" > \"$path\" 2>/dev/null; then echo \"READY:$path\"; else rm -f \"$path\"; fi; done; echo done"]
+    command: ["sh", "-c", "for entry in " + clipRoot._decodeBatch.map(s => clipRoot.shQuote(s)).join(" ") + "; do id=\"${entry%%:*}\"; path=\"${entry#*:}\"; [ -f \"$path\" ] && continue; if cliphist decode \"$id\" > \"$path\" 2>/dev/null; then echo \"READY:$path\"; else rm -f \"$path\"; fi; done; echo done"]
     stdout: SplitParser { onRead: d => {
       const s = String(d || "")
       if (s.startsWith("READY:")) clipRoot._pendingDecoded.push(s.slice(6).trim())
@@ -360,12 +360,12 @@ Scope {
         required property var modelData
         screen: modelData
         visible: clipRoot.visible
-      color: "transparent"
-      exclusionMode: ExclusionMode.Ignore
-      WlrLayershell.namespace: "quickshell-clipboard"
-      WlrLayershell.layer: WlrLayer.Overlay
-      WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
-      anchors { top:true; bottom:true; left:true; right:true }
+        color: "transparent"
+        exclusionMode: ExclusionMode.Ignore
+        WlrLayershell.namespace: "quickshell-clipboard"
+        WlrLayershell.layer: WlrLayer.Overlay
+        WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+        anchors { top:true; bottom:true; left:true; right:true }
 
       MouseArea { anchors.fill: parent; onClicked: clipRoot.close() }
       Rectangle { anchors.fill: parent; color: Theme.dim }

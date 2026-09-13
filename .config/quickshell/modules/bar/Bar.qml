@@ -14,20 +14,16 @@ import "../common"
 Scope {
   id: barScope
 
-  // ── Signals ────────────────────────────────────────────────────────
   signal launcherRequested()
   signal powermenuRequested()
 
-  // ── Theme (global) ─────────────────────────────────────────────────
   readonly property color bg: Theme.bg
   readonly property color fg: Theme.fg
   readonly property color urgent: Theme.urgent
 
-  // ── Fonts ──────────────────────────────────────────────────────────
   readonly property string nerdFont: Theme.nerdFont
   readonly property string monoFont: Theme.monoFont
 
-  // ── Audio Binding ──────────────────────────────────────────────────
   PwObjectTracker {
     objects: [ Pipewire.defaultAudioSink, Pipewire.defaultAudioSource ]
   }
@@ -45,11 +41,9 @@ Scope {
       exclusiveZone: bar.barExclusiveZone
       color: "transparent"
 
-      // ── Bar Geometry ──────────────────────────────────────────────
       property int barHeight: 24
       property int barExclusiveZone: 24
 
-      // ── Spacing (bar-only, not shared) ─────────────────────────────
       property int pLauncherLeft: 8
       property int mLauncherRight: 8
       property int mWorkspacesOuterPad: 8
@@ -77,7 +71,6 @@ Scope {
       property int mPowermenuLeft: 5
       property int pPowermenuRight: 8
 
-      // ── Font Sizes ─────────────────────────────────────────────────
       property int fontSizeText: 12
       property int fontSizeLauncherIcon: 14
       property int fontSizeWorkspaceIcon: 12
@@ -87,7 +80,6 @@ Scope {
       property int fontSizeNetworkIcon: 13
       property int trayIconSize: 14
 
-      // ── Right-side vertical offsets ────────────────────────────────
       property real bandwidthIconVerticalOffset: 0
       property real bandwidthTextVerticalOffset: 0
       property real languageIconVerticalOffset: 0
@@ -102,32 +94,27 @@ Scope {
       property real networkIconVerticalOffset: 0.5
       property real networkTextVerticalOffset: 0
 
-      // ── Intervals ──────────────────────────────────────────────────
       property int bandwidthIntervalMs: 1000
       property int cpuIntervalMs: 2000
       property int networkIntervalMs: 10000
       property int bilalIntervalMs: 30000
       property int bilalNotifyDurationMs: 30000
 
-      // ── Commands ───────────────────────────────────────────────────
       property var screenshotCmd: ["flameshot", "gui"]
       property var systemMonitorCmd: ["kitty", "-e", "--hold", "btm"]
       property var nmtuiCmd: ["kitty", "-e", "--hold", "nmtui"]
       property string bilalScriptPath: "~/Scripts/bilal.sh"
 
-      // ── Window Title ───────────────────────────────────────────────
       property int windowTitleMaxWidth: 260
       property var windowTitleRewrites: ({
         "brave-hnpfjngllnobngcgfapefoaidbinmjnm-Default": "whatsapp-web",
         "brave-translate.google.com.eg__-Default": "brave-translate"
       })
 
-      // ── Workspaces ─────────────────────────────────────────────────
       property var workspacePersistentIds: [1,2,3,4,5,6,7,8,9]
       property int workspaceUrgentWidth: 40
       property int workspaceUrgentRadius: 4
 
-      // ── Runtime State ──────────────────────────────────────────────
       property string submapName: ""
       property string kbLayout: ""
       property bool kbLayoutReady: false
@@ -138,7 +125,6 @@ Scope {
         color: barScope.bg
       }
 
-      // ── Submap & Layout ────────────────────────────────────────────
       Connections {
         target: Hyprland
         function onRawEvent(event) {
@@ -163,6 +149,20 @@ Scope {
         if (m.includes("arabic")) return "AR"
         return full.slice(0,2).toUpperCase()
       }
+      function bwHead(v) {
+        if (!/[1-9]/.test(v)) return ""
+        let n = 0
+        while (n < v.length && v[n] === "0") n++
+        if (v[n] === ".") n--
+        return v.slice(0, n)
+      }
+      function bwTail(v) {
+        if (!/[1-9]/.test(v)) return v
+        let n = 0
+        while (n < v.length && v[n] === "0") n++
+        if (v[n] === ".") n--
+        return v.slice(n)
+      }
 
       Process {
         command: ["sh", "-c", "hyprctl -j devices | python3 -c \"import json,sys; d=json.load(sys.stdin); k=[k for k in d.get('keyboards',[]) if k.get('name')=='kanata'] ; layout=(k[0].get('layout','') if k else '').split(','); idx=k[0].get('active_layout_index',0) if k else 0; print(layout[idx] if idx < len(layout) and layout[idx] else k[0].get('active_keymap','') if k else '')\""]
@@ -170,7 +170,6 @@ Scope {
         stdout: SplitParser { onRead: function(data) { let v=data.trim().toLowerCase(); if (v === "us") v = "EN"; else if (v === "eg") v = "AR"; else if (v.length > 3) v = bar.shortForLayout(v); else v = v.toUpperCase(); bar.kbLayout = v; bar.kbLayoutReady = true } }
       }
 
-      // ── Bandwidth ──────────────────────────────────────────────────
       property string bwValue: "000.0"
       property string bwUnit: "KB"
       property double _prevRx: -1
@@ -204,7 +203,6 @@ Scope {
         }
       }
 
-      // ── CPU ────────────────────────────────────────────────────────
       property int cpuUsage: 0
       property double _prevIdle: -1
       property double _prevTotal: -1
@@ -228,10 +226,7 @@ Scope {
         }
       }
 
-      // ── Network ────────────────────────────────────────────────────
       property int wifiSignal: -1
-      property string wifiEssid: ""
-      property bool wifiConnected: false
       property string _netAccum: ""
       Timer { interval: bar.networkIntervalMs; running: true; repeat: true; triggeredOnStart: true; onTriggered: { bar._netAccum = ""; netProc.running = true } }
       Process {
@@ -247,24 +242,14 @@ Scope {
               const sigStr = parts[0].trim().split("\n").filter(x=>x!=="")[0] || "-1"
               const sig = parseInt(sigStr)
               bar.wifiSignal = isNaN(sig) ? -1 : sig
-              const wifiLine = (parts[1] || "").trim().split("\n").filter(x=>x!=="")[0] || ""
-              if (wifiLine.startsWith("*")) {
-                const segs = wifiLine.split(":")
-                bar.wifiEssid = segs[1] || ""
-                bar.wifiConnected = true
-              } else {
-                bar.wifiEssid = ""; bar.wifiConnected = false
-              }
               const state = (parts[2] || "").trim().split("\n")[0] || ""
-              bar.wifiConnected = state === "connected" && bar.wifiSignal >= 0
-              if (!bar.wifiConnected && state !== "connected") bar.wifiSignal = -1
+              if (state !== "connected") bar.wifiSignal = -1
               bar._netAccum = ""
             }
           }
         }
       }
 
-      // ── Bilal ──────────────────────────────────────────────────────
       property string bilalText: ""
       Timer { interval: bar.bilalIntervalMs; running: true; repeat: true; triggeredOnStart: true; onTriggered: bilalProc.running = true }
       Process {
@@ -277,24 +262,20 @@ Scope {
         command: ["sh", "-c", "notify-send -t " + bar.bilalNotifyDurationMs + " \"$(" + bar.bilalScriptPath + " -a 2>/dev/null)\""]
       }
 
-      // ── Clock ──────────────────────────────────────────────────────
       property bool clockAlt: false
       SystemClock {
         id: sysClock
         precision: SystemClock.Seconds
       }
 
-      // ── Layout ─────────────────────────────────────────────────────
       Item {
         anchors.fill: parent
 
-        // LEFT
         Row {
           spacing: 0
           anchors.left: parent.left
           anchors.verticalCenter: parent.verticalCenter
 
-          // Launcher
           Row {
             spacing: 0
             anchors.verticalCenter: parent.verticalCenter
@@ -503,7 +484,6 @@ Scope {
             }
           }
 
-          // CENTER
           Row {
             spacing: 0
             anchors.horizontalCenter: parent.horizontalCenter
@@ -579,7 +559,6 @@ Scope {
             }
           }
 
-          // RIGHT
           Row {
             spacing: 0
             anchors.right: parent.right
@@ -614,14 +593,7 @@ Scope {
                       spacing: 0
                       anchors.verticalCenter: parent.verticalCenter
                       Text {
-                        text: {
-                          const v = bar.bwValue
-                          if (!/[1-9]/.test(v)) return ""
-                          let n = 0
-                          while (n < v.length && v[n] === "0") n++
-                          if (v[n] === ".") n--
-                          return v.slice(0, n)
-                        }
+                        text: bar.bwHead(bar.bwValue)
                         color: barScope.fg
                         opacity: 0.2
                         font.family: barScope.monoFont
@@ -629,14 +601,7 @@ Scope {
                         font.bold: true
                       }
                       Text {
-                        text: {
-                          const v = bar.bwValue
-                          if (!/[1-9]/.test(v)) return v
-                          let n = 0
-                          while (n < v.length && v[n] === "0") n++
-                          if (v[n] === ".") n--
-                          return v.slice(n)
-                        }
+                        text: bar.bwTail(bar.bwValue)
                         color: barScope.fg
                         opacity: 0.7
                         font.family: barScope.monoFont
@@ -713,13 +678,14 @@ Scope {
                   id: cpuRow
                   anchors.centerIn: parent
                   spacing: bar.pCpuIconGap
-                  Text { text: ""
-                  color: barScope.fg
-                  font.family: barScope.nerdFont
-                  font.pixelSize: bar.fontSizeCpuIcon
-                  anchors.verticalCenter: parent.verticalCenter
-                  anchors.verticalCenterOffset: bar.cpuIconVerticalOffset
-                }
+                  Text {
+                    text: ""
+                    color: barScope.fg
+                    font.family: barScope.nerdFont
+                    font.pixelSize: bar.fontSizeCpuIcon
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.verticalCenterOffset: bar.cpuIconVerticalOffset
+                  }
                 Text {
                   text: (bar.cpuUsage < 10 ? "0" : "") + bar.cpuUsage + "%"
                   color: barScope.fg
@@ -848,9 +814,7 @@ Scope {
                       let ic = ""
                       const p = batRect.pct
                       if (p < 10) ic = ""
-                      else if (p < 25) ic = ""
                       else if (p < 40) ic = ""
-                      else if (p < 55) ic = ""
                       else if (p < 70) ic = ""
                       else if (p < 85) ic = ""
                       else ic = ""

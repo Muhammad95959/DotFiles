@@ -6,7 +6,6 @@ import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Wayland
-import Quickshell.Widgets
 
 import "."
 import "../common"
@@ -19,7 +18,6 @@ Scope {
   function open() { visible = true }
   function close() { visible = false; query = ""; selectedCategory = "All"; selectedIndex = 0 }
 
-  // ── Search / category ─────────────────────────────────────────────
   property string query: ""
   property string selectedCategory: "All"
   property int selectedIndex: 0
@@ -30,18 +28,10 @@ Scope {
   function _markKeyboard() { _blockHover = true }
   property string wallpapersPaths: Quickshell.env("HOME") + "/Backgrounds"
   property var allWallpapers: []
-  property string thumbCacheDir: Quickshell.env("HOME") + "/.cache/quickshell/wallpaper-thumbs"
 
+  // encode segments for #, unicode, spaces
   function fileUrl(path) {
-    // encode each segment to handle #, unicode, spaces
     return "file://" + path.split("/").map(c => c === "" ? "" : encodeURIComponent(c)).join("/")
-  }
-
-  function thumbUrl(path) {
-    // use cached thumb if exists, else fallback to fileUrl with sourceSize downscale
-    // disk cache key: simple hash via filename + mtime not needed; use fileUrl for now
-    // Qt will cache downscaled via sourceSize
-    return fileUrl(path)
   }
 
   readonly property var categories: [
@@ -52,7 +42,7 @@ Scope {
     { key: "Catppuccin",         label: "Catppuccin" }
   ]
 
-  // ── Dynamic Alt accelerators: first unique char, else next unique char ──
+  // first unique alnum char per label drives Alt+key
   readonly property var categoryAccelerators: {
     const used = {}
     const out = {}
@@ -98,12 +88,9 @@ Scope {
   }
 
   function categoryOf(path) {
-    // path like /home/.../Backgrounds/Arch/arch1.jpg -> Arch
-    // root files have category Root
     const base = wallpapersPaths
     let rel = path
     if (rel.startsWith(base)) rel = rel.substring(base.length)
-    // rel = /arch1.jpg or /Arch/arch1.jpg
     rel = rel.replace(/^\/+/, "")
     const parts = rel.split("/")
     if (parts.length === 1) return "Root"
@@ -149,15 +136,9 @@ Scope {
     close()
   }
 
-  // ── Scan wallpapers ───────────────────────────────────────────────
   property string _scanAccum: ""
 
-  function ensureThumbCache() {
-    Quickshell.execDetached(["sh", "-c", "mkdir -p \"" + thumbCacheDir + "\""])
-  }
-
   function refreshWallpapers() {
-    ensureThumbCache()
     _scanAccum = ""; allWallpapers = []; scanProc.running = true
   }
 
@@ -174,7 +155,6 @@ Scope {
       const uniq = [...new Set(raw)]
       uniq.sort()
       wallpaperRoot.allWallpapers = uniq
-      // preselect startup wallpaper (not transient random)
       try {
         const cur = WallpaperManager.startupPath
         if (cur && cur.length > 0) {
@@ -198,7 +178,6 @@ Scope {
     }
   }
 
-  // ── Row-major helpers: Tab cycles, arrows do not ─────────────────
   function moveSelection(delta) {
     _markKeyboard()
     const n = filteredWallpapers.length; if (n === 0) return
@@ -213,15 +192,6 @@ Scope {
     const rowStart = row * cols; const rowEnd = Math.min(rowStart + cols, n) - 1
     let nc = col + dir; if (nc < 0 || rowStart + nc > rowEnd) return
     selectedIndex = rowStart + nc
-  }
-  function moveVertical(dir) {
-    _markKeyboard()
-    const n = filteredWallpapers.length; if (n === 0) return
-    const cols = columns; const col = selectedIndex % cols; const row = Math.floor(selectedIndex / cols); const rows = Math.ceil(n / cols)
-    let nr = row + dir; if (nr < 0) nr = rows - 1; if (nr >= rows) nr = 0
-    let ni = nr * cols + col
-    if (ni >= n) { for (let r = rows - 1; r >= 0; r--) { const cand = r * cols + col; if (cand < n) { ni = cand; break } } }
-    selectedIndex = ni
   }
   function moveVerticalNoWrap(dir) {
     _markKeyboard()
@@ -243,15 +213,13 @@ Scope {
     selectedIndex = ni
   }
 
-  // ── Window ─────────────────────────────────────────────────────────
   LazyLoader {
     active: wallpaperRoot.visible
 
     Variants {
-    model: Quickshell.screens
-    PanelWindow {
-      id: win
-      required property var modelData
+      model: Quickshell.screens
+      PanelWindow {
+        required property var modelData
       screen: modelData
       visible: wallpaperRoot.visible
       color: "transparent"
@@ -263,7 +231,6 @@ Scope {
       MouseArea { anchors.fill: parent; onClicked: wallpaperRoot.close() }
       Rectangle { anchors.fill: parent; color: Theme.dim }
 
-      // ── Centered 1280x720 ────────────────────────────────────────
       Rectangle {
         id: container
         width: 1280
@@ -282,21 +249,22 @@ Scope {
           if (event.key === Qt.Key_Escape) { wallpaperRoot.close(); event.accepted = true }
           else if (event.key === Qt.Key_Slash && !inSearch && !(event.modifiers & Qt.AltModifier)) { searchField.forceActiveFocus(); event.accepted = true }
           else if (event.key === Qt.Key_R && !inSearch && !(event.modifiers & Qt.AltModifier) && !(event.modifiers & Qt.ControlModifier)) { wallpaperRoot.refreshWallpapers(); event.accepted = true }
-          if (event.key === Qt.Key_Alt) wallpaperRoot._altHeld = true
         }
         Keys.onReleased: event => {
           if (event.key === Qt.Key_Alt) wallpaperRoot._altHeld = false
           else wallpaperRoot._altHeld = Boolean(event.modifiers & Qt.AltModifier)
         }
-        MouseArea { anchors.fill: parent; hoverEnabled: true; onPositionChanged: { if (wallpaperRoot._blockHover) { wallpaperRoot._blockHover = false } }
-                onClicked: {} }
+        MouseArea {
+          anchors.fill: parent; hoverEnabled: true
+          onPositionChanged: { if (wallpaperRoot._blockHover) { wallpaperRoot._blockHover = false } }
+          onClicked: {}
+        }
 
         ColumnLayout {
           anchors.fill: parent
           anchors.margins: 16
           spacing: 12
 
-          // ── Header ─────────────────────────────────────────────────
           RowLayout {
             Layout.fillWidth: true
             Layout.preferredHeight: 32
@@ -324,7 +292,6 @@ Scope {
             }
           }
 
-          // ── Search ─────────────────────────────────────────────────
           Rectangle {
             Layout.fillWidth: true; height: 42; radius: Theme.radiusMd; color: Theme.surface; border.color: searchField.activeFocus ? Qt.alpha(Theme.fg, 0.40) : Theme.border; border.width: 1
             RowLayout {
@@ -355,7 +322,6 @@ Scope {
                   else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                     if (wallpaperRoot.filteredWallpapers.length > 0) wallpaperRoot.setWallpaper(wallpaperRoot.filteredWallpapers[wallpaperRoot.selectedIndex]); event.accepted = true
                   }
-                  if (event.key === Qt.Key_Alt) wallpaperRoot._altHeld = true
                 }
                 Keys.onReleased: event => {
                   if (event.key === Qt.Key_Alt) wallpaperRoot._altHeld = false
@@ -373,11 +339,10 @@ Scope {
             }
           }
 
-          // ── Categories ─────────────────────────────────────────────
           Flickable {
             id: catFlick
             Layout.fillWidth: true; height: 32; contentWidth: catRow.width; contentHeight: 32; clip: true
-        LayoutMirroring.enabled: false
+            LayoutMirroring.enabled: false
             flickableDirection: Flickable.HorizontalFlick; boundsBehavior: Flickable.StopAtBounds
             RowLayout {
               id: catRow; height: 32; spacing: 8
@@ -407,7 +372,6 @@ Scope {
             Layout.preferredHeight: 6
             clip: false
             Rectangle {
-              id: sepLine
               anchors.left: parent.left
               anchors.right: parent.right
               anchors.verticalCenter: parent.verticalCenter
@@ -455,7 +419,6 @@ Scope {
             }
           }
 
-          // ── Grid ───────────────────────────────────────────────────
           Item {
             Layout.fillWidth: true; Layout.preferredHeight: wallpaperRoot.visibleRows * grid.cellHeight; clip: true
             GridView {
@@ -466,7 +429,7 @@ Scope {
               width: Math.min(parent.width, wallpaperRoot.columns * cellWidth)
               clip: true
               cellWidth: 308; cellHeight: 176
-            cacheBuffer: 200
+              cacheBuffer: 200
             model: wallpaperRoot.filteredWallpapers
             currentIndex: wallpaperRoot.selectedIndex
             function snapPage(idx) { if (idx < 0) return; const size = wallpaperRoot.pageRows() * wallpaperRoot.columns; positionViewAtIndex(Math.floor(idx / size) * size, GridView.Beginning) }
@@ -503,12 +466,10 @@ Scope {
               radius: Theme.radiusMd
               color: wallpaperRoot.selectedIndex === index ? Theme.surfaceHover : Theme.surface
               border.color: wallpaperRoot.selectedIndex === index ? Qt.alpha(Theme.fg, 0.33) : Theme.border
-              border.width: wallpaperRoot.selectedIndex === index ? 1 : 1
+              border.width: 1
               clip: true
 
-              // thumbnail - cached, downscaled, encoded for #/unicode
               Image {
-                id: thumb
                 anchors.fill: parent
                 anchors.margins: 4
                 source: wallpaperRoot.fileUrl(del.modelData)
@@ -521,18 +482,9 @@ Scope {
                 sourceSize.height: 280
               }
 
-              // dim overlay
-              Rectangle {
-                anchors.fill: parent; radius: parent.radius
-                color: "#00000000"
-                border.color: "transparent"
-              }
-
-              // label bar at bottom - bottom corners rounded to match card
               Rectangle {
                 anchors.left: parent.left; anchors.right: parent.right; anchors.bottom: parent.bottom
                 height: 26
-                // bottom only rounded, matches delegate Theme.radiusMd
                 radius: Theme.radiusMd
                 topLeftRadius: 0
                 topRightRadius: 0
@@ -550,7 +502,6 @@ Scope {
                 }
               }
 
-              // selected check
               Rectangle {
                 visible: wallpaperRoot.selectedIndex === del.index
                 width: 22; height: 22; radius: 11
@@ -577,10 +528,8 @@ Scope {
         Component.onCompleted: if (wallpaperRoot.visible) searchField.forceActiveFocus()
         Connections { target: wallpaperRoot; function onVisibleChanged() { if (wallpaperRoot.visible) { searchField.text = ""; wallpaperRoot.query = ""; searchField.forceActiveFocus(); wallpaperRoot.refreshWallpapers() } } }
       }
+      }
     }
-  }
-
-  // ── IPC ────────────────────────────────────────────────────────────
   }
 
   IpcHandler {

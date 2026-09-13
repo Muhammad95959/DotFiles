@@ -2,7 +2,6 @@ pragma ComponentBehavior: Bound
 import QtQuick
 
 import Quickshell
-import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Services.Pipewire
 import Quickshell.Wayland
@@ -20,11 +19,10 @@ Scope {
   property bool hasProgress: true
   property int duration: 1400
   property string iconKey: ""
-  property bool mutedTint: false // for volume muted tint
+  property bool mutedTint: false
 
   PwObjectTracker { objects: [ Pipewire.defaultAudioSink, Pipewire.defaultAudioSource ] }
 
-  // ── Icon resolution with steps ─────────────────────────────────────
   function iconFor(name, percent) {
     const n = String(name || "").toLowerCase()
     if (n === "volume-muted" || n === "muted" || n === "mute") return ""
@@ -53,10 +51,7 @@ Scope {
     return ""
   }
 
-  // ── capslock / numlock monitor ─────────────────────────────────────
-  // Instant path: lockkeys.py blocks on keyboard evdev devices and reports
-  // lock-key presses the moment they happen. The sysfs poll below is only a
-  // slow fallback for drift (missed events, hotplug, external changes).
+  // lockkeys.py reports instantly; the sysfs poll below is only a fallback
   property bool capsOn: false
   property bool numOn: false
   property bool _capsInit: false
@@ -95,7 +90,7 @@ Scope {
     stderr: SplitParser {
       onRead: data => console.warn("lockkeys:", String(data || "").trim())
     }
-    onExited: (exitCode, exitStatus) => {
+    onExited: exitCode => {
       console.warn("lockkeys: daemon exited code=" + exitCode + " — retrying (in input group? check `groups | grep input`)")
       lockRestartTimer.restart()
     }
@@ -135,18 +130,13 @@ Scope {
   }
   Timer { interval: 3000; running: true; repeat: true; triggeredOnStart: true; onTriggered: { capsProc.running = true; numProc.running = true } }
 
-  function showCaps(on) {
-    // tint indicates state like volume/mic — no :On/Off text
-    show(on ? "caps-on" : "caps-off", "Caps Lock", "", "", "", "1300")
-    // override tint to show active vs inactive
+  function showLock(on, onIcon, offIcon, label) {
+    show(on ? onIcon : offIcon, label, "", "", "", "1300")
     mutedTint = !on
   }
-  function showNum(on) {
-    show(on ? "num-on" : "num-off", "Num Lock", "", "", "", "1300")
-    mutedTint = !on
-  }
+  function showCaps(on) { showLock(on, "caps-on", "caps-off", "Caps Lock") }
+  function showNum(on) { showLock(on, "num-on", "num-off", "Num Lock") }
 
-  // ── Show / hide ────────────────────────────────────────────────────
   function show(iconName, rawMessage, rawValue, rawMax, rawProgressText, rawDuration) {
     let maxV = Math.max(1, parseInt(rawMax || "100", 10))
     if (isNaN(maxV)) maxV = 100
@@ -194,7 +184,6 @@ Scope {
   }
   function close() { opened = false }
 
-  // ── Auto-show on volume/mute and mic ───────────────────────────────
   property int _lastVol: -1
   property bool _lastMuted: false
   property bool _initialized: false
@@ -269,7 +258,6 @@ Scope {
     }
   }
 
-  // ── Visual — fixed percent width, fg bar color, over-100 segment ───
   Variants {
     model: Quickshell.screens
     PanelWindow {
@@ -346,7 +334,6 @@ Scope {
             }
           }
 
-          // message: fixed width for progress (percent) — consistent for muted/normal
           Text {
             visible: osdRoot.message !== "" && osdRoot.hasProgress
             text: osdRoot.message
@@ -366,7 +353,6 @@ Scope {
             font.family: Theme.monoFont
             font.pixelSize: 13
             font.bold: true
-            // dynamic width, not fixed, to avoid cut
             horizontalAlignment: Text.AlignLeft
             anchors.verticalCenter: parent.verticalCenter
           }

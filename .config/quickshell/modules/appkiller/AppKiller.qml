@@ -16,11 +16,9 @@ Scope {
   function open() { visible = true; query = ""; selectedIndex = 0; refresh() }
   function close() { visible = false; query = ""; selectedIndex = 0 }
 
-  // ── Search state ───────────────────────────────────────────────────
   property string query: ""
   property int selectedIndex: 0
-  property var allApps: [] // {pid, mem, comm}
-  // Show exactly 8 rows per page; width follows original 800x600 aspect.
+  property var allApps: []
   property int rowsVisible: 8
   property real aspect: 4 / 3
   readonly property int _rowH: 36
@@ -45,30 +43,26 @@ Scope {
     _accum = ""; allApps = []; psProc.running = true
   }
 
+  // single-quote a value for sh -c
+  function shQuote(s) { return "'" + String(s).replace(/'/g, "'\\''") + "'" }
   function killAt(idx) {
     const list = filteredApps
     if (idx < 0 || idx >= list.length) return
-    const app = list[idx]
-    const pid = app.pid
-    Quickshell.execDetached(["sh", "-c", "kill '" + pid.replace(/'/g,"'\\''") + "'"])
+    Quickshell.execDetached(["sh", "-c", "kill " + shQuote(list[idx].pid)])
     close()
     Qt.callLater(() => { if (!visible) refresh() })
   }
   function killAllAt(idx) {
     const list = filteredApps
     if (idx < 0 || idx >= list.length) return
-    const app = list[idx]
-    const comm = app.comm
-    Quickshell.execDetached(["sh", "-c", "killall '" + comm.replace(/'/g,"'\\''") + "'"])
+    Quickshell.execDetached(["sh", "-c", "killall " + shQuote(list[idx].comm)])
     close()
     Qt.callLater(() => { if (!visible) refresh() })
   }
 
-  // ── Scan processes ─────────────────────────────────────────────────
   property string _accum: ""
   Process {
     id: psProc
-    // ps sorted by mem, skip header, keep pid mem comm
     command: ["sh", "-c", "ps -eo pid,%mem,comm --sort=-%mem | tail -n +2 | head -n 200"]
     stdout: SplitParser {
       onRead: data => {
@@ -79,9 +73,7 @@ Scope {
       const lines = killerRoot._accum.split("\n").filter(s => s.trim().length > 0)
       let out = []
       for (let i = 0; i < lines.length; i++) {
-        const line = lines[i].trim()
-        // split by whitespace: pid, mem, comm (comm may have no spaces)
-        const parts = line.trim().split(/\s+/)
+        const parts = lines[i].trim().split(/\s+/)
         if (parts.length < 3) continue
         const pid = parts[0]
         const mem = parts[1]
@@ -94,7 +86,6 @@ Scope {
     }
   }
 
-  // ── Helpers for keyboard (block hover after page) ────────────────
   property bool _blockHover: false
   function _markKeyboard() { _blockHover = true }
   function move(delta) {
@@ -121,7 +112,6 @@ Scope {
     try { if (typeof listView !== "undefined" && listView) snapPage(listView, ni) } catch(e) {}
   }
 
-  // ── Window ─────────────────────────────────────────────────────────
   LazyLoader {
     active: killerRoot.visible
 
@@ -140,7 +130,6 @@ Scope {
       MouseArea { anchors.fill: parent; onClicked: killerRoot.close() }
       Rectangle { anchors.fill: parent; color: Theme.dim }
 
-      // ── Centered 900x600 ──────────────────────────────────────────
       Rectangle {
         id: container
         height: mainCol.implicitHeight + 32
@@ -161,7 +150,6 @@ Scope {
           anchors.margins: 16
           spacing: 12
 
-          // ── Header ─────────────────────────────────────────────────
           RowLayout {
             Layout.fillWidth: true; spacing: 10
             Rectangle { width: 32; height: 32; radius: 8; color: Theme.surface; border.color: Theme.border; border.width: 1
@@ -184,7 +172,6 @@ Scope {
             }
           }
 
-          // ── Search ─────────────────────────────────────────────────
           Rectangle {
             Layout.fillWidth: true; height: 42; radius: Theme.radiusMd; color: Theme.surface; border.color: searchField.activeFocus ? Qt.alpha(Theme.fg, 0.40) : Theme.border; border.width: 1
             RowLayout {
@@ -227,7 +214,6 @@ Scope {
             }
           }
 
-          // ── Column header ──────────────────────────────────────────
           Rectangle {
             Layout.fillWidth: true; height: 28; radius: Theme.radiusSm; color: Theme.surface; border.color: Theme.border; border.width: 1
             RowLayout {
@@ -238,8 +224,6 @@ Scope {
             }
           }
 
-          // ── List ───────────────────────────────────────────────────
-          // clip + StopAtBounds prevents scrolling out of visible boundaries
           ListView {
             id: listView
             Layout.fillWidth: true; Layout.preferredHeight: killerRoot.listH; Layout.fillHeight: false; clip: true
@@ -310,7 +294,6 @@ Scope {
             }
           }
 
-          // ── Footer options ─────────────────────────────────────────
           RowLayout {
             Layout.alignment: Qt.AlignHCenter
             spacing: 10
@@ -327,8 +310,6 @@ Scope {
       }
     }
   }
-
-  // ── IPC ────────────────────────────────────────────────────────────
   }
 
   IpcHandler {

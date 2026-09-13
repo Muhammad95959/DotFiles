@@ -16,11 +16,10 @@ Scope {
   function open() { visible = true; stage = "vms"; selectedIndex = 0; query = ""; refreshVms() }
   function close() { visible = false; query = ""; selectedIndex = 0 }
 
-  // stage: vms | actions
   property string stage: "vms"
   property string query: ""
   property int selectedIndex: 0
-  property var vms: [] // {name, state}
+  property var vms: []
   property var actions: [
     { label: "Force off", icon: "󰐥", shortcut: "F" },
     { label: "Shutdown", icon: "", shortcut: "S" },
@@ -32,30 +31,26 @@ Scope {
     return filteredVms[selectedIndex].state || ""
   }
   property string pendingVm: ""
-  property string pendingState: ""
   property string _accum: ""
   property bool _blockHover: false
   function _markKeyboard() { _blockHover = true }
+  function shQuote(s) { return "'" + String(s).replace(/'/g, "'\\''") + "'" }
+  function matchAll(hay, toks) {
+    for (let t = 0; t < toks.length; t++) if (!hay.includes(toks[t])) return false
+    return true
+  }
 
   readonly property var filteredVms: {
     const q = query.toLowerCase().trim()
     if (q === "") return vms
     const toks = q.split(/\s+/)
-    return vms.filter(v => {
-      const hay = v.name.toLowerCase()
-      for (let t=0; t<toks.length; t++) if (!hay.includes(toks[t])) return false
-      return true
-    })
+    return vms.filter(v => matchAll(v.name.toLowerCase(), toks))
   }
   readonly property var filteredActions: {
     const q = query.toLowerCase().trim()
     if (q === "") return actions
     const toks = q.split(/\s+/)
-    return actions.filter(a => {
-      const hay = a.label.toLowerCase()
-      for (let t=0; t<toks.length; t++) if (!hay.includes(toks[t])) return false
-      return true
-    })
+    return actions.filter(a => matchAll(a.label.toLowerCase(), toks))
   }
   property int currentCount: stage === "vms" ? filteredVms.length : filteredActions.length
 
@@ -67,7 +62,6 @@ Scope {
     ensureProc.running = true
   }
 
-  // ensure libvirtd + net
   Process {
     id: ensureProc
     command: ["sh","-c","sudo systemctl start libvirtd 2>/dev/null; sudo virsh net-start default 2>/dev/null || true; echo done"]
@@ -81,8 +75,7 @@ Scope {
     onExited: {
       const names = root._accum.split("\n").map(s=>s.trim()).filter(s=>s.length>0)
       if (names.length === 0) { root.vms = []; return }
-      // fetch states in one call to avoid multiple sudo
-      stateAccum = ""; stateProc.command = ["sh","-c", names.map(n=> "printf '" + n.replace(/'/g,"'\\''") + ":'; sudo virsh domstate '" + n.replace(/'/g,"'\\''") + "' 2>/dev/null | tr -d '\\n'; echo").join("; ")]
+      stateAccum = ""; stateProc.command = ["sh","-c", names.map(n=> "printf " + root.shQuote(n + ":") + "; sudo virsh domstate " + root.shQuote(n) + " 2>/dev/null | tr -d '\\n'; echo").join("; ")]
       stateProc.running = true
     }
   }
@@ -100,7 +93,6 @@ Scope {
         const st = l.slice(idx+1).trim()
         out.push({ name: n, state: st })
       }
-      // fallback if parsing failed (use names only)
       if (out.length === 0) {
         const names = root._accum.split("\n").map(s=>s.trim()).filter(s=>s.length>0)
         out = names.map(n=> ({name:n, state:"unknown"}))
@@ -115,7 +107,6 @@ Scope {
     if (idx<0||idx>=list.length) return
     const vm = list[idx]
     pendingVm = vm.name
-    pendingState = vm.state
     if (vm.state === "running") {
       stage = "actions"; selectedIndex = 0; query = ""
     } else {
@@ -128,18 +119,18 @@ Scope {
     const act = list[idx].label
     const vm = pendingVm
     if (act === "Force off") {
-      Quickshell.execDetached(["sh","-c","sudo virsh -c qemu:///system destroy '" + vm.replace(/'/g,"'\\''") + "' 2>&1 | xargs -I{} notify-send \"VM\" \"{}\" 2>/dev/null || true"])
+      Quickshell.execDetached(["sh","-c","sudo virsh -c qemu:///system destroy " + shQuote(vm) + " 2>&1 | xargs -I{} notify-send \"VM\" \"{}\" 2>/dev/null || true"])
     } else if (act === "Shutdown") {
-      Quickshell.execDetached(["sh","-c","sudo virsh -c qemu:///system shutdown '" + vm.replace(/'/g,"'\\''") + "' 2>&1 | xargs -I{} notify-send \"VM\" \"{}\" 2>/dev/null || true"])
+      Quickshell.execDetached(["sh","-c","sudo virsh -c qemu:///system shutdown " + shQuote(vm) + " 2>&1 | xargs -I{} notify-send \"VM\" \"{}\" 2>/dev/null || true"])
     } else if (act === "Open with virt-viewer") {
-      Quickshell.execDetached(["sh","-c","SPICE_NOGRAB=1 virt-viewer --connect qemu:///system '" + vm.replace(/'/g,"'\\''") + "' --full-screen &"])
+      Quickshell.execDetached(["sh","-c","SPICE_NOGRAB=1 virt-viewer --connect qemu:///system " + shQuote(vm) + " --full-screen &"])
     } else if (act === "Open with virt-manager") {
-      Quickshell.execDetached(["sh","-c","virt-manager --connect qemu:///system --show-domain-console '" + vm.replace(/'/g,"'\\''") + "' &"])
+      Quickshell.execDetached(["sh","-c","virt-manager --connect qemu:///system --show-domain-console " + shQuote(vm) + " &"])
     }
     close()
   }
   function startAndView(vm) {
-    Quickshell.execDetached(["sh","-c","if sudo virsh -c qemu:///system start '" + vm.replace(/'/g,"'\\''") + "' 2>&1; then SPICE_NOGRAB=1 virt-viewer --connect qemu:///system '" + vm.replace(/'/g,"'\\''") + "' --full-screen & else notify-send \"VM Launcher\" \"Failed to start " + vm.replace(/"/g,"") + "\"; fi"])
+    Quickshell.execDetached(["sh","-c","if sudo virsh -c qemu:///system start " + shQuote(vm) + " 2>&1; then SPICE_NOGRAB=1 virt-viewer --connect qemu:///system " + shQuote(vm) + " --full-screen & else notify-send \"VM Launcher\" \"Failed to start " + vm.replace(/"/g,"") + "\"; fi"])
     close()
   }
   function onAccepted() {
@@ -150,7 +141,7 @@ Scope {
     if (stage !== "actions") return false
     const k = String(text||"").toLowerCase()
     if (k.length !== 1) return false
-    // map F/S/V/M and 1-4
+    // F/S/V/M or 1-4
     let idx = -1
     if (k === "f" || k === "1") idx = 0
     else if (k === "s" || k === "2") idx = 1

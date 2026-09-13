@@ -13,19 +13,15 @@ import "../common"
 Scope {
   id: root
 
-  // ── State ──────────────────────────────────────────────────────────
   property bool enabled: false
   property string filePath: ""
   property real volume: 0.75
   property bool otherPlaying: false
-  // Auto-pause ambient while any other system audio is playing.
-  // Toggleable from the popup window (and via IPC). When off, ambient
-  // never ducks for other audio.
+  // When off, ambient never ducks for other audio.
   property bool autoPause: true
   property string lastError: ""
   property bool pathOk: true
 
-  // ── UI ─────────────────────────────────────────────────────────────
   property bool visible: false
   function toggle() { visible ? close() : open() }
   function open() { visible = true }
@@ -38,12 +34,9 @@ Scope {
     return "playing"
   }
 
-  // True only when audio is actually needed. Used to gate expensive work
-  // (MediaPlayer/AudioOutput creation, external-audio polling) so
-  // quickshell doesn't pay the cost at startup when ambient is disabled.
+  // Gates MediaPlayer creation and audio polling so disabled ambient costs nothing at startup.
   readonly property bool _audioActive: enabled && filePath !== ""
 
-  // ── Paste from clipboard ───────────────────────────────────────────
   function _paste() {
     pasteProc.running = true
   }
@@ -55,9 +48,6 @@ Scope {
       if (p) root._setFile(p)
     }}
   }
-
-  // ── Persistence ────────────────────────────────────────────────────
-  readonly property string _configPath: Quickshell.env("HOME") + "/.config/quickshell/ambient.json"
 
   function _save() {
     const payload = JSON.stringify({
@@ -76,13 +66,14 @@ Scope {
   function _setFile(p) {
     if (p === filePath) return
     lastError = ""
-    filePath = p // onFilePathChanged handles stopping playback, setting the
-                 // source, re-checking the path and re-applying playback
+    filePath = p // onFilePathChanged stops playback, sets source and re-applies
     _save()
   }
 
+  function _clamp01(v) { return Math.max(0, Math.min(1, v)) }
+
   function _setVolume(v) {
-    volume = Math.max(0, Math.min(1, v))
+    volume = _clamp01(v)
     _save()
   }
 
@@ -90,19 +81,13 @@ Scope {
     if (!p) return ""
     let s = p
     if (s.startsWith("~/")) s = Quickshell.env("HOME") + s.substring(1)
-    if (/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(s)) return s // already a URL (file://, http://, ...)
-    // Percent-encode each path segment (handles spaces, Arabic/unicode, etc.)
-    // while keeping the "/" separators intact, so QUrl/MediaPlayer resolve
-    // it correctly instead of choking on raw special characters.
+    if (/^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(s)) return s
+    // Percent-encode path segments so QUrl resolves spaces/unicode correctly.
     const encoded = s.split("/").map(encodeURIComponent).join("/")
     return "file://" + encoded
   }
 
-  // ── Playback control ───────────────────────────────────────────────
-  // Access the lazy MediaPlayer via audioLoader.item (the LazyLoader's
-  // loaded child). The id `player` is local to the LazyLoader's sub-
-  // component and not visible to the outer Scope under pragma
-  // ComponentBehavior: Bound.
+  // Lazy MediaPlayer child; the inner id is not visible under ComponentBehavior: Bound.
   function _player() { return audioLoader.item }
   function _applyPlayback() {
     const p = _player()
@@ -123,37 +108,24 @@ Scope {
   onAutoPauseChanged: {
     _save()
     if (!autoPause) {
-      // Feature turned off: never duck. Clear any latched pause state and
-      // cancel a pending delayed resume so ambient plays immediately.
       resumeTimer.stop()
       if (otherPlaying) otherPlaying = false
       else _applyPlayback()
     } else {
-      // Turned on: probe immediately so ambient ducks without waiting for
-      // the next poll tick.
       if (enabled && !pollProc.running) pollProc.running = true
     }
     _updatePolling()
   }
 
-  // ── Audio engine ───────────────────────────────────────────────────
-  // Lazy-instantiated: QtMultimedia's MediaPlayer/AudioOutput are expensive
-  // to create and aren't needed when ambient is disabled / has no file.
-  // Mirrors the "open-on-demand" pattern used by MpvHistory/BraveHistory.
   LazyLoader {
     id: audioLoader
     active: root._audioActive
 
-    // When the loader activates (e.g. on first launch with enabled=true),
-    // its child is created fresh and has no source — kick off playback so
-    // the saved audio actually starts playing.
     onActiveChanged: if (active) root._startPlayback()
 
     MediaPlayer {
-      id: player
       loops: -1
       audioOutput: AudioOutput {
-        id: audioOut
         volume: root.volume
       }
       onMediaStatusChanged: {
@@ -210,34 +182,14 @@ Scope {
       statProc.running = true
       return
     }
-    // Pass the path as a genuine argv element (no shell, no base64, no
-    // string-building/quoting at all - Quickshell's Process.command execs
-    // argv directly). Python receives it via sys.argv, already correctly
-    // decoded from the OS's raw bytes, so spaces, Arabic/unicode, quotes,
-    // etc. all just work, regardless of what's in the path.
+    // argv-direct: python gets the raw path via sys.argv, so spaces/unicode/quotes just work.
     statProc.command = ["python3", "-c",
       "import os,sys\np=sys.argv[1]\nprint('OK' if (p and os.path.isfile(p) and os.access(p, os.R_OK)) else 'BAD')",
       p]
     statProc.running = true
   }
 
-  // ── External audio detection (PipeWire + MPRIS fallback) ─────────
-  // Pauses ambient while ANY other system audio plays (music, video,
-  // games, calls, browser output) and resumes ~0.5s after it goes silent.
-  // Only polls while the panel is open or auto-pause can actually fire.
-  // The initial spawn at startup was the main ambient-related contributor
-  // to slow quickshell boot, hence the on-demand gating.
-  //
-  // Detection runs in a single python3 process (no shell, argv-direct like
-  // _runStat). Trust rules, in order:
-  //   1. Any MPRIS player reporting Playing -> busy (instant, user intent).
-  //   2. Any running PipeWire output stream that is NOT quickshell itself
-  //      (ambient + muted live-wallpapers are excluded so we never detect
-  //      ourselves), NOT corked (paused browser tabs keep the device open
-  //      but corked), and NOT owned by an app whose MPRIS state is known
-  //      and not Playing (browsers keep the stream node running for
-  //      several seconds after pause - MPRIS knows the truth sooner).
-  // Apps without MPRIS (games, calls, paplay) are covered purely by 2.
+  // Pauses while other system audio plays; resumes after ~0.5s of silence. Polls on demand only.
   Timer {
     id: pollTimer
     interval: 500
@@ -247,8 +199,6 @@ Scope {
     onTriggered: { if (!pollProc.running) pollProc.running = true }
   }
 
-  // Delayed resume: require ~0.5s of continuous silence before unpausing so
-  // seeks, buffering and notification blips don't flap ambient on/off.
   Timer {
     id: resumeTimer
     interval: 500
@@ -263,13 +213,10 @@ Scope {
   }
   function _onExternalIdle() {
     if (!root.autoPause) return
-    // Start (but never restart) the delayed resume: polls arrive every 0.5s
-    // and restarting here would postpone the countdown forever, so ambient
-    // would never resume. A BUSY in between still cancels via stop().
+    // Never restart the timer here or polls would postpone resume forever.
     if (root.otherPlaying && !resumeTimer.running) resumeTimer.start()
   }
 
-  // Start/stop polling on demand.
   function _wantPolling() { return root.visible || (root.enabled && root.autoPause) }
   function _startPolling() { if (!pollTimer.running) pollTimer.start() }
   function _stopPolling() { if (pollTimer.running) pollTimer.stop() }
@@ -290,7 +237,6 @@ Scope {
     }
   }
 
-  // ── Config load / save ─────────────────────────────────────────────
   Process {
     id: loadProc
     command: ["python3", "-c", "import json,os,sys\np=os.path.expanduser('~/.config/quickshell/ambient.json')\ntry:\n    d=json.load(open(p))\n    print(json.dumps(d))\nexcept Exception:\n    print('{}')\n"]
@@ -301,21 +247,14 @@ Scope {
         if (typeof d.filePath === "string") root.filePath = d.filePath
         if (typeof d.volume === "number") root.volume = Math.max(0, Math.min(1, d.volume))
         if (typeof d.autoPause === "boolean") root.autoPause = d.autoPause
-        // Setting filePath (when it actually changes) already triggers
-        // onFilePathChanged, which sets player.source, restarts the stat
-        // check timer and re-applies playback - no need to duplicate that
-        // here. Duplicating it caused two concurrent stat checks to race
-        // against each other.
       } catch (e) {
         // ignore
       }
     }}
   }
 
-  // ── File browse helper ─────────────────────────────────────────────
   Component.onCompleted: _load()
 
-  // ── Popup UI ───────────────────────────────────────────────────────
   LazyLoader {
     active: root.visible
 
@@ -360,8 +299,7 @@ Scope {
           Component.onCompleted: forceActiveFocus()
           Connections { target: root; function onVisibleChanged() { if (root.visible) container.forceActiveFocus() } }
 
-          // Swallows clicks inside the dialog so they don't fall through to
-          // the full-screen MouseArea behind it (which closes the popup).
+          // Keeps dialog clicks from reaching the full-screen closer behind it.
           MouseArea { anchors.fill: parent }
 
           ColumnLayout {
@@ -370,7 +308,7 @@ Scope {
             anchors.margins: 16
             spacing: 12
 
-            // ── Header ───────────────────────────────────────────────
+            // Header
             RowLayout {
               Layout.fillWidth: true
               spacing: 10
@@ -394,7 +332,6 @@ Scope {
               }
             }
 
-            // ── Enable row ──────────────────────────────────────────
             Rectangle {
               Layout.fillWidth: true
               height: 44
@@ -426,7 +363,6 @@ Scope {
               }
             }
 
-            // ── Auto-pause row ──────────────────────────────────────
             Rectangle {
               Layout.fillWidth: true
               height: 56
@@ -463,7 +399,6 @@ Scope {
               }
             }
 
-            // ── File path row ───────────────────────────────────────
             ColumnLayout {
               Layout.fillWidth: true
               spacing: 6
@@ -478,8 +413,7 @@ Scope {
                   color: Theme.surface
                   border.color: !root.pathOk ? Theme.urgent : (pathField.activeFocus ? Qt.alpha(Theme.fg, 0.4) : Theme.border)
                   border.width: 1
-                  clip: true // keep long paths (e.g. long unicode filenames) from
-                             // rendering past the rounded box edges
+                  clip: true
                   TextInput {
                     id: pathField
                     anchors.fill: parent
@@ -521,7 +455,6 @@ Scope {
               }
             }
 
-            // ── Volume row ──────────────────────────────────────────
             ColumnLayout {
               Layout.fillWidth: true
               spacing: 6
@@ -532,14 +465,12 @@ Scope {
                 Text { text: Math.round(root.volume * 100) + "%"; color: Theme.fg; font.family: Theme.monoFont; font.pixelSize: 11 }
               }
               Rectangle {
-                id: volSlider
                 Layout.fillWidth: true
                 Layout.preferredHeight: 18
                 radius: 4
                 color: Theme.surface
                 border.color: Theme.border
                 border.width: 1
-                property real trackWidth: width
                 readonly property real _pct: root.volume
                 Rectangle {
                   height: parent.height
@@ -561,7 +492,7 @@ Scope {
                   cursorShape: Qt.PointingHandCursor
                   onPressed: mouse => root._setVolume(mouse.x / width)
                   onPositionChanged: mouse => {
-                    if (pressed) root._setVolume(Math.max(0, Math.min(1, mouse.x / width)))
+                    if (pressed) root._setVolume(mouse.x / width)
                   }
                 }
               }
@@ -569,7 +500,6 @@ Scope {
 
             Item { Layout.fillHeight: true; Layout.preferredHeight: 0 }
 
-            // ── Footer hints (single row — dialog is wide enough) ──────
             RowLayout {
               Layout.alignment: Qt.AlignHCenter
               spacing: 10
@@ -589,7 +519,6 @@ Scope {
     }
   }
 
-  // ── IPC & Global shortcut ──────────────────────────────────────────
   IpcHandler {
     target: "ambient"
     function toggle() { root.toggle(); return root.visible ? "open" : "closed" }

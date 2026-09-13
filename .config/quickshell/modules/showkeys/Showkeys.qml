@@ -11,7 +11,6 @@ import "../common"
 Scope {
   id: root
 
-  // off by default, like wshowkeys (toggled via SHIFT+k in apps submap)
   property bool enabled: false
   property bool opened: false
   property string current: ""
@@ -28,11 +27,6 @@ Scope {
     else { enable(); setNotice("Enabled") }
   }
   function enable() { enabled = true }
-  function setNotice(text) {
-    notice = text
-    noticeOpen = true
-    noticeTimer.restart()
-  }
   function disable() {
     enabled = false
     opened = false
@@ -40,22 +34,27 @@ Scope {
     history = []
     repeatCount = 1
   }
+  function setNotice(text) {
+    notice = text
+    noticeOpen = true
+    noticeTimer.restart()
+  }
   function push(combo) {
     const t = String(combo || "").trim()
-    if (t.length === 0) return
-    // a real keypress immediately replaces any Enabled/Disabled notice
+    if (t.length === 0)
+      return
     noticeTimer.stop()
     noticeOpen = false
     notice = ""
     let h = history.slice()
     if (h.length > 0 && current === t) {
-      // same combo pressed again — bump the ×n badge instead of duplicating
       repeatCount += 1
       h[h.length - 1] = { label: t, count: repeatCount }
     } else {
       repeatCount = 1
       h.push({ label: t, count: 1 })
-      while (h.length > maxHistory) h.shift()
+      while (h.length > maxHistory)
+        h.shift()
     }
     history = h
     current = t
@@ -76,14 +75,16 @@ Scope {
     stdout: SplitParser {
       onRead: data => {
         const line = String(data || "").trim()
-        if (line.length > 0) root.push(line)
+        if (line.length > 0)
+          root.push(line)
       }
     }
     stderr: SplitParser {
       onRead: data => console.warn("showkeys:", String(data || "").trim())
     }
     onExited: (exitCode, exitStatus) => {
-      if (root.enabled) console.warn("showkeys: daemon exited code=" + exitCode + " (in input group? check `groups | grep input`)")
+      if (root.enabled)
+        console.warn("showkeys: daemon exited code=" + exitCode + " (in input group? check `groups | grep input`)")
     }
   }
 
@@ -111,11 +112,7 @@ Scope {
     function ping(): string { return "ok" }
   }
 
-  // Lazy like the other modules: no windows exist until showkeys is
-  // enabled, so quickshell startup stays fast. Gated on `enabled` (not
-  // `opened`) so repeated keystrokes don't pay window-creation cost.
-  // `noticeOpen` is included so the Enabled/Disabled flash can show even
-  // while the daemon itself is off.
+  // Gated on `enabled` so repeated keystrokes skip window-creation cost.
   LazyLoader {
     active: root.enabled || root.noticeOpen
 

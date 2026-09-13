@@ -28,8 +28,7 @@ Scope {
   property bool _altHeld: false
   property bool _blockHover: false
 
-  // ── Paging / aspect ──
-  // Show exactly 8 rows per page; width follows original 800x600 aspect.
+  // 8 rows per page; width follows the 800x600 aspect
   property int rowsVisible: 8
   property real aspect: 4 / 3
   readonly property int _rowH: _showActions ? 38 : 44
@@ -86,6 +85,16 @@ Scope {
       for (let t = 0; t < toks.length; t++) if (!hay.includes(toks[t])) return false
       return true
     })
+  }
+
+  function handleAltFilter(keyCode) {
+    if (keyCode === Qt.Key_A) { sourceFilter = "All"; return true }
+    if (keyCode === Qt.Key_U) { sourceFilter = "User"; return true }
+    if (keyCode === Qt.Key_S) { sourceFilter = "System"; return true }
+    if (keyCode === Qt.Key_F) { strategyFilter = "Files"; return true }
+    if (keyCode === Qt.Key_R) { strategyFilter = "Running"; return true }
+    if (keyCode === Qt.Key_B) { strategyFilter = "Both"; return true }
+    return false
   }
 
   function statusColor(state) {
@@ -148,8 +157,6 @@ Scope {
       const termCmd = "kitty --hold sh -c \"" + cmd.replace(/"/g, "\\\"") + "; echo \"\\n[Press Enter to close]\"; read\""
       Quickshell.execDetached(["sh", "-c", termCmd + " &"])
     } else {
-      const wrapped = "sh -c \"" + cmd.replace(/"/g, "\\\"") + " 2>&1 | head -n 50 | xargs -I{} notify-send -t 3000 'systemd' '{}' 2>/dev/null; " + cmd.replace(/"/g, "\\\"") + "\""
-      // simpler: run and notify
       Quickshell.execDetached(["sh", "-c", cmd + " 2>&1 | head -n 20 | tr -d \"'\" | xargs -I{} notify-send -t 2500 'systemd " + actionKey + "' '{}' 2>/dev/null; " + cmd + " >/dev/null 2>&1 &"])
     }
     close()
@@ -162,20 +169,13 @@ Scope {
     if (_showActions) {
       const acts = filteredActions
       if (actionIndex < 0 || actionIndex >= acts.length) return
-      executeAction(unit._target ? unit._target : _targetUnit, acts[actionIndex].key)
+      executeAction(_targetUnit, acts[actionIndex].key)
       return
     }
-    // default action like rofi: show list_actions picker
     _targetUnit = unit
     _showActions = true
     actionIndex = 0
     query = ""
-  }
-
-  function activateWithAction(idx, actionKey) {
-    const list = filtered
-    if (idx < 0 || idx >= list.length) return
-    executeAction(list[idx], actionKey)
   }
 
   function move(delta) {
@@ -250,8 +250,8 @@ Scope {
         required property var modelData
         screen: modelData
         visible: root.visible
-      color: "transparent"
-      exclusionMode: ExclusionMode.Ignore
+        color: "transparent"
+        exclusionMode: ExclusionMode.Ignore
       WlrLayershell.namespace: "quickshell-systemd"
       WlrLayershell.layer: WlrLayer.Overlay
       WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
@@ -276,12 +276,7 @@ Scope {
         Keys.onPressed: event => {
           const hasAlt = (event.modifiers & Qt.AltModifier) || event.key === Qt.Key_Alt
           if (hasAlt) root._altHeld = true
-          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_A) { root.sourceFilter = "All"; event.accepted = true; return }
-          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_U) { root.sourceFilter = "User"; event.accepted = true; return }
-          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_S) { root.sourceFilter = "System"; event.accepted = true; return }
-          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_F) { root.strategyFilter = "Files"; event.accepted = true; return }
-          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_R) { root.strategyFilter = "Running"; event.accepted = true; return }
-          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_B) { root.strategyFilter = "Both"; event.accepted = true; return }
+          if ((event.modifiers & Qt.AltModifier) && root.handleAltFilter(event.key)) { event.accepted = true; return }
           const inSearch = searchField.activeFocus
           if (event.key === Qt.Key_Escape) {
             if (root._showActions) { root._showActions = false; root.query = ""; event.accepted = true }
@@ -307,7 +302,7 @@ Scope {
             Layout.fillWidth: true
             spacing: 10
             Rectangle { width: 32; height: 32; radius: 8; color: Theme.surface; border.color: Theme.border; border.width: 1
-              Text { anchors.centerIn: parent; text: root._showActions ? "󰒓" : "󰒓"; color: Theme.fg; font.family: Theme.nerdFont; font.pixelSize: 14 }
+              Text { anchors.centerIn: parent; text: " "; color: Theme.fg; font.family: Theme.nerdFont; font.pixelSize: 14 }
             }
             ColumnLayout {
               spacing: 2
@@ -356,12 +351,7 @@ Scope {
                 Keys.onPressed: event => {
                   const hasAlt = (event.modifiers & Qt.AltModifier) || event.key === Qt.Key_Alt
                   if (hasAlt) root._altHeld = true
-                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_A) { root.sourceFilter = "All"; event.accepted = true; return }
-                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_U) { root.sourceFilter = "User"; event.accepted = true; return }
-                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_S) { root.sourceFilter = "System"; event.accepted = true; return }
-                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_F) { root.strategyFilter = "Files"; event.accepted = true; return }
-                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_R) { root.strategyFilter = "Running"; event.accepted = true; return }
-                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_B) { root.strategyFilter = "Both"; event.accepted = true; return }
+                  if ((event.modifiers & Qt.AltModifier) && root.handleAltFilter(event.key)) { event.accepted = true; return }
                   if (event.key === Qt.Key_Escape) {
                     if (root._showActions) { root._showActions = false; text = ""; root.query = ""; event.accepted = true }
                     else if (text.length > 0) { text = ""; root.query = ""; event.accepted = true }
@@ -540,7 +530,7 @@ Scope {
                   }
                   Text {
                     visible: !root._showActions
-                    text: root._showActions ? "" : ((del.modelData.state ?? "") + " • " + (del.modelData.scope ?? ""))
+                    text: (del.modelData.state ?? "") + " • " + (del.modelData.scope ?? "")
                     color: Theme.fg
                     opacity: 0.45
                     font.family: Theme.monoFont
@@ -553,7 +543,7 @@ Scope {
                 }
                 Text {
                   visible: !root._showActions
-                  text: root._showActions ? "" : ((del.modelData.scope ?? "") === "user" ? "USER" : "SYSTEM")
+                  text: (del.modelData.scope ?? "") === "user" ? "USER" : "SYSTEM"
                   color: (del.modelData.scope ?? "") === "user" ? Theme.accent : Theme.fg
                   opacity: (del.modelData.scope ?? "") === "user" ? 1 : 0.45
                   font.family: Theme.monoFont
@@ -600,8 +590,8 @@ Scope {
         Component.onCompleted: if (root.visible) searchField.forceActiveFocus()
         Connections { target: root; function onVisibleChanged() { if (root.visible) { searchField.text = ""; root.query = ""; searchField.forceActiveFocus(); container.forceActiveFocus(); searchField.forceActiveFocus() } } }
       }
+      }
     }
-  }
   }
 
   IpcHandler {

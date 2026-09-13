@@ -52,36 +52,20 @@ Scope {
   property string sectionNerd: "All"
   property string sectionUnicode: "All"
 
-  readonly property var emojiCategories: {
+  function _keyList(src, field) {
     let set = {}
-    for (let i = 0; i < emojiEntries.length; i++) set[emojiEntries[i].category] = true
-    let cats = Object.keys(set).sort()
-    cats.unshift("All")
+    for (let i = 0; i < src.length; i++) set[src[i][field]] = true
+    let keys = Object.keys(set).sort()
+    if (keys.length === 0) return [{ key: "All", label: "All" }]
+    keys.unshift("All")
     let out = []
-    for (let i = 0; i < cats.length; i++) out.push({ key: cats[i], label: cats[i] })
-    return out.length > 1 ? out : [{ key: "All", label: "All" }]
-  }
-
-  readonly property var nerdCategories: {
-    let set = {}
-    for (let i = 0; i < nerdEntries.length; i++) set[nerdEntries[i].prefix] = true
-    let cats = Object.keys(set).sort()
-    cats.unshift("All")
-    let out = []
-    for (let i = 0; i < cats.length; i++) out.push({ key: cats[i], label: cats[i] })
-    return out.length > 1 ? out : [{ key: "All", label: "All" }]
-  }
-
-  readonly property var unicodeBlocks: {
-    let set = {}
-    for (let i = 0; i < unicodeEntries.length; i++) set[unicodeEntries[i].block] = true
-    let blocks = Object.keys(set).sort()
-    if (blocks.length === 0) return [{ key: "All", label: "All" }]
-    blocks.unshift("All")
-    let out = []
-    for (let i = 0; i < blocks.length; i++) out.push({ key: blocks[i], label: blocks[i] })
+    for (let i = 0; i < keys.length; i++) out.push({ key: keys[i], label: keys[i] })
     return out
   }
+
+  readonly property var emojiCategories: _keyList(emojiEntries, "category")
+  readonly property var nerdCategories: _keyList(nerdEntries, "prefix")
+  readonly property var unicodeBlocks: _keyList(unicodeEntries, "block")
 
   property var currentSectionList: {
     if (currentTab === "emoji") return emojiCategories
@@ -111,13 +95,8 @@ Scope {
     if (section === "All") {
       pre = src
     } else {
-      if (currentTab === "emoji") {
-        for (let i = 0; i < src.length; i++) if (src[i].category === section) pre.push(src[i])
-      } else if (currentTab === "nerd") {
-        for (let i = 0; i < src.length; i++) if (src[i].prefix === section) pre.push(src[i])
-      } else {
-        for (let i = 0; i < src.length; i++) if (src[i].block === section) pre.push(src[i])
-      }
+      const field = currentTab === "emoji" ? "category" : currentTab === "nerd" ? "prefix" : "block"
+      for (let i = 0; i < src.length; i++) if (src[i][field] === section) pre.push(src[i])
     }
     if (toks.length === 0) return pre
     let out = []
@@ -146,16 +125,19 @@ Scope {
     else if (currentTab === "unicode" && !_unicodeLoaded) { _unicodeLoaded = true; unicodeProc.running = true }
   }
 
+  function _sq(s) { return String(s || "").replace(/'/g, "'\\''") }
+
   function copyAt(idx, doType) {
     const list = filtered
     if (idx < 0 || idx >= list.length) return
     const e = list[idx]
     const ch = e.char
     if (!ch) return
+    const q = _sq(ch)
     if (doType) {
-      Quickshell.execDetached(["sh", "-c", "printf '%s' '" + ch.replace(/'/g, "'\\''") + "' | wl-copy 2>/dev/null; wtype -- '" + ch.replace(/'/g, "'\\''") + "' 2>/dev/null || ydotool type -- '" + ch.replace(/'/g, "'\\''") + "' 2>/dev/null || true"])
+      Quickshell.execDetached(["sh", "-c", "printf '%s' '" + q + "' | wl-copy 2>/dev/null; wtype -- '" + q + "' 2>/dev/null || ydotool type -- '" + q + "' 2>/dev/null || true"])
     } else {
-      Quickshell.execDetached(["sh", "-c", "printf '%s' '" + ch.replace(/'/g, "'\\''") + "' | wl-copy 2>/dev/null; notify-send -t 1200 'Copied' '" + ch.replace(/'/g, "'\\''") + "  '\"$(printf '%s' '" + (e.name || "").replace(/'/g, "'\\''") + "' | head -c 40)\" 2>/dev/null || true"])
+      Quickshell.execDetached(["sh", "-c", "printf '%s' '" + q + "' | wl-copy 2>/dev/null; notify-send -t 1200 'Copied' '" + q + "  '\"$(printf '%s' '" + _sq(e.name) + "' | head -c 40)\" 2>/dev/null || true"])
     }
     close()
   }
@@ -248,16 +230,15 @@ Scope {
       model: Quickshell.screens
 
       PanelWindow {
-        id: win
         required property var modelData
         screen: modelData
         visible: root.visible
-      color: "transparent"
-      exclusionMode: ExclusionMode.Ignore
-      WlrLayershell.namespace: "quickshell-glyphPicker"
-      WlrLayershell.layer: WlrLayer.Overlay
-      WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
-      anchors { top: true; bottom: true; left: true; right: true }
+        color: "transparent"
+        exclusionMode: ExclusionMode.Ignore
+        WlrLayershell.namespace: "quickshell-glyphPicker"
+        WlrLayershell.layer: WlrLayer.Overlay
+        WlrLayershell.keyboardFocus: WlrKeyboardFocus.Exclusive
+        anchors { top: true; bottom: true; left: true; right: true }
 
       MouseArea { anchors.fill: parent; onClicked: root.close() }
       Rectangle { anchors.fill: parent; color: Theme.dim }
@@ -471,7 +452,6 @@ Scope {
             Layout.preferredHeight: 8
             clip: false
             Rectangle {
-              id: sepLine
               anchors.left: parent.left
               anchors.right: parent.right
               anchors.verticalCenter: parent.verticalCenter

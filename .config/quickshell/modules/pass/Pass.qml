@@ -36,7 +36,6 @@ Scope {
     property var _fieldsMap: ({})
     property bool _pendingFieldPicker: false
     property string _pendingKey: ""
-    property string _previewPass: ""
     property bool _revealPass: false
     property int _rootIndex: 0
     property var _roots: []
@@ -63,43 +62,36 @@ Scope {
         return base
     }
 
+    function _toks(q) { return q.toLowerCase().trim().split(/\s+/).filter(t => t.length > 0) }
+    function _matches(hay, toks) {
+        const h = (hay || "").toLowerCase()
+        for (let t = 0; t < toks.length; t++) if (!h.includes(toks[t])) return false
+        return true
+    }
     readonly property var filtered: {
-        const q = query.toLowerCase().trim()
-        if (q === "") return allEntries
-        const toks = q.split(/\s+/).filter(t => t.length > 0)
+        if (query.trim() === "") return allEntries
+        const toks = _toks(query)
         let out = []
         for (let i = 0; i < allEntries.length; i++) {
             const e = allEntries[i]
-            const hay = (e.label || "").toLowerCase()
-            let ok = true
-            for (let t = 0; t < toks.length; t++) if (!hay.includes(toks[t])) { ok = false; break }
-            if (ok) out.push(e)
+            if (_matches(e.label, toks)) out.push(e)
         }
         return out
     }
 
     readonly property var filteredActions: {
-        const q = query.toLowerCase().trim()
-        if (q === "") return allActions
-        const toks = q.split(/\s+/).filter(t => t.length > 0)
-        return allActions.filter(a => {
-            const hay = (a.key + " " + a.label).toLowerCase()
-            for (let t = 0; t < toks.length; t++) if (!hay.includes(toks[t])) return false
-            return true
-        })
+        if (query.trim() === "") return allActions
+        const toks = _toks(query)
+        return allActions.filter(a => _matches(a.key + " " + a.label, toks))
     }
 
     readonly property var filteredFields: {
-        const q = query.toLowerCase().trim()
-        if (q === "") return _fieldsList
-        const toks = q.split(/\s+/).filter(t => t.length > 0)
+        if (query.trim() === "") return _fieldsList
+        const toks = _toks(query)
         let out = []
         for (let i = 0; i < _fieldsList.length; i++) {
             const f = _fieldsList[i]
-            const hay = (f.key + " " + f.value).toLowerCase()
-            let ok = true
-            for (let t = 0; t < toks.length; t++) if (!hay.includes(toks[t])) { ok = false; break }
-            if (ok) out.push(f)
+            if (_matches(f.key + " " + f.value, toks)) out.push(f)
         }
         return out
     }
@@ -159,13 +151,6 @@ Scope {
         _decrypting = false
         _pendingKey = ""
     }
-    function copyDetailAt(idx) {
-        const lst = filteredFields
-        if (idx < 0 || idx >= lst.length) return
-        const f = lst[idx]
-        if (f.key === "pass") copyPass(_targetEntry)
-        else copyValue(f.value, f.key)
-    }
     function copyOtp(entry) {
         if (!entry) return
         const store = entry.store || _currentStore
@@ -206,7 +191,6 @@ Scope {
             const hit = _cache[key]
             _fieldsMap = hit.map
             _fieldsList = hit.list
-            _previewPass = hit.pass
             _decrypting = false
             _pendingKey = ""
             _previewTimer.stop()
@@ -220,7 +204,10 @@ Scope {
         _previewTimer.stop()
         _fieldsMap = {}
         _fieldsList = []
-        _previewPass = ""
+    }
+    function _altRun(key) {
+        const e = _showActions ? _targetEntry : (filtered.length > 0 ? filtered[selectedIndex] : null)
+        if (e) executeAction(e, key)
     }
     function executeAction(entry, key) {
         if (!entry || !key) return
@@ -315,7 +302,6 @@ Scope {
             srcMap = cached.map
             _fieldsMap = cached.map
             _fieldsList = cached.list
-            _previewPass = cached.pass
         }
         if (!srcMap || Object.keys(srcMap).length === 0) {
             if (_fieldsList && _fieldsList.length > 0) {
@@ -408,7 +394,6 @@ Scope {
                         if (ck2 === key && !_pendingFieldPicker) {
                             _fieldsMap = {}
                             _fieldsList = []
-                            _previewPass = ""
                         }
                     }
                 }
@@ -486,7 +471,6 @@ Scope {
             if (curKey !== "" && curKey === ck) {
                 _fieldsMap = map
                 _fieldsList = list
-                _previewPass = first
                 matched = true
             }
             if (targetKey !== "" && targetKey === ck) {
@@ -494,7 +478,6 @@ Scope {
                 if (!matched) {
                     _fieldsMap = map
                     _fieldsList = list
-                    _previewPass = first
                 }
                 matched = true
             }
@@ -522,7 +505,6 @@ Scope {
                     const hit2 = _cache[curKey]
                     _fieldsMap = hit2.map
                     _fieldsList = hit2.list
-                    _previewPass = hit2.pass
                 } else if (curKey !== "" && curKey !== ck) {
                     _pendingKey = curKey
                     _pendingFieldPicker = false
@@ -532,7 +514,6 @@ Scope {
                     return
                 } else {
                     _fieldsMap = map
-                    _previewPass = first
                     _fieldsList = list
                 }
             }
@@ -541,7 +522,6 @@ Scope {
             return
         }
         _fieldsMap = map
-        _previewPass = first
         _decrypting = false
         _pendingKey = ""
         _decryptFallback.stop()
@@ -616,17 +596,14 @@ Scope {
             _pendingKey = ""
             _fieldsMap = hit.map
             _fieldsList = hit.list
-            _previewPass = hit.pass
             return
         }
-        // Action-only: do not auto-decrypt preview; only use cache
         _previewTimer.stop()
         _decryptFallback.stop()
         _decrypting = false
         _pendingKey = ""
         _fieldsMap = {}
         _fieldsList = []
-        _previewPass = ""
     }
     function shellEscape(s) { return "'" + String(s).replace(/'/g, "'\\''") + "'" }
     function switchStore(dir) {
@@ -636,13 +613,6 @@ Scope {
         refresh()
     }
     function toggle() { visible ? close() : open() }
-    function typeDetailAt(idx) {
-        const lst = filteredFields
-        if (idx < 0 || idx >= lst.length) return
-        const f = lst[idx]
-        if (f.key === "pass") typePass(_targetEntry)
-        else typeValue(f.value)
-    }
     function typeOtp(entry) {
         if (!entry) return
         const store = entry.store || _currentStore
@@ -685,14 +655,12 @@ Scope {
             if (_fieldsMap !== hit.map || _pendingKey !== tk) {
                 _fieldsMap = hit.map
                 _fieldsList = hit.list
-                _previewPass = hit.pass
             }
             _decrypting = false
             _pendingKey = ""
             _decryptFallback.stop()
             _previewTimer.stop()
         } else {
-            // Action-only: do not decrypt until an explicit action is chosen
             _actionFieldsMap = null
             _decrypting = false
             _pendingKey = ""
@@ -744,7 +712,6 @@ Scope {
                     if (hit) {
                         root._fieldsMap = hit.map
                         root._fieldsList = hit.list
-                        root._previewPass = hit.pass
                         root._pendingKey = ""
                         root._pendingFieldPicker = false
                     } else if (root._pendingKey !== "" && !root._showActions && !root._showFieldPicker && !showProc.running) {
@@ -842,13 +809,6 @@ Scope {
         }
     }
 
-    Process {
-        id: actionProc
-        running: false
-        stdout: StdioCollector { waitForEnd: true; onStreamFinished: {} }
-        onExited: if (exitCode !== 0) root.notifyErr("Action failed")
-    }
-
     IpcHandler {
         target: "pass"
         function toggle(): string { root.toggle(); return root.visible ? "open" : "closed" }
@@ -895,21 +855,21 @@ Scope {
                         if (event.modifiers & Qt.AltModifier) root._altHeld = true
                         const shift = Boolean(event.modifiers & Qt.ShiftModifier)
                         const alt = Boolean(event.modifiers & Qt.AltModifier)
-                        if (alt && !shift && event.key === Qt.Key_C) { const e = root._showActions ? root._targetEntry : (root.filtered.length > 0 ? root.filtered[root.selectedIndex] : null); if (e) root.executeAction(e, "copy_pass"); event.accepted = true; return }
-                        if (alt && !shift && event.key === Qt.Key_R) { const e = root._showActions ? root._targetEntry : (root.filtered.length > 0 ? root.filtered[root.selectedIndex] : null); if (e) root.executeAction(e, "copy_user"); event.accepted = true; return }
-                        if (alt && !shift && event.key === Qt.Key_Y) { const e = root._showActions ? root._targetEntry : (root.filtered.length > 0 ? root.filtered[root.selectedIndex] : null); if (e) root.executeAction(e, "copy_otp"); event.accepted = true; return }
-                        if (alt && !shift && event.key === Qt.Key_P) { const e = root._showActions ? root._targetEntry : (root.filtered.length > 0 ? root.filtered[root.selectedIndex] : null); if (e) root.executeAction(e, "type_pass"); event.accepted = true; return }
-                        if (alt && !shift && event.key === Qt.Key_U) { const e = root._showActions ? root._targetEntry : (root.filtered.length > 0 ? root.filtered[root.selectedIndex] : null); if (e) root.executeAction(e, "type_user"); event.accepted = true; return }
-                        if (alt && !shift && event.key === Qt.Key_O) { const e = root._showActions ? root._targetEntry : (root.filtered.length > 0 ? root.filtered[root.selectedIndex] : null); if (e) root.executeAction(e, "type_otp"); event.accepted = true; return }
-                        if (alt && !shift && event.key === Qt.Key_A) { const e = root._showActions ? root._targetEntry : (root.filtered.length > 0 ? root.filtered[root.selectedIndex] : null); if (e) root.executeAction(e, "autotype"); event.accepted = true; return }
-                        if (alt && !shift && event.key === Qt.Key_E) { const e = root._showActions ? root._targetEntry : (root.filtered.length > 0 ? root.filtered[root.selectedIndex] : null); if (e) root.executeAction(e, "edit"); event.accepted = true; return }
+                        if (alt && !shift && event.key === Qt.Key_C) { root._altRun("copy_pass"); event.accepted = true; return }
+                        if (alt && !shift && event.key === Qt.Key_R) { root._altRun("copy_user"); event.accepted = true; return }
+                        if (alt && !shift && event.key === Qt.Key_Y) { root._altRun("copy_otp"); event.accepted = true; return }
+                        if (alt && !shift && event.key === Qt.Key_P) { root._altRun("type_pass"); event.accepted = true; return }
+                        if (alt && !shift && event.key === Qt.Key_U) { root._altRun("type_user"); event.accepted = true; return }
+                        if (alt && !shift && event.key === Qt.Key_O) { root._altRun("type_otp"); event.accepted = true; return }
+                        if (alt && !shift && event.key === Qt.Key_A) { root._altRun("autotype"); event.accepted = true; return }
+                        if (alt && !shift && event.key === Qt.Key_E) { root._altRun("edit"); event.accepted = true; return }
                         if (alt && event.key === Qt.Key_BracketLeft) { root.nextStore(); event.accepted = true; return }
                         if (event.key === Qt.Key_Escape) {
                             if (root._showFieldPicker) {
                                 root._showFieldPicker = false; root._fieldMode = ""; root.query = ""
                                 const ck = root._targetEntry ? root.cacheKey(root._targetEntry.store || root._currentStore, root._targetEntry.label) : ""
                                 const hit = ck ? root._cache[ck] : null
-                                if (hit) { root._fieldsMap = hit.map; root._fieldsList = hit.list; root._previewPass = hit.pass } else { root.schedulePreview() }
+                                if (hit) { root._fieldsMap = hit.map; root._fieldsList = hit.list } else { root.schedulePreview() }
                                 event.accepted = true
                             } else if (root._showActions) {
                                 root._showActions = false; root.query = ""; root._revealPass = false; root._actionFieldsMap = null
@@ -1021,21 +981,21 @@ Scope {
                                     Keys.onPressed: event => {
                                         const shift = Boolean(event.modifiers & Qt.ShiftModifier)
                                         const alt = Boolean(event.modifiers & Qt.AltModifier)
-                                        if (alt && !shift && event.key === Qt.Key_C) { const e = root._showActions ? root._targetEntry : (root.filtered.length > 0 ? root.filtered[root.selectedIndex] : null); if (e) root.executeAction(e, "copy_pass"); event.accepted = true; return }
-                                        if (alt && !shift && event.key === Qt.Key_R) { const e = root._showActions ? root._targetEntry : (root.filtered.length > 0 ? root.filtered[root.selectedIndex] : null); if (e) root.executeAction(e, "copy_user"); event.accepted = true; return }
-                                        if (alt && !shift && event.key === Qt.Key_Y) { const e = root._showActions ? root._targetEntry : (root.filtered.length > 0 ? root.filtered[root.selectedIndex] : null); if (e) root.executeAction(e, "copy_otp"); event.accepted = true; return }
-                                        if (alt && !shift && event.key === Qt.Key_P) { const e = root._showActions ? root._targetEntry : (root.filtered.length > 0 ? root.filtered[root.selectedIndex] : null); if (e) root.executeAction(e, "type_pass"); event.accepted = true; return }
-                                        if (alt && !shift && event.key === Qt.Key_U) { const e = root._showActions ? root._targetEntry : (root.filtered.length > 0 ? root.filtered[root.selectedIndex] : null); if (e) root.executeAction(e, "type_user"); event.accepted = true; return }
-                                        if (alt && !shift && event.key === Qt.Key_O) { const e = root._showActions ? root._targetEntry : (root.filtered.length > 0 ? root.filtered[root.selectedIndex] : null); if (e) root.executeAction(e, "type_otp"); event.accepted = true; return }
-                                        if (alt && !shift && event.key === Qt.Key_A) { const e = root._showActions ? root._targetEntry : (root.filtered.length > 0 ? root.filtered[root.selectedIndex] : null); if (e) root.executeAction(e, "autotype"); event.accepted = true; return }
-                                        if (alt && !shift && event.key === Qt.Key_E) { const e = root._showActions ? root._targetEntry : (root.filtered.length > 0 ? root.filtered[root.selectedIndex] : null); if (e) root.executeAction(e, "edit"); event.accepted = true; return }
+                                        if (alt && !shift && event.key === Qt.Key_C) { root._altRun("copy_pass"); event.accepted = true; return }
+                                        if (alt && !shift && event.key === Qt.Key_R) { root._altRun("copy_user"); event.accepted = true; return }
+                                        if (alt && !shift && event.key === Qt.Key_Y) { root._altRun("copy_otp"); event.accepted = true; return }
+                                        if (alt && !shift && event.key === Qt.Key_P) { root._altRun("type_pass"); event.accepted = true; return }
+                                        if (alt && !shift && event.key === Qt.Key_U) { root._altRun("type_user"); event.accepted = true; return }
+                                        if (alt && !shift && event.key === Qt.Key_O) { root._altRun("type_otp"); event.accepted = true; return }
+                                        if (alt && !shift && event.key === Qt.Key_A) { root._altRun("autotype"); event.accepted = true; return }
+                                        if (alt && !shift && event.key === Qt.Key_E) { root._altRun("edit"); event.accepted = true; return }
                                         if (alt && event.key === Qt.Key_BracketLeft) { root.nextStore(); event.accepted = true; return }
                                         if (event.key === Qt.Key_Escape) {
                                             if (root._showFieldPicker) {
                                                 root._showFieldPicker = false; root._fieldMode = ""; text = ""; root.query = ""
                                                 const ck = root._targetEntry ? root.cacheKey(root._targetEntry.store || root._currentStore, root._targetEntry.label) : ""
                                                 const hit = ck ? root._cache[ck] : null
-                                                if (hit) { root._fieldsMap = hit.map; root._fieldsList = hit.list; root._previewPass = hit.pass } else { root.schedulePreview() }
+                                                if (hit) { root._fieldsMap = hit.map; root._fieldsList = hit.list } else { root.schedulePreview() }
                                                 event.accepted = true
                                             } else if (root._showActions) {
                                                 root._showActions = false; root._revealPass = false; root._actionFieldsMap = null; text = ""; root.query = ""

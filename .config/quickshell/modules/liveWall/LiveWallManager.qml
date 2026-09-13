@@ -14,37 +14,35 @@ Scope {
   property bool skipNextAnimation: true
 
   onSkipNextAnimationChanged: {
-    if (skipNextAnimation) _resetSkipTimer.restart()
+    if (skipNextAnimation)
+      _resetSkipTimer.restart()
   }
 
   function fileUrl(path) {
-    if (!path) return ""
+    if (!path)
+      return ""
     return "file://" + path.split("/").map(c => c === "" ? "" : encodeURIComponent(c)).join("/")
   }
-
-  function loadCurrent() {
-    loadProc.running = true
-  }
-
+  function loadCurrent() { loadProc.running = true }
   function setVideo(fileName, animate) {
-    if (!fileName) return
+    if (!fileName)
+      return
     const full = Quickshell.env("HOME") + "/Backgrounds/Live/" + fileName
     const esc = fileName.replace(/["$`\\]/g, "\\$&")
     Quickshell.execDetached(["sh", "-c", "ln -frs \"$HOME/Backgrounds/Live/" + esc + "\" \"$HOME/Backgrounds/Live/active\""])
     const shouldAnimate = animate !== false
     skipNextAnimation = !shouldAnimate
-    if (skipNextAnimation) _resetSkipTimer.restart()
+    if (skipNextAnimation)
+      _resetSkipTimer.restart()
     currentPath = full
     activeFile = fileName
     isLiveActive = true
   }
-
   function setActivePath(fullPath, animate) {
-    if (!fullPath) return
-    const base = fullPath.substring(fullPath.lastIndexOf("/") + 1)
-    setVideo(base, animate)
+    if (!fullPath)
+      return
+    setVideo(fullPath.substring(fullPath.lastIndexOf("/") + 1), animate)
   }
-
   function toggleLive() {
     if (isLiveActive) {
       skipNextAnimation = false
@@ -58,7 +56,8 @@ Scope {
       }
       skipNextAnimation = false
       isLiveActive = true
-      if (!currentPath && activeFile) currentPath = Quickshell.env("HOME") + "/Backgrounds/Live/" + activeFile
+      if (!currentPath && activeFile)
+        currentPath = Quickshell.env("HOME") + "/Backgrounds/Live/" + activeFile
     }
   }
 
@@ -72,8 +71,7 @@ Scope {
           manager.skipNextAnimation = true
           _resetSkipTimer.restart()
           manager.currentPath = p
-          const base = p.substring(p.lastIndexOf("/") + 1)
-          manager.activeFile = base
+          manager.activeFile = p.substring(p.lastIndexOf("/") + 1)
         }
       }
     }

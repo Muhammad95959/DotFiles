@@ -15,14 +15,8 @@ Scope {
   function open() { visible = true; selectedIndex = -1 }
   function close() { visible = false }
 
-  // -1 = nothing highlighted (no mouse yet / mouse on empty space)
   property int selectedIndex: -1
 
-  // ── 9-zone snap grid on home-row keys ──────────────────────────────
-  // spatial layout matches the 3x3 grid on screen:
-  //   a s d
-  //   f g h
-  //   j k l
   readonly property var zones: [
     { key: "topleft",     label: "top left",     hint: "a", qt: Qt.Key_A, icon: "↖", col: 0, row: 0 },
     { key: "top",         label: "top",          hint: "s", qt: Qt.Key_S, icon: "↑", col: 1, row: 0 },
@@ -45,7 +39,6 @@ Scope {
     return -1
   }
 
-  // target zone rect (for the on-screen preview) on a screen of sw x sh
   function geomFor(idx, sw, sh) {
     const z = zoneAt(idx)
     if (!z) return { x: 0, y: 0, w: 100, h: 100 }
@@ -69,7 +62,6 @@ Scope {
     }
   }
 
-  // hint circle center for a zone on a screen of sw x sh
   function hintPos(idx, sw, sh) {
     const z = zoneAt(idx)
     if (!z) return { x: sw / 2, y: sh / 2 }
@@ -81,9 +73,7 @@ Scope {
     return { x: cx, y: cy }
   }
 
-  // ── move-only placement ──────────────────────────────────────────
-  // Floating windows are never resized — we query the live window size
-  // and only move the window so it sits in the chosen zone.
+  // floating windows are moved, never resized
   property int pendingIdx: -1
   property real pendingSW: 0
   property real pendingSH: 0
@@ -120,12 +110,10 @@ Scope {
       if (!z) { close(); return }
       Quickshell.execDetached(["hyprctl", "dispatch", "hl.dsp.window.float({ action = \"on\" })"])
       if (info.floating) {
-        // already floating: move only, never touch its size
         const sz = info.size || [800, 450]
         const p = anchorFor(z.key, sz[0], sz[1], pendingSW, pendingSH)
         Quickshell.execDetached(["hyprctl", "dispatch", "hl.dsp.window.move({ x = " + Math.round(p.x) + ", y = " + Math.round(p.y) + " })"])
       } else {
-        // tiled: true snap — resize to the zone and move it there
         const g = geomFor(pendingIdx, pendingSW, pendingSH)
         Quickshell.execDetached(["hyprctl", "dispatch", "hl.dsp.window.resize({ x = " + Math.round(g.w) + ", y = " + Math.round(g.h) + " })"])
         Quickshell.execDetached(["hyprctl", "dispatch", "hl.dsp.window.move({ x = " + Math.round(g.x) + ", y = " + Math.round(g.y) + " })"])
@@ -134,8 +122,6 @@ Scope {
     close()
   }
 
-  // top-left corner where a w×h window must go to sit in `key`,
-  // clamped so it always stays fully on screen
   function anchorFor(key, w, h, sw, sh) {
     const gx = 10, gt = Config.barHeight + 10, gb = 10
     let x = gx, y = gt
@@ -151,12 +137,10 @@ Scope {
     default:            x = gx;            y = gt;            break
     }
     x = Math.min(Math.max(Math.round(x), gx), Math.max(sw - gx - w, gx))
-    // never slide under the bar (top) or off the bottom
     y = Math.min(Math.max(Math.round(y), gt), Math.max(sh - gb - h, gt))
     return { x: x, y: y }
   }
 
-  // keyboard nav across the 3x3 grid
   function step(dr, dc) {
     const z = zoneAt(selectedIndex)
     if (!z) { selectedIndex = 4; return }
@@ -187,11 +171,8 @@ Scope {
           id: overlay
           anchors.fill: parent
           focus: true
-          // Becomes true on the first real mouse movement. Until then no
-          // hint is highlighted — we never assume the cursor's position
-          // (items appearing under a stationary cursor must not select).
+          // never assume cursor position until it first moves
           property bool mouseArmed: false
-          // Uniform entrance fade for all hints (no stagger).
           property real enterFade: 0
           NumberAnimation {
             id: enterAnim
@@ -202,7 +183,6 @@ Scope {
             easing.type: Easing.OutCubic
           }
 
-          // ── dim (fade in) ──────────────────────────────────
           Rectangle {
             anchors.fill: parent
             color: Theme.dim
@@ -216,21 +196,16 @@ Scope {
             }
           }
 
-          // ── faint 3x3 grid lines ───────────────────────────
           Rectangle { x: parent.width / 3; y: Config.barHeight; width: 1; height: parent.height - Config.barHeight; color: Theme.fg; opacity: 0.07 }
           Rectangle { x: parent.width * 2 / 3; y: Config.barHeight; width: 1; height: parent.height - Config.barHeight; color: Theme.fg; opacity: 0.07 }
           Rectangle { x: 0; y: Config.barHeight + (parent.height - Config.barHeight) / 3; width: parent.width; height: 1; color: Theme.fg; opacity: 0.07 }
           Rectangle { x: 0; y: Config.barHeight + (parent.height - Config.barHeight) * 2 / 3; width: parent.width; height: 1; color: Theme.fg; opacity: 0.07 }
 
-          // ── snap preview (pops in place, never slides) ──────
-          // NOTE: deliberately no x/y/w/h Behaviors here — sliding one
-          // rect across the screen sweeps over unrelated zones and reads
-          // as other hints flashing. Jump + pop instead.
+          // preview jumps in place; sliding reads as other hints flashing
           Rectangle {
             id: preview
             property var g: root.geomFor(root.selectedIndex, overlay.width, overlay.height)
             property bool isCenter: root.zoneAt(root.selectedIndex) && root.zoneAt(root.selectedIndex).key === "center"
-            // unbound pop value so the animation never fights a binding
             property real pop: 1
             visible: root.selectedIndex >= 0
             x: isCenter ? (overlay.width - width) / 2 : g.x
@@ -254,7 +229,6 @@ Scope {
             }
           }
 
-          // ── circular hints ─────────────────────────────────
           Repeater {
             model: root.zones
             delegate: Item {
@@ -264,7 +238,6 @@ Scope {
               property var pos: root.hintPos(index, overlay.width, overlay.height)
               property bool isSel: root.selectedIndex === index
               property bool isCenter: modelData.key === "center"
-              // generous hover area around the visible circle
               width: 140; height: 140
               x: pos.x - width / 2
               y: pos.y - height / 2
@@ -273,10 +246,7 @@ Scope {
                 anchors.fill: parent
                 hoverEnabled: true
                 cursorShape: Qt.PointingHandCursor
-                // onEntered also fires when the overlay pops up under a
-                // stationary cursor — ignore that until the mouse moves.
                 onEntered: if (overlay.mouseArmed) root.selectedIndex = hintRoot.index
-                // ... but a real movement inside the area always counts.
                 onPositionChanged: { overlay.mouseArmed = true; root.selectedIndex = hintRoot.index }
                 onClicked: root.snapAt(hintRoot.index, overlay.width, overlay.height)
               }
@@ -289,7 +259,6 @@ Scope {
                 opacity: overlay.enterFade
                 Behavior on scale { NumberAnimation { duration: 180; easing.type: Easing.OutCubic } }
 
-                // glow behind selected
                 Rectangle {
                   anchors.centerIn: parent
                   width: parent.width + 22; height: parent.height + 22
@@ -335,7 +304,6 @@ Scope {
                   }
                 }
 
-                // label under circle
                 Text {
                   anchors.top: circle.bottom
                   anchors.topMargin: 6

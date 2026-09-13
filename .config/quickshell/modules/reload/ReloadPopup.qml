@@ -24,8 +24,7 @@ Scope {
         }
         function onReloadFailed(error: string) {
             Quickshell.inhibitReloadPopup()
-            // reset loader so fade restarts correctly
-            popupLoader.active = false
+            popupLoader.active = false // reset so fade restarts
             root.failed = true
             root.errorString = error
             root.instanceId = String(Quickshell.processId)
@@ -38,7 +37,6 @@ Scope {
 
         PanelWindow {
             id: popup
-            // ── Position: right side with comfortable margins ──────────
             anchors { right: true; top: true }
             margins { right: 16; top: Config.barHeight + 12 }
 
@@ -49,7 +47,6 @@ Scope {
 
             focusable: failText.focus
 
-            // ── Fade animation – preserved from original ───────────────
             SequentialAnimation on contentItem.opacity {
                 id: fadeOutAnim
                 NumberAnimation {
@@ -77,8 +74,49 @@ Scope {
                 if (contentItem.opacity === 0) popupLoader.active = false
             }
 
+            function btnFill(pressed, hover, red) {
+                if (red) {
+                    if (pressed) return Qt.tint(Theme.surface, Qt.alpha(Theme.urgent, 0.8))
+                    if (hover) return Theme.urgent
+                } else {
+                    if (pressed) return Qt.tint(Theme.surface, Qt.alpha(Theme.accent, 0.3))
+                    if (hover) return Qt.tint(Theme.surface, Qt.alpha(Theme.accent, 0.5))
+                }
+                return Theme.surface
+            }
+
+            function btnBorder(pressed, hover, red) {
+                if (red) {
+                    if (pressed) return Qt.tint(Theme.border, Qt.alpha(Theme.urgent, 0.8))
+                    if (hover) return Theme.urgent
+                } else {
+                    if (pressed) return Qt.tint(Theme.border, Qt.alpha(Theme.accent, 0.7))
+                    if (hover) return Theme.accent
+                }
+                return Theme.border
+            }
+
             component PopupText: Text {
                 color: Theme.fg
+            }
+
+            component FeedbackTip: Rectangle {
+                id: tipRoot
+                required property string tip
+                Layout.fillWidth: true
+                implicitHeight: tipLabel.implicitHeight + 8
+                radius: Theme.radiusSm
+                color: Theme.surfaceHover
+                border.color: Theme.border
+                border.width: 1
+                Text {
+                    id: tipLabel
+                    anchors.centerIn: parent
+                    text: tipRoot.tip
+                    color: Theme.fg
+                    font.family: Theme.monoFont
+                    font.pixelSize: 11
+                }
             }
 
             component TopButton: WrapperMouseArea {
@@ -91,30 +129,8 @@ Scope {
 
                 WrapperRectangle {
                     radius: 5
-
-                    color: {
-                        if (buttonMouse.red) {
-                            const baseColor = Theme.urgent
-                            if (buttonMouse.pressed) return Qt.tint(Theme.surface, Qt.alpha(baseColor, 0.8))
-                            if (buttonMouse.containsMouse) return baseColor
-                        } else {
-                            if (buttonMouse.pressed) return Qt.tint(Theme.surface, Qt.alpha(Theme.accent, 0.3))
-                            if (buttonMouse.containsMouse) return Qt.tint(Theme.surface, Qt.alpha(Theme.accent, 0.5))
-                        }
-                        return Theme.surface
-                    }
-
-                    border.color: {
-                        if (buttonMouse.red) {
-                            const baseColor = Theme.urgent
-                            if (buttonMouse.pressed) return Qt.tint(Theme.border, Qt.alpha(baseColor, 0.8))
-                            if (buttonMouse.containsMouse) return baseColor
-                        } else {
-                            if (buttonMouse.pressed) return Qt.tint(Theme.border, Qt.alpha(Theme.accent, 0.7))
-                            if (buttonMouse.containsMouse) return Theme.accent
-                        }
-                        return Theme.border
-                    }
+                    color: popup.btnFill(buttonMouse.pressed, buttonMouse.containsMouse, buttonMouse.red)
+                    border.color: popup.btnBorder(buttonMouse.pressed, buttonMouse.containsMouse, buttonMouse.red)
 
                     Behavior on color { ColorAnimation { duration: 100 } }
                     Behavior on border.color { ColorAnimation { duration: 100 } }
@@ -136,7 +152,6 @@ Scope {
                 }
             }
 
-            // ── Copy feedback state ──────────────────────────────────
             property bool copyFeedback: false
             property bool logFeedback: false
             Timer { id: copyReset; interval: 1500; onTriggered: popup.copyFeedback = false }
@@ -171,7 +186,6 @@ Scope {
 
                         Item { Layout.fillWidth: true }
 
-                        // Copy button (only when failed)
                         TopButton {
                             visible: root.failed
                             icon: "edit-copy"
@@ -183,7 +197,6 @@ Scope {
                             }
                         }
 
-                        // Close button
                         TopButton {
                             icon: "window-close"
                             fallbackText: "Close"
@@ -195,23 +208,9 @@ Scope {
                         }
                     }
 
-                    // Copy feedback tooltip (replaces internal Tooltip)
-                    Rectangle {
+                    FeedbackTip {
                         visible: popup.copyFeedback
-                        Layout.fillWidth: true
-                        implicitHeight: copyFeedbackText.implicitHeight + 8
-                        radius: Theme.radiusSm
-                        color: Theme.surfaceHover
-                        border.color: Theme.border
-                        border.width: 1
-                        Text {
-                            id: copyFeedbackText
-                            anchors.centerIn: parent
-                            text: "Copied to clipboard"
-                            color: Theme.fg
-                            font.family: Theme.monoFont
-                            font.pixelSize: 11
-                        }
+                        tip: "Copied to clipboard"
                     }
 
                     WrapperRectangle {
@@ -284,23 +283,9 @@ Scope {
                         PopupText { text: "to view the log." }
                     }
 
-                    // Log copy feedback
-                    Rectangle {
+                    FeedbackTip {
                         visible: popup.logFeedback
-                        Layout.fillWidth: true
-                        implicitHeight: logFeedbackText.implicitHeight + 8
-                        radius: Theme.radiusSm
-                        color: Theme.surfaceHover
-                        border.color: Theme.border
-                        border.width: 1
-                        Text {
-                            id: logFeedbackText
-                            anchors.centerIn: parent
-                            text: "Copied to clipboard"
-                            color: Theme.fg
-                            font.family: Theme.monoFont
-                            font.pixelSize: 11
-                        }
+                        tip: "Copied to clipboard"
                     }
                 }
             }

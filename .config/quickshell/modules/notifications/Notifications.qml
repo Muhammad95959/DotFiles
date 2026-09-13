@@ -14,7 +14,6 @@ import "../common"
 Scope {
   id: root
 
-  // ── Config (mirrors mako) ───────────────────────────────────────────
   readonly property int notifWidth: 420
   readonly property int notifMaxHeight: 420
   readonly property int outerMargin: 20
@@ -26,7 +25,6 @@ Scope {
   readonly property int spacingInner: 10
   readonly property int actionSpacing: 8
 
-  // Colors with DD opacity (0xDD/255 ≈ 0.867) — actionable now uses Theme
   readonly property color bgColor: Qt.alpha(Theme.bg, 0.867)
   readonly property color textColor: Theme.fg
   readonly property color borderDefault: Qt.alpha(Theme.fg, 0.867)
@@ -40,14 +38,12 @@ Scope {
   readonly property color actionText: Theme.fg
   readonly property color closeHover: Qt.alpha(Theme.urgent, 0.18)
 
-  // ── DND ─────────────────────────────────────────────────────────────
   property bool dnd: false
 
   function borderFor(notif) : color {
     if (notif.urgency === NotificationUrgency.Critical)
       return borderUrgent
-    // mako [urgency=high] also uses same red; quickshell has no High enum,
-    // so Critical covers it. Could check hint urgency=2 as well.
+    // quickshell has no High enum, so check the hint too.
     if (notif.hints["urgency"] === 2)
       return borderUrgent
     if (notif.actions.length > 0)
@@ -56,26 +52,22 @@ Scope {
   }
 
   function effectiveTimeout(notif) : int {
-    // critical → persistent (0)
     if (notif.urgency === NotificationUrgency.Critical)
       return 0
     if (notif.hints["urgency"] === 2)
       return 0
     let t = notif.expireTimeout
-    // actionable overrides to 30s (mako has two [actionable] blocks)
     if (notif.actions.length > 0) {
       if (t === -1 || t === 0) return 30000
       if (t === 5000) return 30000
       return t
     }
-    // non-actionable defaults
     if (t === -1 || t === undefined || isNaN(t)) return 5000
-    if (t === 0) return 5000 // 0 means server default except critical
+    if (t === 0) return 5000
     return t
   }
 
   function dismissAll() {
-    // copy because trackedNotifications changes during iteration
     const vals = server.trackedNotifications.values.slice()
     for (let i = 0; i < vals.length; i++)
       vals[i].dismiss()
@@ -88,11 +80,9 @@ Scope {
         vals[i].dismiss()
   }
 
-  // WhatsApp PWA app-id (brave --app-id=hnpfj...)
   readonly property string whatsappDesktopEntry: "brave-hnpfjngllnobngcgfapefoaidbinmjnm-Default"
   readonly property string whatsappAppIdShort: "hnpfjngllnobngcgfapefoaidbinmjnm"
 
-  // Score helper for finding the best toplevel match
   function toplevelScore(t, lowerDe: string, isWhatsapp: bool): int {
     const ipc = t.lastIpcObject || {}
     const cls = (ipc.class || ipc.initialClass || (t.wayland ? t.wayland.appId : "") || "").toLowerCase()
@@ -100,7 +90,6 @@ Scope {
     if (cls.length === 0 && title.length === 0) return -1
     const shortDe = lowerDe.replace("-default", "")
     const shortCls = cls.replace("-default", "")
-    // exact whatsapp PWA class is highest priority
     if (cls === lowerDe) return 100
     if (isWhatsapp) {
       if (cls.includes(whatsappAppIdShort)) return 95
@@ -120,12 +109,10 @@ Scope {
     let best = null
     let bestScore = -1
     const lowerDe = (desktopEntry || "").toLowerCase()
-    // for whatsapp, also try whatsapp DE even if requested de is generic
     const whatsappLower = whatsappDesktopEntry.toLowerCase()
     for (let i = 0; i < toplevels.length; i++) {
       const t = toplevels[i]
       let s = toplevelScore(t, lowerDe, isWhatsapp)
-      // if whatsapp, also score against whatsapp DE as alternative
       if (isWhatsapp && lowerDe !== whatsappLower) {
         const s2 = toplevelScore(t, whatsappLower, true)
         if (s2 > s) s = s2
@@ -135,11 +122,9 @@ Scope {
         best = t
       }
     }
-    // never return the hidden new-tab page if we are looking for whatsapp and best is that page
     if (isWhatsapp && best) {
       const ipc = best.lastIpcObject || {}
       const cls = (ipc.class || ipc.initialClass || (best.wayland ? best.wayland.appId : "") || "")
-      // new-tab page is brave-__home_muhammad_Projects_new-tab-page_index.html-Default
       if (cls.includes("new-tab-page")) {
         // try second best that is not new-tab-page
         let second = null
@@ -156,19 +141,14 @@ Scope {
     return bestScore >= 60 ? best : null
   }
 
-  // Try to focus the window that sent the notification.
-  // Used as fallback when no "default" action is present (e.g. WhatsApp Web
-  // via Brave PWA sends actions=[] but expects click → focus).
+  // Falls back to window focus when no "default" action exists (e.g. WhatsApp Web PWA).
   function focusWindowForDesktopEntry(desktopEntry: string, isWhatsapp: bool): bool {
     if (!desktopEntry || desktopEntry.length === 0) return false
-    // 1) Try to find a matching Hyprland toplevel and focus by address (most precise)
     const candidate = findBestToplevel(desktopEntry, isWhatsapp)
     if (candidate) {
-      const ipc = candidate.lastIpcObject || {}
-      const wsName = (candidate.workspace ? candidate.workspace.name : "") || ipc.workspace || ""
+      const ipc = candidate.lastIpcObject || {}      const wsName = (candidate.workspace ? candidate.workspace.name : "") || ipc.workspace || ""
       const isSpecial = wsName.startsWith("special:")
       if (isSpecial) {
-        // Move from special:hidden / special:minimized to active workspace then focus
         let targetWs = "1"
         try {
           const fw = Hyprland.focusedWorkspace
@@ -179,7 +159,6 @@ Scope {
           }
         } catch (e) {}
         Quickshell.execDetached(["hyprctl", "dispatch", "movetoworkspace", targetWs + ",address:" + candidate.address])
-        // small delay then focus
         Quickshell.execDetached(["sh", "-c", "sleep 0.05; hyprctl dispatch focuswindow address:" + candidate.address + "; hyprctl dispatch bringactivetotop address:" + candidate.address])
       } else {
         Quickshell.execDetached(["hyprctl", "dispatch", "focuswindow", "address:" + candidate.address])
@@ -188,7 +167,7 @@ Scope {
       console.log("[notifications] focusWindowForDesktopEntry", desktopEntry, "->", candidate.address, (ipc.class || ""), wsName)
       return true
     }
-    // 2) Fallback: ask Hyprland to focus by class directly
+    // Fallback: ask Hyprland to focus by class directly
     console.log("[notifications] focusWindowForDesktopEntry fallback class:", desktopEntry)
     Quickshell.execDetached(["hyprctl", "dispatch", "focuswindow", "class:" + desktopEntry])
     return true
@@ -199,14 +178,12 @@ Scope {
     const body = (notif.body || "").toLowerCase()
     const app = (notif.appName || "").toLowerCase()
     const isWhatsapp = app.includes("whatsapp") || summary.includes("whatsapp") || body.includes("whatsapp")
-    // Debug: log all hints for brave/whatsapp to catch mismatched desktopEntry
     if (isWhatsapp || app.includes("brave") || app.includes("chrome") || app.includes("chromium")) {
       console.log("[notifications] activate", JSON.stringify({
         appName: notif.appName, summary: notif.summary, body: (notif.body || "").slice(0,120),
         desktopEntry: notif.desktopEntry, hints: notif.hints, actions: notif.actions.map(a => a.identifier)
       }))
     }
-    // 1) spec-compliant: invoke "default" if present
     for (let i = 0; i < notif.actions.length; i++) {
       if (notif.actions[i].identifier === "default") {
         console.log("[notifications] invoke default for", notif.appName)
@@ -215,21 +192,16 @@ Scope {
         return true
       }
     }
-    // 2) fallback: try to focus window via desktopEntry / hints
     let de = notif.desktopEntry || ""
     if (de.length === 0) {
-      // freedesktop hints: "desktop-entry", "desktop_entry", "app-id", "x-canonical-*"
       de = notif.hints["desktop-entry"] || notif.hints["desktop_entry"] || notif.hints["app-id"] || notif.hints["app_id"] || ""
     }
-    // Force whatsapp DE if content indicates whatsapp, even if de is generic "brave"/"chromium"
     if (isWhatsapp) {
-      // if de is generic or missing, override; if de already looks like whatsapp PWA keep it
       if (!de.toLowerCase().includes(whatsappAppIdShort)) {
         de = whatsappDesktopEntry
       }
     } else if (de.length === 0) {
       if (app === "brave" || app === "brave-browser" || app.includes("chromium") || app.includes("chrome")) {
-        // generic brave window — try appName as class
         de = notif.appName
       }
     }
@@ -238,11 +210,10 @@ Scope {
       notif.dismiss()
       return true
     }
-    // 3) fallback via sender-pid
+    // Fallback via sender-pid hint.
     let pid = notif.hints["sender-pid"]
     if (pid === undefined) pid = notif.hints["sender_pid"]
     if (pid === undefined) pid = 0
-    // hints may store pid as int or string
     let pidStr = String(pid)
     if (pid && pidStr !== "0") {
       console.log("[notifications] fallback pid focus", pidStr)
@@ -250,13 +221,11 @@ Scope {
       notif.dismiss()
       return true
     }
-    // 4) last resort: just dismiss (don't leave stale notification)
     console.log("[notifications] no focus target, dismiss only", notif.appName)
     notif.dismiss()
     return false
   }
 
-  // ── Notification server ─────────────────────────────────────────────
   NotificationServer {
     id: server
     keepOnReload: false
@@ -276,12 +245,11 @@ Scope {
                       (notification.appName || "").toLowerCase().includes("chrome") ||
                       (notification.appName || "").toLowerCase().includes("chromium")
 
-      // 2. Bypass DND for notify-send AND Brave/Chromium to prevent silent drops
+      // Bypass DND for notify-send and Chromium to prevent silent drops.
       if (root.dnd && notification.appName !== "notify-send" && !isChromium) {
         return
       }
 
-      // 3. Power notification grouping
       if (notification.appName === "power") {
         const vals = server.trackedNotifications.values.slice()
         for (let i = 0; i < vals.length; i++) {
@@ -290,22 +258,19 @@ Scope {
         }
       }
       
-      // 4. Ensure tracking is applied
       notification.tracked = true
     }
   }
 
-  // reverse model (newest top) — reactive on values
+  // Newest-first view of tracked notifications.
   property var revModel: {
     const vals = server.trackedNotifications.values
-    // force re-eval when length changes
     const len = vals.length
     let r = []
     for (let i = len - 1; i >= 0; i--) r.push(vals[i])
     return r
   }
 
-  // ── Per-screen overlay ───────────────────────────────────────────────
   Variants {
     model: Quickshell.screens
     PanelWindow {
@@ -319,20 +284,16 @@ Scope {
       WlrLayershell.keyboardFocus: WlrKeyboardFocus.None
       WlrLayershell.namespace: "quickshell-notifications"
 
-      // anchored top-right, inset by outerMargin + bar height — only covers
-      // notification area so clicks outside pass through. Fixes left cut
-      // (previous implicitWidth + child rightMargin overflowed).
+      // Anchored top-right and sized to the notification area so clicks outside pass through.
       anchors { top: true; right: true }
       // PanelWindow margins inset from screen edges
       margins { top: Config.barHeight + root.outerMargin; right: root.outerMargin; bottom: root.outerMargin }
       implicitWidth: root.notifWidth
-      // height tracks content but never exceeds screen height
       implicitHeight: Math.min(col.implicitHeight, (win.screen ? win.screen.height : 1080) - Config.barHeight - root.outerMargin * 2)
       visible: root.revModel.length > 0
 
       Column {
         id: col
-        // fill the inset window — no extra margins to avoid double offset
         width: root.notifWidth
         spacing: 10
 
@@ -347,18 +308,14 @@ Scope {
     }
   }
 
-  // ── Delegated card ───────────────────────────────────────────────────
   component NotificationCard: Item {
     id: cardRoot
     required property Notification notif
     width: root.notifWidth
-    // height determined by content + progress bar + actions, capped at maxHeight
     implicitHeight: card.implicitHeight
 
-    // Effective timeout computed once per notification
     property int timeoutMs: root.effectiveTimeout(notif)
     property color borderCol: root.borderFor(notif)
-    // progress hint: freedesktop value hint (0-100) or "value" string
     property int progressVal: {
       let v = notif.hints["value"]
       if (v === undefined) v = notif.hints["progress"]
@@ -381,9 +338,6 @@ Scope {
     Rectangle {
       id: card
       width: root.notifWidth
-      // Card height is the single tunable knob. Grows with content up to
-      // notifMaxHeight, then content is clipped (increase notifMaxHeight
-      // to allow taller notifications).
       implicitHeight: Math.min(contentCol.implicitHeight + root.paddingV * 2 + (cardRoot.progressVal >= 0 ? 6 : 0), root.notifMaxHeight)
       radius: root.borderRadius
       color: root.bgColor
@@ -391,7 +345,7 @@ Scope {
       border.color: cardRoot.borderCol
       clip: true
 
-      // pause timer on hover
+      // Pause auto-dismiss on hover.
       MouseArea {
         anchors.fill: parent
         hoverEnabled: true
@@ -402,11 +356,9 @@ Scope {
         onExited: {
           if (cardRoot.timeoutMs > 0) dismissTimer.restart()
         }
-        onPositionChanged: {}
         z: 0
       }
 
-      // ── Close button (top-right) — margins match text padding ───────
       Rectangle {
         width: 18; height: 18
         radius: 2
@@ -433,7 +385,6 @@ Scope {
         }
       }
 
-      // ── Content column ──────────────────────────────────────────────
       ColumnLayout {
         id: contentCol
         anchors.top: parent.top
@@ -445,13 +396,11 @@ Scope {
         anchors.bottomMargin: cardRoot.progressVal >= 0 ? 6 + root.paddingV : root.paddingV
         spacing: 6
 
-        // Top row: icon + summary/body
         RowLayout {
           Layout.fillWidth: true
           spacing: root.spacingInner
-          Layout.rightMargin: 26 // leave room for 22px close btn
+          Layout.rightMargin: 26
 
-          // Icon (max 32) — prefer notification image, fallback appIcon
           Item {
             visible: iconImg.visible
             Layout.preferredWidth: root.maxIconSize
@@ -471,10 +420,8 @@ Scope {
               source: {
                 let s = cardRoot.notif.image
                 if (s && s.length > 0) {
-                  // if absolute path or file://, use as-is; else icon lookup
                   if (s.startsWith("/") || s.startsWith("file://"))
                     return s
-                  // try icon path
                   let p = Quickshell.iconPath(s, true)
                   if (p && p.length > 0) return p
                   return s
@@ -495,7 +442,6 @@ Scope {
             spacing: 4
             Layout.alignment: Qt.AlignTop
 
-            // Summary (title) — bold, allow multiline (bilal uses summary for multi-line)
             Text {
               visible: text.length > 0
               Layout.fillWidth: true
@@ -510,14 +456,10 @@ Scope {
               textFormat: Text.PlainText
             }
 
-            // Body — allow long bodies to expand height instead of eliding
             Text {
               visible: text.length > 0
               Layout.fillWidth: true
-              text: {
-                let b = cardRoot.notif.body || ""
-                return b
-              }
+              text: cardRoot.notif.body || ""
               color: Qt.alpha(root.textColor, 0.92)
               font.family: "sans-serif"
               font.pixelSize: 14
@@ -530,8 +472,6 @@ Scope {
           }
         }
 
-        // App name — dedicated line at bottom, mirrors text padding
-        // 10px size, own row so margins match body/summary
         Text {
           visible: (cardRoot.notif.appName || "").length > 0 && (cardRoot.notif.appName !== cardRoot.notif.summary)
           Layout.fillWidth: true
@@ -544,8 +484,6 @@ Scope {
           textFormat: Text.PlainText
         }
 
-        // ── Progress bar (if hint value present) ──────────────────────
-        // mako progress-color=over #838691
         Rectangle {
           visible: cardRoot.progressVal >= 0
           Layout.fillWidth: true
@@ -561,7 +499,6 @@ Scope {
           }
         }
 
-        // ── Action buttons (replaces rofi selector) — centered ───────
         Flow {
           visible: cardRoot.notif.actions.length > 0
           Layout.alignment: Qt.AlignHCenter
@@ -569,11 +506,10 @@ Scope {
 
           Repeater {
             model: cardRoot.notif.actions
-            delegate: Rectangle {
-              id: actBtn
-              required property NotificationAction modelData
-              // hide "default" action which is usually click-action — we handle via card click
-              visible: modelData.identifier !== "default"
+              delegate: Rectangle {
+                id: actBtn
+                required property NotificationAction modelData
+                visible: modelData.identifier !== "default"
               implicitWidth: actLabel.implicitWidth + 18
               implicitHeight: 26
               radius: 4
@@ -599,7 +535,6 @@ Scope {
                 cursorShape: Qt.PointingHandCursor
                 onClicked: {
                   actBtn.modelData.invoke()
-                  // dismiss after invoking (mako closes on action)
                   cardRoot.notif.dismiss()
                 }
               }
@@ -608,8 +543,7 @@ Scope {
         }
       }
 
-      // ── Card click: invoke default or fallback focus (WhatsApp Web) ────
-      // Right-click dismisses notification
+      // Card click invokes default action (or window-focus fallback); right-click dismisses.
       MouseArea {
         anchors.fill: parent
         // keep below close button and action buttons so they receive clicks first
@@ -623,27 +557,24 @@ Scope {
             mouse.accepted = true
             return
           }
-          // if an action button already handled the click, don't double-activate
+          // An action button already handled the click; don't double-activate.
           if (mouse.accepted) return
           root.activateNotification(cardRoot.notif)
           mouse.accepted = true
         }
       }
 
-      // Entrance animation (slide from right)
+      // Entrance animation.
       NumberAnimation on opacity { from: 0; to: 1; duration: 160; easing.type: Easing.OutCubic }
     }
   }
 
-  // ── IPC ───────────────────────────────────────────────────────────────
   IpcHandler {
     target: "notifications"
     function dismissAll(): string { root.dismissAll(); return "ok" }
     function dismiss(): string { root.dismissAll(); return "ok" }
     function dismissApp(appName: string): string { if (appName && appName.length > 0) root.dismissByApp(appName); else root.dismissAll(); return "ok" }
-    // makoctl compat: dismiss [-a app] [-g group] [-i id]
     function dismissGroup(group: string): string { root.dismissByApp(group); return "ok" }
-    // alias for makoctl compatibility helpers
     function closeAll(): string { root.dismissAll(); return "ok" }
     function dnd(state: string): string {
       if (state === "toggle") root.dnd = !root.dnd

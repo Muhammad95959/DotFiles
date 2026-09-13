@@ -18,17 +18,14 @@ Scope {
   function open() { visible = true }
   function close() { visible = false; query = ""; selectedCategory = "All"; selectedIndex = 0; _altHeld = false }
 
-  // ── Search / category state ────────────────────────────────────────
   property string query: ""
   property string selectedCategory: "All"
   property int selectedIndex: 0
   property int columns: 7
   readonly property int visibleRows: 5
-  // ── Hover block after keyboard/page ─────────────────────────────────
   property bool _blockHover: false
   function _markKeyboard() { _blockHover = true }
 
-  // ── Alt-hold for categories (like MpvHistory) ─────────────────────────
   property bool _altHeld: false
 
   // freedesktop main categories + All (hint = Alt+letter)
@@ -127,7 +124,6 @@ Scope {
     if (ni >= n) ni = 0
     selectedIndex = ni
   }
-  // ── Row-major helpers: Tab cycles, arrows do not ─────────────────
   function moveHorizontal(dir) { _markKeyboard(); moveSelection(dir) } // wrapping for Tab
   function moveHorizontalNoWrap(dir) {
     _markKeyboard()
@@ -164,7 +160,6 @@ Scope {
     selectedIndex = ni
   }
 
-  // ── Windows ────────────────────────────────────────────────────────
   LazyLoader {
     active: launcherRoot.visible
 
@@ -192,7 +187,6 @@ Scope {
         color: Theme.dim
       }
 
-      // ── Centered container ─────────────────────────────────────
       Rectangle {
         id: container
         width: 968
@@ -231,7 +225,6 @@ Scope {
           anchors.margins: 16
           spacing: 12
 
-          // ── Search ─────────────────────────────────────────────────
           Rectangle {
             Layout.fillWidth: true
             height: 42
@@ -328,7 +321,6 @@ if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_T) { launcherRoot
             }
           }
 
-          // ── Categories ─────────────────────────────────────────────
           Flickable {
             id: catFlick
             Layout.fillWidth: true
@@ -453,7 +445,6 @@ if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_T) { launcherRoot
             font.pixelSize: 11
           }
 
-          // ── Grid ───────────────────────────────────────────────────
           Item {
             Layout.fillWidth: true
             Layout.preferredHeight: launcherRoot.visibleRows * grid.cellHeight
@@ -583,7 +574,6 @@ if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_T) { launcherRoot
     }
   }
 
-  // ── IPC / Shortcut ─────────────────────────────────────────────────
   }
 
   IpcHandler {

@@ -8,8 +8,6 @@ import "."
 import "../common"
 
 Scope {
-  id: bgRoot
-
   Variants {
     model: Quickshell.screens
     PanelWindow {
@@ -22,6 +20,23 @@ Scope {
       WlrLayershell.layer: WlrLayer.Background
       anchors { top: true; bottom: true; left: true; right: true }
 
+      function _crossFadeTo(path) {
+        fadeBehavior.enabled = false
+        topImage.opacity = 0
+        fadeBehavior.enabled = true
+        topImage.source = WallpaperManager.fileUrl(path)
+        if (topImage.status === Image.Ready)
+          topImage.opacity = 1
+      }
+      function _instantTo(path) {
+        fadeBehavior.enabled = false
+        const url = WallpaperManager.fileUrl(path)
+        bottomImage.source = url
+        topImage.source = url
+        topImage.opacity = 1
+        fadeBehavior.enabled = true
+      }
+
       Component.onCompleted: {
         const p = WallpaperManager.currentPath
         if (p) {
@@ -32,25 +47,7 @@ Scope {
         }
       }
 
-      function _crossFadeTo(path) {
-        fadeBehavior.enabled = false
-        topImage.opacity = 0
-        fadeBehavior.enabled = true
-        topImage.source = WallpaperManager.fileUrl(path)
-        if (topImage.status === Image.Ready) topImage.opacity = 1
-      }
-
-      function _instantTo(path) {
-        fadeBehavior.enabled = false
-        const url = WallpaperManager.fileUrl(path)
-        bottomImage.source = url
-        topImage.source = url
-        topImage.opacity = 1
-        fadeBehavior.enabled = true
-      }
-
       Item {
-        id: crossFadeContainer
         anchors.fill: parent
 
         Image {
@@ -83,7 +80,6 @@ Scope {
             if (status === Image.Ready && !WallpaperManager.skipNextAnimation && opacity === 0)
               opacity = 1
           }
-
           onOpacityChanged: {
             if (opacity === 1 && status === Image.Ready)
               bottomImage.source = source
@@ -102,13 +98,16 @@ Scope {
         target: WallpaperManager
         function onCurrentPathChanged() {
           const p = WallpaperManager.currentPath
-          if (!p) return
+          if (!p)
+            return
           if (bottomImage.source === "" && topImage.source === "") {
             _instantTo(p)
             return
           }
-          if (WallpaperManager.skipNextAnimation) _instantTo(p)
-          else _crossFadeTo(p)
+          if (WallpaperManager.skipNextAnimation)
+            _instantTo(p)
+          else
+            _crossFadeTo(p)
         }
       }
     }

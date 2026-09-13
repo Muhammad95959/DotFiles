@@ -7,17 +7,13 @@ import Quickshell.Io
 import Quickshell.Wayland
 
 import "."
-import "../common"
 
 Scope {
-  id: bgRoot
-
   LazyLoader {
     active: LiveWallManager.isLiveActive && LiveWallManager.currentPath !== ""
     Variants {
       model: Quickshell.screens
       PanelWindow {
-        id: win
         required property var modelData
         screen: modelData
         visible: true
@@ -29,19 +25,16 @@ Scope {
         Item {
           id: crossFadeContainer
           anchors.fill: parent
-          opacity: 1
-          Behavior on opacity { NumberAnimation { duration: 500; easing.type: Easing.InOutCubic } }
 
           function _crossFadeTo(path) {
             fadeBehavior.enabled = false
             topVideo.opacity = 0
             fadeBehavior.enabled = true
-            const url = LiveWallManager.fileUrl(path)
-            topVideo.source = url
+            topVideo.source = LiveWallManager.fileUrl(path)
             topVideo.play()
-            if (topVideo.playbackState === MediaPlayer.PlayingState || topVideo.hasVideo) topVideo.opacity = 1
+            if (topVideo.playbackState === MediaPlayer.PlayingState || topVideo.hasVideo)
+              topVideo.opacity = 1
           }
-
           function _instantTo(path) {
             fadeBehavior.enabled = false
             const url = LiveWallManager.fileUrl(path)
@@ -60,8 +53,10 @@ Scope {
               bottomVideo.source = url
               topVideo.source = url
               topVideo.opacity = 1
-              if (topVideo.playbackState !== MediaPlayer.PlayingState) topVideo.play()
-              if (bottomVideo.playbackState !== MediaPlayer.PlayingState) bottomVideo.play()
+              if (topVideo.playbackState !== MediaPlayer.PlayingState)
+                topVideo.play()
+              if (bottomVideo.playbackState !== MediaPlayer.PlayingState)
+                bottomVideo.play()
             }
           }
 
@@ -89,11 +84,11 @@ Scope {
               if (playbackState === MediaPlayer.PlayingState && !LiveWallManager.skipNextAnimation && opacity === 0)
                 opacity = 1
             }
-
             onOpacityChanged: {
               if (opacity === 1 && playbackState === MediaPlayer.PlayingState) {
                 bottomVideo.source = source
-                if (bottomVideo.playbackState !== MediaPlayer.PlayingState) bottomVideo.play()
+                if (bottomVideo.playbackState !== MediaPlayer.PlayingState)
+                  bottomVideo.play()
               }
             }
           }
@@ -114,11 +109,15 @@ Scope {
               onRead: data => {
                 const p = data.trim()
                 if (p === "yes") {
-                  if (bottomVideo.playbackState === MediaPlayer.PlayingState) bottomVideo.pause()
-                  if (topVideo.playbackState === MediaPlayer.PlayingState) topVideo.pause()
+                  if (bottomVideo.playbackState === MediaPlayer.PlayingState)
+                    bottomVideo.pause()
+                  if (topVideo.playbackState === MediaPlayer.PlayingState)
+                    topVideo.pause()
                 } else if (p === "no") {
-                  if (bottomVideo.playbackState === MediaPlayer.PausedState) bottomVideo.play()
-                  if (topVideo.playbackState === MediaPlayer.PausedState) topVideo.play()
+                  if (bottomVideo.playbackState === MediaPlayer.PausedState)
+                    bottomVideo.play()
+                  if (topVideo.playbackState === MediaPlayer.PausedState)
+                    topVideo.play()
                 }
               }
             }
@@ -128,13 +127,16 @@ Scope {
             target: LiveWallManager
             function onCurrentPathChanged() {
               const p = LiveWallManager.currentPath
-              if (!p) return
+              if (!p)
+                return
               if (bottomVideo.source === "" && topVideo.source === "") {
                 crossFadeContainer._instantTo(p)
                 return
               }
-              if (LiveWallManager.skipNextAnimation) crossFadeContainer._instantTo(p)
-              else crossFadeContainer._crossFadeTo(p)
+              if (LiveWallManager.skipNextAnimation)
+                crossFadeContainer._instantTo(p)
+              else
+                crossFadeContainer._crossFadeTo(p)
             }
           }
         }
