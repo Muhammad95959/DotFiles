@@ -83,6 +83,28 @@ Scope {
   readonly property string whatsappDesktopEntry: "brave-hnpfjngllnobngcgfapefoaidbinmjnm-Default"
   readonly property string whatsappAppIdShort: "hnpfjngllnobngcgfapefoaidbinmjnm"
 
+  // Chromium/Electron runtimes; individual apps need no listing.
+  readonly property var runtimeMarkers: ["chrome", "chromium", "brave", "helium", "electron", "edge", "opera", "vivaldi", "asar", "--app-id"]
+
+  function matchesRuntime(s): bool {
+    const v = (s || "").toLowerCase()
+    if (v.length === 0) return false
+    for (let i = 0; i < runtimeMarkers.length; i++)
+      if (v.includes(runtimeMarkers[i])) return true
+    return false
+  }
+
+  function isRuntimeNotification(notif): bool {
+    if (matchesRuntime(notif.appName)) return true
+    if (matchesRuntime(notif.desktopEntry)) return true
+    if (matchesRuntime(notif.appIcon)) return true
+    const h = notif.hints || {}
+    const keys = ["desktop-entry", "desktop_entry", "app-id", "app_id"]
+    for (let i = 0; i < keys.length; i++)
+      if (matchesRuntime(h[keys[i]])) return true
+    return false
+  }
+
   function toplevelScore(t, lowerDe: string, isWhatsapp: bool): int {
     const ipc = t.lastIpcObject || {}
     const cls = (ipc.class || ipc.initialClass || (t.wayland ? t.wayland.appId : "") || "").toLowerCase()
@@ -178,7 +200,8 @@ Scope {
     const body = (notif.body || "").toLowerCase()
     const app = (notif.appName || "").toLowerCase()
     const isWhatsapp = app.includes("whatsapp") || summary.includes("whatsapp") || body.includes("whatsapp")
-    if (isWhatsapp || app.includes("brave") || app.includes("chrome") || app.includes("chromium")) {
+    const isRuntime = isRuntimeNotification(notif)
+    if (isWhatsapp || isRuntime) {
       console.log("[notifications] activate", JSON.stringify({
         appName: notif.appName, summary: notif.summary, body: (notif.body || "").slice(0,120),
         desktopEntry: notif.desktopEntry, hints: notif.hints, actions: notif.actions.map(a => a.identifier)
@@ -201,7 +224,7 @@ Scope {
         de = whatsappDesktopEntry
       }
     } else if (de.length === 0) {
-      if (app === "brave" || app === "brave-browser" || app.includes("chromium") || app.includes("chrome")) {
+      if (isRuntime) {
         de = notif.appName
       }
     }
@@ -240,13 +263,8 @@ Scope {
     inlineReplySupported: false
 
     onNotification: notification => {
-      const isChromium = (notification.appName || "").toLowerCase().includes("brave") || 
-                      (notification.appName || "").toLowerCase().includes("helium") ||
-                      (notification.appName || "").toLowerCase().includes("chrome") ||
-                      (notification.appName || "").toLowerCase().includes("chromium")
-
-      // Bypass DND for notify-send and Chromium to prevent silent drops.
-      if (root.dnd && notification.appName !== "notify-send" && !isChromium) {
+      // Bypass DND for notify-send and Chromium/Electron runtimes to prevent silent drops.
+      if (root.dnd && notification.appName !== "notify-send" && !root.isRuntimeNotification(notification)) {
         return
       }
 
