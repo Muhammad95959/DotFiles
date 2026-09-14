@@ -97,7 +97,6 @@ Scope {
       property int bandwidthIntervalMs: 1000
       property int cpuIntervalMs: 2000
       property int networkIntervalMs: 10000
-      property int bilalIntervalMs: 30000
       property int bilalNotifyDurationMs: 30000
 
       property var screenshotCmd: ["flameshot", "gui"]
@@ -251,9 +250,15 @@ Scope {
       }
 
       property string bilalText: ""
-      Timer { interval: bar.bilalIntervalMs; running: true; repeat: true; triggeredOnStart: true; onTriggered: bilalProc.running = true }
+      Connections {
+        target: sysClock
+        function onDateChanged() {
+          if (sysClock.date.getSeconds() === 0) bilalProc.running = true
+        }
+      }
       Process {
         id: bilalProc
+        running: true
         command: ["sh", "-c", bar.bilalScriptPath + " -r 2>/dev/null || echo ''"]
         stdout: SplitParser { onRead: function(data) { bar.bilalText = data.trim() } }
       }
