@@ -17,9 +17,9 @@ Scope {
   property var allEntries: []
   property string _accum: ""
   property bool _blockHover: false
-  property int rowsVisible: 10
+  property int rowsVisible: 8
   property real aspect: 4 / 3
-  readonly property int _rowH: 36
+  readonly property int _rowH: 48
   readonly property int _rowGap: 6
   readonly property int listH: rowsVisible * _rowH + (rowsVisible - 1) * _rowGap
   readonly property var filtered: {
@@ -118,10 +118,13 @@ Scope {
               id: listView; Layout.fillWidth: true; Layout.preferredHeight: root.listH; Layout.fillHeight: false; clip: true; LayoutMirroring.enabled: false; boundsBehavior: Flickable.StopAtBounds; spacing: 6; model: root.filtered; currentIndex: root.selectedIndex
               onCurrentIndexChanged: { root.selectedIndex = currentIndex; if (currentIndex >= 0) root.snapPage(listView, currentIndex) }
               delegate: Rectangle {
-                id: del; required property var modelData; required property int index; width: listView.width; height: 36; radius: Theme.radiusSm; color: root.selectedIndex === index ? Theme.surfaceHover : Theme.surface; border.color: root.selectedIndex === index ? Qt.alpha(Theme.fg, 0.33) : Theme.border; border.width: 1
+                id: del; required property var modelData; required property int index; width: listView.width; height: 48; radius: Theme.radiusSm; color: root.selectedIndex === index ? Theme.surfaceHover : Theme.surface; border.color: root.selectedIndex === index ? Qt.alpha(Theme.fg, 0.33) : Theme.border; border.width: 1
                 RowLayout { anchors.fill: parent; anchors.leftMargin: 12; anchors.rightMargin: 12; spacing: 10
                   Text { text: ""; color: Theme.fg; opacity: 0.7; font.family: Theme.nerdFont; font.pixelSize: 12 }
-                  Text { text: del.modelData.split("/").pop(); color: Theme.fg; font.family: Theme.monoFont; font.pixelSize: 12; Layout.fillWidth: true; elide: Text.ElideMiddle; horizontalAlignment: Text.AlignLeft; LayoutMirroring.enabled: false }
+                  ColumnLayout { Layout.fillWidth: true; spacing: 2
+                    Text { text: del.modelData.split("/").pop(); color: Theme.fg; font.family: Theme.monoFont; font.pixelSize: 12; font.bold: root.selectedIndex === del.index; Layout.fillWidth: true; elide: Text.ElideRight; horizontalAlignment: Text.AlignLeft; LayoutMirroring.enabled: false }
+                    Text { text: del.modelData; color: Theme.fg; opacity: 0.55; font.family: Theme.monoFont; font.pixelSize: 10; Layout.fillWidth: true; elide: Text.ElideMiddle; horizontalAlignment: Text.AlignLeft; LayoutMirroring.enabled: false }
+                  }
                 }
                 MouseArea { anchors.fill: parent; hoverEnabled: true; cursorShape: Qt.PointingHandCursor; onClicked: { if (root.selectedIndex === del.index) root.activateAt(del.index); else root.selectedIndex = del.index } }
               }
