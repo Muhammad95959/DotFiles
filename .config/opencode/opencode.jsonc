@@ -1,5 +1,6 @@
 {
   "$schema": "https://opencode.ai/config.json",
+  "instructions": ["/home/muhammad/DotFiles/.config/opencode/instructions/response-style.md"],
   "plugin": ["@mohak34/opencode-notifier@latest"],
   "mcp": {
     "stitch": {
