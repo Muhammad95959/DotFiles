@@ -337,6 +337,36 @@ local function waydroid()
   ' &]])
 end
 
+local function group_navigate_or_fallback(group_dir, fallback)
+  local w = hl.get_active_window()
+  if w and w.group and w.group.size > 1 then
+    local idx = w.group.current_index
+    local size = w.group.size
+    local at_edge = (group_dir == "prev" and idx == 1) or (group_dir == "next" and idx == size)
+    if not at_edge then
+      hl.dispatch(group_dir == "prev" and hl.dsp.group.prev() or hl.dsp.group.next())
+      return true
+    end
+  end
+  if fallback then fallback() end
+  return false
+end
+
+local function smart_focus(dir)
+  local group_dir = dir == "left" and "prev" or "next"
+  group_navigate_or_fallback(group_dir, function()
+    hl.dispatch(hl.dsp.focus({ direction = dir }))
+    hl.dispatch(hl.dsp.window.bring_to_top())
+  end)
+end
+
+local function smart_cycle(cycle_dir)
+  local group_dir = cycle_dir == "prev" and "prev" or "next"
+  group_navigate_or_fallback(group_dir, function()
+    hl.dispatch(hl.dsp.layout(cycle_dir == "next" and "cyclenext" or "cycleprev"))
+  end)
+end
+
 local function move_window(direction)
   local w = hl.get_active_window()
   if w == nil then return end
@@ -349,9 +379,48 @@ local function move_window(direction)
     }
     local d = dirs[direction]
     hl.dispatch(hl.dsp.window.move({ x = d.x, y = d.y, relative = true }))
-  else
-    hl.dispatch(hl.dsp.window.move({ direction = direction, group_aware = true }))
+    return
   end
+  if w.group and w.group.size > 1 then
+    local idx = w.group.current_index
+    local size = w.group.size
+    local group_dir = nil
+    if direction == "l" or direction == "u" then group_dir = "prev"
+    elseif direction == "r" or direction == "d" then group_dir = "next" end
+    if group_dir then
+      local at_edge = (group_dir == "prev" and idx == 1) or (group_dir == "next" and idx == size)
+      if not at_edge then
+        hl.dispatch(hl.dsp.group.move_window({ forward = group_dir == "next" }))
+        return
+      end
+    end
+  end
+  local was_outside = not w.group or w.group.size <= 1
+  local moved_addr = w.address
+  hl.dispatch(hl.dsp.window.move({ direction = direction, group_aware = true }))
+  if not was_outside then return end
+  hl.timer(function()
+    local aw = hl.get_active_window()
+    if aw == nil or aw.address ~= moved_addr then
+      for _, win in ipairs(hl.get_windows()) do
+        if win.address == moved_addr then
+          aw = win
+          break
+        end
+      end
+      if aw == nil then return end
+    end
+    if aw.group == nil or aw.group.size <= 1 then return end
+    local size = aw.group.size
+    local idx = aw.group.current_index
+    local desired = (direction == "r" or direction == "d") and 1 or size
+    if idx == desired then return end
+    if desired == 1 then
+      for _ = 1, idx - 1 do hl.dispatch(hl.dsp.group.move_window({ forward = false })) end
+    else
+      for _ = 1, size - idx do hl.dispatch(hl.dsp.group.move_window({ forward = true })) end
+    end
+  end, { timeout = 30, type = "oneshot" })
 end
 
 local function restore_minimized()
@@ -648,8 +717,6 @@ end)
 -- General
 hl.bind(mod .. " + RETURN",         hl.dsp.exec_cmd("kitty"))
 hl.bind(mod .. " + SPACE",          toggle_focus_float)
-hl.bind(mod .. " + COMMA",          hl.dsp.group.prev())
-hl.bind(mod .. " + PERIOD",         hl.dsp.group.next())
 hl.bind(mod .. " + a",              hl.dsp.submap("apps"))
 hl.bind(mod .. " + b",              hl.dsp.exec_cmd("/usr/bin/brave-origin --test-type"))
 hl.bind(mod .. " + c",              hl.dsp.exec_cmd("quickshell ipc call clipboard toggle"))
@@ -669,8 +736,6 @@ hl.bind(mod .. " + y",              waydroid)
 
 hl.bind(mod .. " + SHIFT + RETURN", hl.dsp.exec_cmd("/usr/bin/albert toggle || /usr/bin/albert"))
 hl.bind(mod .. " + SHIFT + SPACE",  toggle_floating)
-hl.bind(mod .. " + SHIFT + COMMA",  hl.dsp.group.move_window({ forward = false }))
-hl.bind(mod .. " + SHIFT + PERIOD", hl.dsp.group.move_window({ forward = true }))
 hl.bind(mod .. " + SHIFT + c",      hl.dsp.exec_cmd("quickshell ipc call notifications dismissAll"))
 hl.bind(mod .. " + SHIFT + d",      restore_minimized)
 hl.bind(mod .. " + SHIFT + f",      toggle_gaps)
@@ -690,13 +755,11 @@ for i = 1, 9 do
   hl.bind(mod .. " + SHIFT + " .. i, hl.dsp.window.move({ workspace = i }))
 end
 
--- Move focus
-hl.bind(mod .. " + h", hl.dsp.focus({ direction = "left" }),  { repeating = true })
-hl.bind(mod .. " + h", hl.dsp.window.bring_to_top(),          { repeating = true })
-hl.bind(mod .. " + l", hl.dsp.focus({ direction = "right" }), { repeating = true })
-hl.bind(mod .. " + l", hl.dsp.window.bring_to_top(),          { repeating = true })
-hl.bind(mod .. " + j", hl.dsp.layout("cyclenext"),            { repeating = true })
-hl.bind(mod .. " + k", hl.dsp.layout("cycleprev"),            { repeating = true })
+-- Move focus (group-aware: tabs first, fall back at edges)
+hl.bind(mod .. " + h", function() smart_focus("left") end,  { repeating = true })
+hl.bind(mod .. " + l", function() smart_focus("right") end, { repeating = true })
+hl.bind(mod .. " + j", function() smart_cycle("next") end,  { repeating = true })
+hl.bind(mod .. " + k", function() smart_cycle("prev") end,  { repeating = true })
 
 -- Move windows
 hl.bind(mod .. " + SHIFT + h", function() move_window("l") end, { repeating = true })
