@@ -921,6 +921,7 @@ Scope {
                 Repeater {
                   model: SystemTray.items
                   IconImage {
+                    id: trayIcon
                     required property SystemTrayItem modelData
                     visible: !modelData.onlyMenu
                     width: visible ? bar.trayIconSize : 0; height: bar.trayIconSize
@@ -930,15 +931,47 @@ Scope {
                       return modelData.icon;
                     }
                     implicitSize: bar.trayIconSize
+                    QsMenuAnchor {
+                      id: trayMenu
+                      anchor.window: bar
+                      anchor.edges: Edges.Bottom | Edges.Left
+                    }
+                    function openMenu() {
+                      if (!modelData.hasMenu || !modelData.menu) {
+                        modelData.secondaryActivate();
+                        return;
+                      }
+                      if (trayMenu.visible) {
+                        trayMenu.close();
+                        return;
+                      }
+                      trayMenu.menu = modelData.menu;
+                      trayMenu.anchor.rect.x = trayIcon.mapToItem(bar.contentItem, 0, 0).x;
+                      trayMenu.anchor.rect.y = trayIcon.mapToItem(bar.contentItem, 0, 0).y;
+                      trayMenu.anchor.rect.width = trayIcon.width;
+                      trayMenu.anchor.rect.height = trayIcon.height;
+                      try {
+                        trayMenu.open();
+                      } catch (e) {
+                        modelData.secondaryActivate();
+                      }
+                    }
                     MouseArea {
                       cursorShape: Qt.PointingHandCursor
                       hoverEnabled: true
                       anchors.fill: parent
                       acceptedButtons: Qt.LeftButton | Qt.RightButton | Qt.MiddleButton
+                      onPressed: mouse => {
+                        if (mouse.button === Qt.RightButton) {
+                          parent.openMenu();
+                          mouse.accepted = true;
+                        }
+                      }
                       onClicked: mouse => {
-                        if (mouse.button === Qt.LeftButton) modelData.activate()
-                        else if (mouse.button === Qt.RightButton) modelData.secondaryActivate()
-                        else if (mouse.button === Qt.MiddleButton) modelData.secondaryActivate()
+                        if (mouse.button === Qt.LeftButton) {
+                          if (modelData.onlyMenu) parent.openMenu();
+                          else modelData.activate();
+                        } else if (mouse.button === Qt.MiddleButton) modelData.secondaryActivate();
                       }
                     }
                   }
