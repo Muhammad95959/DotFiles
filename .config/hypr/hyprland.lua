@@ -281,15 +281,6 @@ hl.layer_rule({ match = { namespace = "logout_dialog" }, blur = true })
 ---- FUNCTIONS ----
 -------------------
 
-local function roalbert()
-  local w = hl.get_active_window()
-  if w ~= nil and w.title == "Albert" then
-    hl.dispatch(hl.dsp.exec_cmd("rofi -show run"))
-  else
-    hl.dispatch(hl.dsp.exec_cmd("/usr/bin/albert toggle || /usr/bin/albert"))
-  end
-end
-
 local function brave_translate()
   local w = hl.get_active_window()
   if w ~= nil and (w.class == "brave-translate.google.com.eg__-Default" or w.class == "chrome-translate.google.com.eg__-Default") then
@@ -591,6 +582,7 @@ hl.define_submap("shell", function()
   hl.bind("b", hl.dsp.exec_cmd(reset .. "quickshell ipc call ambient toggle"))
   hl.bind("c", hl.dsp.exec_cmd(reset .. "quickshell ipc call corners toggle"))
   hl.bind("d", hl.dsp.exec_cmd(reset .. "quickshell ipc call systemd toggle"))
+  hl.bind("e", hl.dsp.exec_cmd(reset .. "quickshell ipc call runner toggle"))
   hl.bind("h", hl.dsp.exec_cmd(reset .. "quickshell ipc call braveHistory toggle"))
   hl.bind("i", hl.dsp.exec_cmd(reset .. "quickshell ipc call glyphPicker toggle"))
   hl.bind("k", hl.dsp.exec_cmd(reset .. "quickshell ipc call appkiller toggle"))
@@ -675,7 +667,7 @@ hl.bind(mod .. " + t",              brave_translate)
 hl.bind(mod .. " + w",              hl.dsp.group.toggle())
 hl.bind(mod .. " + y",              waydroid)
 
-hl.bind(mod .. " + SHIFT + RETURN", roalbert)
+hl.bind(mod .. " + SHIFT + RETURN", hl.dsp.exec_cmd("/usr/bin/albert toggle || /usr/bin/albert"))
 hl.bind(mod .. " + SHIFT + SPACE",  toggle_floating)
 hl.bind(mod .. " + SHIFT + COMMA",  hl.dsp.group.move_window({ forward = false }))
 hl.bind(mod .. " + SHIFT + PERIOD", hl.dsp.group.move_window({ forward = true }))
