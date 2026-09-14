@@ -12,6 +12,9 @@ Scope {
   property bool skipNextAnimation: true
   property string startupPath: ""
 
+  // Storage: ~/Backgrounds/active symlink, like LiveWall's ~/Backgrounds/Live/active.
+  readonly property string activeLink: Quickshell.env("HOME") + "/Backgrounds/active"
+
   onSkipNextAnimationChanged: {
     if (skipNextAnimation)
       _resetSkipTimer.restart()
@@ -43,13 +46,12 @@ Scope {
     skipNextAnimation = false
     currentPath = path
     startupPath = path
-    const esc = path.replace(/'/g, "'\\''")
-    Quickshell.execDetached(["sh", "-c", "ln -frs '" + esc + "' \"$HOME/.cache/waylandwall\""])
+    Quickshell.execDetached(["ln", "-sfnr", path, manager.activeLink])
   }
 
   Process {
     id: loadProc
-    command: ["readlink", "-f", Quickshell.env("HOME") + "/.cache/waylandwall"]
+    command: ["readlink", "-f", manager.activeLink]
     stdout: SplitParser {
       onRead: data => {
         const p = data.trim()
