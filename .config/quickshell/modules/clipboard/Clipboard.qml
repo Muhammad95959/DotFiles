@@ -28,6 +28,17 @@ Scope {
   property bool _restoreSel: false
   property string _restoreId: ""
   property int _restorePos: 0
+  property int _pendingSel: -1
+  property int _wantCy: -1
+  function holdSelection(target) {
+    const n = filtered.length
+    if (n === 0) { clearHold(); selectedIndex = 0; return }
+    const t = Math.max(0, Math.min(target, n - 1))
+    _pendingSel = t
+    _wantCy = Math.floor(t / clipRoot.visibleRows) * clipRoot.visibleRows * (clipRoot.rowHeight + clipRoot.listSpacing)
+    selectedIndex = t
+  }
+  function clearHold() { _pendingSel = -1; _wantCy = -1 }
   function thumbSource(path) {
     if (!path) return ""
     const tick = _thumbTick
@@ -81,8 +92,8 @@ Scope {
     })
   }
 
-  onQueryChanged: { selectedIndex = 0 }
-  onVisibleChanged: { if (visible) { query=""; selectedIndex=0; showPreview(); schedulePreview() } else { query=""; selectedIndex=0 } }
+  onQueryChanged: { clearHold(); selectedIndex = 0 }
+  onVisibleChanged: { if (visible) { query=""; selectedIndex=0; clearHold(); showPreview(); schedulePreview() } else { query=""; selectedIndex=0; clearHold() } }
   readonly property int maxThumbs: 80
   readonly property int previewDebounceMs: 80
   readonly property int postActivateRefreshMs: 600
@@ -127,7 +138,7 @@ Scope {
     postActivateTimer.restart()
   }
   function deleteId(id) {
-    previewDrop(id)
+    clearHold(); previewDrop(id)
     const lst = filtered
     if (selectedIndex >= 0 && selectedIndex < lst.length) {
       _restoreId = lst[selectedIndex].id
@@ -141,7 +152,7 @@ Scope {
     Qt.callLater(() => { if (clipRoot.visible) refresh() })
   }
   function wipe() {
-    _previewCache = ({}); _previewCacheOrder = []
+    clearHold(); _previewCache = ({}); _previewCacheOrder = []
     _restoreSel = false
     Quickshell.execDetached(["sh", "-c", "cliphist wipe; rm -rf " + shQuote(thumbDir) + "/* 2>/dev/null || true"])
     allEntries = []
@@ -189,14 +200,14 @@ Scope {
         let at = -1
         for (let k = 0; k < cur.length; k++) if (cur[k].id === clipRoot._restoreId) { at = k; break }
         if (at >= 0) {
-          clipRoot.selectedIndex = at
+          clipRoot.holdSelection(at)
         } else if (cur.length > 0) {
-          clipRoot.selectedIndex = Math.min(clipRoot._restorePos, cur.length - 1)
+          clipRoot.holdSelection(Math.min(clipRoot._restorePos, cur.length - 1))
         } else {
-          clipRoot.selectedIndex = 0
+          clipRoot.clearHold(); clipRoot.selectedIndex = 0
         }
       } else {
-        clipRoot.selectedIndex = 0
+        clipRoot.clearHold(); clipRoot.selectedIndex = 0
       }
       clipRoot.schedulePreview()
       const first = []
@@ -333,17 +344,17 @@ Scope {
   onFilteredChanged: { showPreview(); schedulePreview() }
 
   function move(delta) {
-    const n = filtered.length; if(n===0) return
+    clearHold(); const n = filtered.length; if(n===0) return
     let ni = selectedIndex+delta; if(ni<0) ni=n-1; if(ni>=n) ni=0; selectedIndex=ni
   }
   function moveNoWrap(delta) {
-    const n = filtered.length; if(n===0) return
+    clearHold(); const n = filtered.length; if(n===0) return
     const ni = selectedIndex+delta; if(ni<0||ni>=n) return; selectedIndex=ni
   }
-  function goHome(){ if(filtered.length>0) selectedIndex=0 }
-  function goEnd(){ const n=filtered.length; if(n>0) selectedIndex=n-1 }
+  function goHome(){ clearHold(); if(filtered.length>0) selectedIndex=0 }
+  function goEnd(){ clearHold(); const n=filtered.length; if(n>0) selectedIndex=n-1 }
   function pageMove(dir){
-    const n=filtered.length; if(n===0) return
+    clearHold(); const n=filtered.length; if(n===0) return
     const page=clipRoot.visibleRows
     let ni=selectedIndex+dir*page; if(ni<0) ni=0; if(ni>=n) ni=n-1; selectedIndex=ni
   }
@@ -471,9 +482,33 @@ Scope {
                     if (idx < 0 || !clipRoot._everLoaded) return
                     positionViewAtIndex(Math.floor(idx / clipRoot.visibleRows) * clipRoot.visibleRows, ListView.Beginning)
                   }
-                  onCurrentIndexChanged:{ snapPage(currentIndex); thumbTimer.restart() }
-                  onContentYChanged: thumbTimer.restart()
-                  onCountChanged: { if (count > 0) snapPage(currentIndex); thumbTimer.restart() }
+                  onCountChanged: { if (count > 0) snapPage(clipRoot.selectedIndex); thumbTimer.restart() }
+                  onContentHeightChanged: { if (clipRoot._wantCy > 0) snapPage(clipRoot.selectedIndex); thumbTimer.restart() }
+                  onContentYChanged: {
+                    if (clipRoot._wantCy > 0 && Math.round(contentY) === 0) snapPage(clipRoot.selectedIndex)
+                    else if (clipRoot._wantCy >= 0 && Math.round(contentY) === clipRoot._wantCy) clipRoot._wantCy = -1
+                    thumbTimer.restart()
+                  }
+                  onCurrentIndexChanged:{
+                    if (clipRoot._pendingSel >= 0) {
+                      if (currentIndex !== clipRoot._pendingSel) clipRoot.selectedIndex = clipRoot._pendingSel
+                    } else {
+                      clipRoot.selectedIndex = currentIndex
+                    }
+                    snapPage(currentIndex); thumbTimer.restart()
+                  }
+                  footer: Item {
+                    width: listView.width
+                    height: {
+                      const n = clipRoot.filtered.length
+                      if (n <= clipRoot.visibleRows) return 0
+                      const pitch = clipRoot.rowHeight + clipRoot.listSpacing
+                      const lastPageStart = Math.floor((n - 1) / clipRoot.visibleRows) * clipRoot.visibleRows
+                      const content = n * clipRoot.rowHeight + (n - 1) * clipRoot.listSpacing
+                      const viewport = clipRoot.contentHeight - clipRoot.listMargins * 2
+                      return Math.max(0, lastPageStart * pitch + viewport - content)
+                    }
+                  }
                   delegate: Rectangle {
                     id: del
                     required property var modelData
@@ -534,9 +569,9 @@ Scope {
                       anchors.fill: parent; hoverEnabled:true; cursorShape: Qt.PointingHandCursor
                       acceptedButtons: Qt.LeftButton|Qt.RightButton|Qt.MiddleButton
                       onClicked: mouse=>{
-                        if(mouse.button===Qt.RightButton||mouse.button===Qt.MiddleButton) clipRoot.deleteId(del.modelData.id)
+                        if(mouse.button===Qt.RightButton||mouse.button===Qt.MiddleButton) { clipRoot.clearHold(); clipRoot.deleteId(del.modelData.id) }
                         else if (clipRoot.selectedIndex===del.index) clipRoot.activateAt(del.index)
-                        else clipRoot.selectedIndex = del.index
+                        else { clipRoot.clearHold(); clipRoot.selectedIndex = del.index }
                       }
                     }
                   }
@@ -546,15 +581,15 @@ Scope {
                     color:Theme.fg; opacity:0.50; font.family:Theme.monoFont; font.pixelSize:12
                   }
                   Rectangle {
-                    visible: clipRoot.filtered.length>8
+                    visible: listView.contentHeight > listView.height + 1
                     width:4; radius:2
                     anchors.right: parent.right; anchors.top: parent.top; anchors.bottom: parent.bottom
                     anchors.rightMargin:2; anchors.topMargin:2; anchors.bottomMargin:2
                     color: Theme.surface; opacity:0.6
                     Rectangle {
                       width:parent.width
-                      height: parent.height * Math.min(1, 8/Math.max(1, clipRoot.filtered.length))
-                      y: parent.height * (clipRoot.selectedIndex/Math.max(1, clipRoot.filtered.length))
+                      height: Math.max(8, parent.height * (listView.height / Math.max(1, listView.contentHeight)))
+                      y: (parent.height - height) * (listView.contentY / Math.max(1, listView.contentHeight - listView.height))
                       radius:2; color: Theme.border
                     }
                   }
