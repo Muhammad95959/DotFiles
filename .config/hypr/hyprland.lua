@@ -245,6 +245,7 @@ hl.window_rule({ match = { float = false, workspace = "f[1]s[false]" }, rounding
 -- General window rules
 hl.window_rule({ match = { class = ".*" }, no_blur = true })
 hl.window_rule({ match = { float = true }, animation = "fade" })
+hl.window_rule({ match = { class = "^$", title = "^$" }, float = true })
 
 hl.window_rule({ match = { class = "^arandr$" }, float = true })
 hl.window_rule({ match = { class = "^timeshift-gtk$" }, float = true })
@@ -280,62 +281,6 @@ hl.layer_rule({ match = { namespace = "logout_dialog" }, blur = true })
 -------------------
 ---- FUNCTIONS ----
 -------------------
-
-local function brave_translate()
-  local w = hl.get_active_window()
-  if w ~= nil and (w.class == "brave-translate.google.com.eg__-Default" or w.class == "chrome-translate.google.com.eg__-Default") then
-    hl.exec_cmd("hyprminimizer minimize " .. w.address)
-  else
-    local found = false
-    local ws = hl.get_active_workspace()
-    for _, win in ipairs(hl.get_windows()) do
-      if win.class == "brave-translate.google.com.eg__-Default" or win.class == "chrome-translate.google.com.eg__-Default" then
-        found = true
-        hl.dispatch(hl.dsp.window.move({ workspace = ws, window = win, follow = true }))
-        hl.dispatch(hl.dsp.window.bring_to_top({ window = win }))
-        hl.dispatch(hl.dsp.focus({ window = win }))
-        break
-      end
-    end
-    if not found then
-      hl.exec_cmd("quickshell ipc call translate toggle")
-    end
-    hl.exec_cmd("hyprminimizer cleanup")
-  end
-end
-
-local function waydroid()
-  local handle = io.popen("waydroid status 2>/dev/null")
-  if not handle then
-    hl.exec_cmd("notify-send 'waydroid' 'failed to run waydroid status'")
-    return
-  end
-  local output = handle:read("*a")
-  handle:close()
-  local session_running = output ~= nil and output:match("Session:%s*RUNNING") ~= nil
-  if session_running then
-    hl.exec_cmd([[sh -c '
-      choice=$(printf "Yes\nNo" | /home/muhammad/DotFiles/.config/quickshell/modules/qmenu/qmenu -p "Confirmation: Stop waydroid session?")
-      if [ "$choice" = "Yes" ]; then
-        waydroid session stop
-        notify-send "waydroid" "session stopped"
-      fi
-    ' &]])
-    return
-  end
-  hl.exec_cmd("waydroid session start")
-  hl.exec_cmd([[sh -c '
-    notify-send -r 91231 -t 10000 "waydroid" "starting session..."
-    for i in $(seq 1 10); do
-      if waydroid status 2>/dev/null | grep -q "Session:.*RUNNING"; then
-        waydroid show-full-ui &
-        exit 0
-      fi
-      sleep 1
-    done
-    notify-send -r 91231 -t 3000 "waydroid" "session did not start within 10s"
-  ' &]])
-end
 
 local function group_navigate_or_fallback(group_dir, fallback)
   local w = hl.get_active_window()
@@ -423,20 +368,6 @@ local function move_window(direction)
   end, { timeout = 30, type = "oneshot" })
 end
 
-local function restore_minimized()
-  local minimized = {}
-  for _, win in ipairs(hl.get_windows()) do
-    if win.workspace ~= nil and win.workspace.name == "special:minimized" then
-      table.insert(minimized, win)
-    end
-  end
-  if #minimized > 1 then
-    hl.dispatch(hl.dsp.exec_cmd("hyprminimizer menu"))
-  else
-    hl.dispatch(hl.dsp.exec_cmd("hyprminimizer restore-last"))
-  end
-end
-
 local function set_gaps(delta)
   local gaps_out = hl.get_config("general.gaps_out")
   local current_out = gaps_out.top or gaps_out
@@ -450,7 +381,7 @@ local function set_gaps(delta)
   })
 end
 
-local function toggle_gaps()
+function ToggleGaps()
   local gaps_out = hl.get_config("general.gaps_out")
   local current_out = gaps_out.top or gaps_out
   local current_in = hl.get_config("general.gaps_in")
@@ -472,7 +403,7 @@ local function toggle_gaps()
   end
 end
 
-local function toggle_smart_gaps()
+function ToggleSmartGaps()
   smart_gaps = not smart_gaps
   if smart_gaps then
     hl.workspace_rule({ workspace = "w[tv1]s[false]", gaps_out = 0, gaps_in = 0 })
@@ -487,7 +418,7 @@ local function toggle_smart_gaps()
   end
 end
 
-local function toggle_floating()
+function ToggleFloating()
   local w = hl.get_active_window()
   if scratchpad_window == w then scratchpad_window = nil end
   hl.dispatch(hl.dsp.window.float({ action = "toggle" }))
@@ -502,7 +433,7 @@ local function toggle_floating()
   end
 end
 
-local function toggle_focus_float()
+function ToggleFocusFloat()
   local function is_window_valid(saved, floating)
     if saved == nil then return false end
     for _, win in ipairs(hl.get_windows()) do
@@ -537,7 +468,21 @@ local function toggle_focus_float()
   end
 end
 
-local function scratchpad()
+function RestoreMinimized()
+  local minimized = {}
+  for _, win in ipairs(hl.get_windows()) do
+    if win.workspace ~= nil and win.workspace.name == "special:minimized" then
+      table.insert(minimized, win)
+    end
+  end
+  if #minimized > 1 then
+    hl.dispatch(hl.dsp.exec_cmd("hyprminimizer menu"))
+  else
+    hl.dispatch(hl.dsp.exec_cmd("hyprminimizer restore-last"))
+  end
+end
+
+function Scratchpad()
   local SCRATCH_WIDTH = 1600
   local SCRATCH_HEIGHT = 900
   local w = hl.get_active_window()
@@ -596,6 +541,62 @@ local function scratchpad()
   hl.dispatch(hl.dsp.window.move({ workspace = "special:scratchpad", follow = false }))
 end
 
+function BraveTranslate()
+  local w = hl.get_active_window()
+  if w ~= nil and (w.class == "brave-translate.google.com.eg__-Default" or w.class == "chrome-translate.google.com.eg__-Default") then
+    hl.exec_cmd("hyprminimizer minimize " .. w.address)
+  else
+    local found = false
+    local ws = hl.get_active_workspace()
+    for _, win in ipairs(hl.get_windows()) do
+      if win.class == "brave-translate.google.com.eg__-Default" or win.class == "chrome-translate.google.com.eg__-Default" then
+        found = true
+        hl.dispatch(hl.dsp.window.move({ workspace = ws, window = win, follow = true }))
+        hl.dispatch(hl.dsp.window.bring_to_top({ window = win }))
+        hl.dispatch(hl.dsp.focus({ window = win }))
+        break
+      end
+    end
+    if not found then
+      hl.exec_cmd("quickshell ipc call translate toggle")
+    end
+    hl.exec_cmd("hyprminimizer cleanup")
+  end
+end
+
+function Waydroid()
+  local handle = io.popen("waydroid status 2>/dev/null")
+  if not handle then
+    hl.exec_cmd("notify-send 'waydroid' 'failed to run waydroid status'")
+    return
+  end
+  local output = handle:read("*a")
+  handle:close()
+  local session_running = output ~= nil and output:match("Session:%s*RUNNING") ~= nil
+  if session_running then
+    hl.exec_cmd([[sh -c '
+      choice=$(printf "Yes\nNo" | /home/muhammad/DotFiles/.config/quickshell/modules/qmenu/qmenu -p "Confirmation: Stop waydroid session?")
+      if [ "$choice" = "Yes" ]; then
+        waydroid session stop
+        notify-send "waydroid" "session stopped"
+      fi
+    ' &]])
+    return
+  end
+  hl.exec_cmd("waydroid session start")
+  hl.exec_cmd([[sh -c '
+    notify-send -r 91231 -t 10000 "waydroid" "starting session..."
+    for i in $(seq 1 10); do
+      if waydroid status 2>/dev/null | grep -q "Session:.*RUNNING"; then
+        waydroid show-full-ui &
+        exit 0
+      fi
+      sleep 1
+    done
+    notify-send -r 91231 -t 3000 "waydroid" "session did not start within 10s"
+  ' &]])
+end
+
 -----------------
 ---- SUBMAPS ----
 -----------------
@@ -623,7 +624,7 @@ hl.define_submap("apps", function()
   hl.bind("a", hl.dsp.exec_cmd(reset .. "audacious"))
   hl.bind("b", hl.dsp.exec_cmd(reset .. "/usr/bin/brave-origin --test-type --incognito"))
   hl.bind("c", hl.dsp.exec_cmd(reset .. "qalculate-gtk"))
-  hl.bind("g", toggle_smart_gaps) hl.bind("g", hl.dsp.submap("reset"))
+  hl.bind("g", ToggleSmartGaps) hl.bind("g", hl.dsp.submap("reset"))
   hl.bind("h", hl.dsp.exec_cmd(reset .. "kitty --hold -e nvim ~/.config/hypr/hyprland.lua"))
   hl.bind("k", hl.dsp.exec_cmd(reset .. "prime-run kdenlive"))
   hl.bind("l", hl.dsp.exec_cmd(reset .. "flatpak run net.sapples.LiveCaptions"))
@@ -716,7 +717,7 @@ end)
 
 -- General
 hl.bind(mod .. " + RETURN",         hl.dsp.exec_cmd("kitty"))
-hl.bind(mod .. " + SPACE",          toggle_focus_float)
+hl.bind(mod .. " + SPACE",          ToggleFocusFloat)
 hl.bind(mod .. " + a",              hl.dsp.submap("apps"))
 hl.bind(mod .. " + b",              hl.dsp.exec_cmd("/usr/bin/brave-origin --test-type"))
 hl.bind(mod .. " + c",              hl.dsp.exec_cmd("quickshell ipc call clipboard toggle"))
@@ -729,16 +730,16 @@ hl.bind(mod .. " + n",              hl.dsp.submap("hyprsunset"))
 hl.bind(mod .. " + o",              hl.dsp.submap("shell"))
 hl.bind(mod .. " + q",              hl.dsp.window.close())
 hl.bind(mod .. " + r",              hl.dsp.exec_cmd("kitty --hold -e yazi"))
-hl.bind(mod .. " + s",              scratchpad)
-hl.bind(mod .. " + t",              brave_translate)
+hl.bind(mod .. " + s",              Scratchpad)
+hl.bind(mod .. " + t",              BraveTranslate)
 hl.bind(mod .. " + w",              hl.dsp.group.toggle())
-hl.bind(mod .. " + y",              waydroid)
+hl.bind(mod .. " + y",              Waydroid)
 
 hl.bind(mod .. " + SHIFT + RETURN", hl.dsp.exec_cmd("/usr/bin/albert toggle || /usr/bin/albert"))
-hl.bind(mod .. " + SHIFT + SPACE",  toggle_floating)
+hl.bind(mod .. " + SHIFT + SPACE",  ToggleFloating)
 hl.bind(mod .. " + SHIFT + c",      hl.dsp.exec_cmd("quickshell ipc call notifications dismissAll"))
-hl.bind(mod .. " + SHIFT + d",      restore_minimized)
-hl.bind(mod .. " + SHIFT + f",      toggle_gaps)
+hl.bind(mod .. " + SHIFT + d",      RestoreMinimized)
+hl.bind(mod .. " + SHIFT + f",      ToggleGaps)
 hl.bind(mod .. " + SHIFT + g",      function() set_gaps(-10) end, { repeating = true })
 hl.bind(mod .. " + SHIFT + q",      hl.dsp.exec_cmd("quickshell ipc call powermenu toggle"))
 hl.bind(mod .. " + SHIFT + r",      hl.dsp.exec_cmd("hyprctl reload && killall quickshell; quickshell"))
