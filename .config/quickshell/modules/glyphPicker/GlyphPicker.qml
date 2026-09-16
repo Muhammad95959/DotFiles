@@ -135,7 +135,7 @@ Scope {
     if (!ch) return
     const q = _sq(ch)
     if (doType) {
-      Quickshell.execDetached(["sh", "-c", "printf '%s' '" + q + "' | wl-copy 2>/dev/null; wtype -- '" + q + "' 2>/dev/null || ydotool type -- '" + q + "' 2>/dev/null || true"])
+      Quickshell.execDetached(["sh", "-c", "printf '%s' '" + q + "' | wl-copy 2>/dev/null; wtype -- '" + q + "' 2>/dev/null || true"])
     } else {
       Quickshell.execDetached(["sh", "-c", "printf '%s' '" + q + "' | wl-copy 2>/dev/null; notify-send -t 1200 'Copied' '" + q + "  '\"$(printf '%s' '" + _sq(e.name) + "' | head -c 40)\" 2>/dev/null || true"])
     }
