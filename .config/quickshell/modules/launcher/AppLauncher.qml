@@ -101,12 +101,11 @@ Scope {
       // https://quickshell.org/docs/v0.3.0/types/Quickshell/DesktopEntry/).
       // Wrap Terminal=true entries in a terminal emulator.
       // Prefer xdg-terminal-exec (freedesktop default-terminal-spec), fall
-      // back to common terminals. The installed terminal on this system is
-      // kitty, but we try a chain for portability.
+      // back to kitty (installed terminal on this system).
       const cmd = e.command
       Quickshell.execDetached({
         // sh wrapper probes for available terminals at launch time
-        command: ["sh", "-c", 'if command -v xdg-terminal-exec >/dev/null 2>&1; then exec xdg-terminal-exec "$@"; elif command -v kitty >/dev/null 2>&1; then exec kitty -e "$@"; elif command -v ghostty >/dev/null 2>&1; then exec ghostty -e "$@"; elif command -v alacritty >/dev/null 2>&1; then exec alacritty -e "$@"; elif command -v foot >/dev/null 2>&1; then exec foot "$@"; elif command -v gnome-terminal >/dev/null 2>&1; then exec gnome-terminal -- "$@"; elif command -v xterm >/dev/null 2>&1; then exec xterm -e "$@"; else exec "$@"; fi', "sh"].concat(cmd),
+        command: ["sh", "-c", 'if command -v xdg-terminal-exec >/dev/null 2>&1; then exec xdg-terminal-exec "$@"; elif command -v kitty >/dev/null 2>&1; then exec kitty -e "$@"; else exec "$@"; fi', "sh"].concat(cmd),
         workingDirectory: e.workingDirectory
       })
     } else {

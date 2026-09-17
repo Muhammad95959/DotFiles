@@ -85,6 +85,5 @@ Scope {
 
   Component.onCompleted: {
     loadCurrent()
-    Quickshell.execDetached(["sh", "-c", "pkill -9 -x mpvpaper 2>/dev/null; rm -f /tmp/mpv-socket 2>/dev/null || true"])
   }
 }

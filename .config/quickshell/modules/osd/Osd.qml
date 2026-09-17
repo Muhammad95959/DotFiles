@@ -102,7 +102,7 @@ Scope {
   }
   Process {
     id: capsProc
-    command: ["sh", "-c", "if cat /sys/class/leds/input*::capslock/brightness 2>/dev/null | grep -qx '1'; then echo 1; else xset q 2>/dev/null | grep -q 'Caps Lock:\\s*on' && echo 1 || echo 0; fi"]
+    command: ["sh", "-c", "cat /sys/class/leds/input*::capslock/brightness 2>/dev/null | grep -qx '1' && echo 1 || echo 0"]
     stdout: SplitParser {
       onRead: data => {
         const v = data.trim() === "1"
@@ -116,7 +116,7 @@ Scope {
   }
   Process {
     id: numProc
-    command: ["sh", "-c", "if cat /sys/class/leds/input*::numlock/brightness 2>/dev/null | grep -qx '1'; then echo 1; else xset q 2>/dev/null | grep -q 'Num Lock:\\s*on' && echo 1 || echo 0; fi"]
+    command: ["sh", "-c", "cat /sys/class/leds/input*::numlock/brightness 2>/dev/null | grep -qx '1' && echo 1 || echo 0"]
     stdout: SplitParser {
       onRead: data => {
         const v = data.trim() === "1"

@@ -44,7 +44,7 @@ Scope {
     const arToEn = "https://translate.google.com.eg/?hl=ar&tab=rT1&sl=ar&tl=en&op=translate"
     const base = isArabic(t) ? arToEn : enToAr
     const url = base + "&text=" + encodeURIComponent(t)
-    Quickshell.execDetached(["sh", "-c", "nohup brave-origin \"--app=" + url.replace(/"/g, "\\\"") + "\" --test-type --password-store=basic >/dev/null 2>&1 &"])
+    Quickshell.execDetached(["brave-origin", "--app=" + url, "--test-type", "--password-store=basic"])
     close()
   }
 

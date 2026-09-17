@@ -116,6 +116,7 @@ quickshell ipc call qmenu openWith "$enc" "$prompt_enc" >/dev/null 2>&1 || {
 
 # Poll for result — qmenu sets _resultState to ok/cancel
 # Poll every 50ms, timeout after 60s (hyprminimizer expects quick return)
+# ticks of 50ms; 1200 ticks = 60s
 elapsed=0
 while true; do
   raw=$(quickshell ipc call qmenu getResult 2>/dev/null || echo "__PENDING__")
@@ -126,9 +127,9 @@ while true; do
   # If val is literal "__PENDING__", keep polling
   if [[ "$val" == "__PENDING__" ]]; then
     sleep 0.05
-    elapsed=$(awk "BEGIN{print $elapsed+0.05}")
+    elapsed=$((elapsed + 1))
     # timeout after 60s to avoid hang if quickshell dies
-    if (( $(echo "$elapsed > 60" | bc -l) )); then
+    if (( elapsed > 1200 )); then
       exit 1
     fi
     continue

@@ -119,9 +119,9 @@ Scope {
     const act = list[idx].label
     const vm = pendingVm
     if (act === "Force off") {
-      Quickshell.execDetached(["sh","-c","sudo virsh -c qemu:///system destroy " + shQuote(vm) + " 2>&1 | xargs -I{} notify-send \"VM\" \"{}\" 2>/dev/null || true"])
+      Quickshell.execDetached(["sh","-c","out=$(sudo virsh -c qemu:///system destroy " + shQuote(vm) + " 2>&1); notify-send \"VM\" \"$out\" 2>/dev/null || true"])
     } else if (act === "Shutdown") {
-      Quickshell.execDetached(["sh","-c","sudo virsh -c qemu:///system shutdown " + shQuote(vm) + " 2>&1 | xargs -I{} notify-send \"VM\" \"{}\" 2>/dev/null || true"])
+      Quickshell.execDetached(["sh","-c","out=$(sudo virsh -c qemu:///system shutdown " + shQuote(vm) + " 2>&1); notify-send \"VM\" \"$out\" 2>/dev/null || true"])
     } else if (act === "Open with virt-viewer") {
       Quickshell.execDetached(["sh","-c","SPICE_NOGRAB=1 virt-viewer --connect qemu:///system " + shQuote(vm) + " --full-screen &"])
     } else if (act === "Open with virt-manager") {

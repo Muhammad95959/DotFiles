@@ -154,13 +154,13 @@ Scope {
     function copyOtp(entry) {
         if (!entry) return
         const store = entry.store || _currentStore
-        Quickshell.execDetached(["sh", "-c", "PASSWORD_STORE_DIR=" + shellEscape(store) + " pass otp -c " + shellEscape(entry.label) + " 2>&1 | tr -d \"'\" | xargs -I{} notify-send -t 2500 'Pass' '{}' 2>/dev/null; PASSWORD_STORE_DIR=" + shellEscape(store) + " pass otp -c " + shellEscape(entry.label) + " >/dev/null 2>&1 && notify-send -t 2500 'Pass' 'Copied OTP' || notify-send -u critical 'Pass' 'OTP not configured'"])
+        Quickshell.execDetached(["sh", "-c", "PASSWORD_STORE_DIR=" + shellEscape(store) + " out=$(pass otp -c " + shellEscape(entry.label) + " 2>&1); notify-send -t 2500 'Pass' \"$out\" 2>/dev/null; PASSWORD_STORE_DIR=" + shellEscape(store) + " pass otp -c " + shellEscape(entry.label) + " >/dev/null 2>&1 && notify-send -t 2500 'Pass' 'Copied OTP' || notify-send -u critical 'Pass' 'OTP not configured'"])
         close()
     }
     function copyPass(entry) {
         if (!entry) return
         const store = entry.store || _currentStore
-        Quickshell.execDetached(["sh", "-c", "PASSWORD_STORE_DIR=" + shellEscape(store) + " pass -c " + shellEscape(entry.label) + " 2>&1 | tr -d \"'\" | xargs -I{} notify-send -t 2500 'Pass' '{}' 2>/dev/null; PASSWORD_STORE_DIR=" + shellEscape(store) + " pass -c " + shellEscape(entry.label) + " >/dev/null 2>&1 && notify-send -t 2000 'Pass' " + shellEscape("Copied pass • clearing in ${PASSWORD_STORE_CLIP_TIME:-45}s") + " || notify-send -u critical 'Pass' 'Failed to copy pass'"])
+        Quickshell.execDetached(["sh", "-c", "PASSWORD_STORE_DIR=" + shellEscape(store) + " out=$(pass -c " + shellEscape(entry.label) + " 2>&1); notify-send -t 2500 'Pass' \"$out\" 2>/dev/null; PASSWORD_STORE_DIR=" + shellEscape(store) + " pass -c " + shellEscape(entry.label) + " >/dev/null 2>&1 && notify-send -t 2000 'Pass' " + shellEscape("Copied pass • clearing in ${PASSWORD_STORE_CLIP_TIME:-45}s") + " || notify-send -u critical 'Pass' 'Failed to copy pass'"])
         close()
     }
     function copyValue(val, label) {
@@ -174,7 +174,7 @@ Scope {
         const store = entry.store || _currentStore
         const lab = shellEscape(entry.label)
         const escStore = shellEscape(store)
-        Quickshell.execDetached(["sh", "-c", "PASSWORD_STORE_DIR=" + escStore + " out=$(pass show " + lab + " 2>/dev/null); ec=$?; [ $ec -ne 0 ] && { notify-send -u critical 'Pass' 'Failed to show entry'; exit 1; }; passVal=$(printf '%s' \"$out\" | head -n1); getF() { printf '%s' \"$out\" | awk -F': ' -v k=\"$1\" 'BEGIN{found=0} $1==k{ sub($1\": \",\"\"); print; found=1; exit} END{if(!found) exit 1}'; }; autotype=$(getF autotype 2>/dev/null); [ -z \"$autotype\" ] && autotype='user :tab pass'; sleep 0.2; for word in $autotype; do case \"$word\" in :tab) wtype -P Tab -s 50 -p Tab 2>/dev/null || wtype -k Tab 2>/dev/null ;; :space) wtype -P space -s 50 -p space 2>/dev/null || wtype -k space 2>/dev/null ;; :delay|:sleep) sleep 2 ;; :enter) wtype -P Return -s 50 -p Return 2>/dev/null || wtype -k Return 2>/dev/null ;; :otp|otp) PASSWORD_STORE_DIR=" + escStore + " pass otp " + lab + " 2>/dev/null | tr -d '\\n' | wtype -d 12 - 2>/dev/null ;; pass) printf '%s' \"$passVal\" | wtype -d 12 - 2>/dev/null ;; path) printf '%s' " + lab + " | rev | cut -d'/' -f1 | rev | wtype -d 12 - 2>/dev/null ;; *) v=$(getF \"$word\" 2>/dev/null); printf '%s' \"$v\" | wtype -d 12 - 2>/dev/null ;; esac; sleep 0.06; done || notify-send -u critical 'Pass' 'Autotype failed (wtype missing?)'"])
+        Quickshell.execDetached(["sh", "-c", "PASSWORD_STORE_DIR=" + escStore + " out=$(pass show " + lab + " 2>/dev/null); ec=$?; [ $ec -ne 0 ] && { notify-send -u critical 'Pass' 'Failed to show entry'; exit 1; }; passVal=$(printf '%s' \"$out\" | head -n1); getF() { printf '%s' \"$out\" | awk -F': ' -v k=\"$1\" 'BEGIN{found=0} $1==k{ sub($1\": \",\"\"); print; found=1; exit} END{if(!found) exit 1}'; }; autotype=$(getF autotype 2>/dev/null); [ -z \"$autotype\" ] && autotype='user :tab pass'; sleep 0.2; for word in $autotype; do case \"$word\" in :tab) wtype -P Tab -s 50 -p Tab 2>/dev/null || wtype -k Tab 2>/dev/null ;; :space) wtype -P space -s 50 -p space 2>/dev/null || wtype -k space 2>/dev/null ;; :delay|:sleep) sleep 2 ;; :enter) wtype -P Return -s 50 -p Return 2>/dev/null || wtype -k Return 2>/dev/null ;; :otp|otp) PASSWORD_STORE_DIR=" + escStore + " pass otp " + lab + " 2>/dev/null | tr -d '\\n' | wtype -d 12 - 2>/dev/null ;; pass) printf '%s' \"$passVal\" | wtype -d 12 - 2>/dev/null ;; path) p=" + lab + "; printf '%s' \"${p##*/}\" | wtype -d 12 - 2>/dev/null ;; *) v=$(getF \"$word\" 2>/dev/null); printf '%s' \"$v\" | wtype -d 12 - 2>/dev/null ;; esac; sleep 0.06; done || notify-send -u critical 'Pass' 'Autotype failed (wtype missing?)'"])
         close()
     }
     function doPreview() {

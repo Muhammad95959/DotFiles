@@ -45,7 +45,7 @@ Scope {
     const list = filtered
     if (idx < 0 || idx >= list.length)
       return
-    Quickshell.execDetached(["sh", "-c", "setsid zathura '" + list[idx].replace(/'/g, "'\\''") + "' >/dev/null 2>&1 &"])
+    Quickshell.execDetached(["zathura", list[idx]])
     close()
   }
   function move(delta) { _markKeyboard(); const n = filtered.length; if (n === 0) return; let ni = selectedIndex + delta; if (ni < 0) ni = n - 1; if (ni >= n) ni = 0; selectedIndex = ni }

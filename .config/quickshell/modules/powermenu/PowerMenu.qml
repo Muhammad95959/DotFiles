@@ -84,7 +84,7 @@ Scope {
   property string uptimeText: "—"
   Process {
     id: uptimeProc
-    command: ["sh", "-c", "uptime -p | sed -e 's/up //g'"]
+    command: ["sh", "-c", "u=$(uptime -p 2>/dev/null); u=${u#up }; echo \"$u\""]
     stdout: SplitParser {
       onRead: data => { const v = data.trim(); if (v.length > 0) pmRoot.uptimeText = v }
     }

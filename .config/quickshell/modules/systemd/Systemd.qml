@@ -157,7 +157,7 @@ Scope {
       const termCmd = "kitty --hold sh -c \"" + cmd.replace(/"/g, "\\\"") + "; echo \"\\n[Press Enter to close]\"; read\""
       Quickshell.execDetached(["sh", "-c", termCmd + " &"])
     } else {
-      Quickshell.execDetached(["sh", "-c", cmd + " 2>&1 | head -n 20 | tr -d \"'\" | xargs -I{} notify-send -t 2500 'systemd " + actionKey + "' '{}' 2>/dev/null; " + cmd + " >/dev/null 2>&1 &"])
+      Quickshell.execDetached(["sh", "-c", "out=$(" + cmd + " 2>&1 | head -n 20); notify-send -t 2500 'systemd " + actionKey + "' \"$out\" 2>/dev/null; " + cmd + " >/dev/null 2>&1 &"])
     }
     close()
   }
