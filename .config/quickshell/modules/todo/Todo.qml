@@ -184,22 +184,6 @@ Scope {
     holdSelection(idx)
   }
 
-  function clearDone() {
-    settleEdit()
-    let n = 0
-    const next = []
-    for (let i = 0; i < allEntries.length; i++) {
-      if (allEntries[i].done) n++
-      else next.push(allEntries[i])
-    }
-    if (n === 0) { notify("Todo", "Nothing completed"); return }
-    const keep = selectedIndex
-    allEntries = next
-    save()
-    holdSelection(keep)
-    notify("Todo", "Cleared " + n + " completed")
-  }
-
   function copyAt(idx) {
     const list = filtered
     if (idx < 0 || idx >= list.length) return
@@ -341,12 +325,11 @@ Scope {
   }
 
   function handleKey(event) {
+    const ctrl = Boolean(event.modifiers & Qt.ControlModifier)
     const alt = Boolean(event.modifiers & Qt.AltModifier)
-    if (alt && event.key === Qt.Key_N) { appendEmptyRow(); event.accepted = true; return true }
-    if (alt && event.key === Qt.Key_E) { startEdit(selectedIndex); event.accepted = true; return true }
-    if (alt && event.key === Qt.Key_D) { deleteAt(selectedIndex); event.accepted = true; return true }
-    if (alt && event.key === Qt.Key_C) { clearDone(); event.accepted = true; return true }
-    if (alt && event.key === Qt.Key_Y) { copyAt(selectedIndex); event.accepted = true; return true }
+    if (ctrl && event.key === Qt.Key_N) { appendEmptyRow(); event.accepted = true; return true }
+    if (ctrl && event.key === Qt.Key_E) { startEdit(selectedIndex); event.accepted = true; return true }
+    if (ctrl && event.key === Qt.Key_Y) { copyAt(selectedIndex); event.accepted = true; return true }
     if (alt && event.key === Qt.Key_J) { moveItem(selectedIndex, 1); event.accepted = true; return true }
     if (alt && event.key === Qt.Key_K) { moveItem(selectedIndex, -1); event.accepted = true; return true }
     if (alt && event.key === Qt.Key_Down) { moveItem(selectedIndex, 1); event.accepted = true; return true }
@@ -456,8 +439,7 @@ Scope {
                     else if (event.key === Qt.Key_PageUp) { root.pageMove(-1); event.accepted = true }
                     else if (event.key === Qt.Key_PageDown) { root.pageMove(1); event.accepted = true }
                     else if (event.key === Qt.Key_Delete) {
-                      if (event.modifiers & Qt.ShiftModifier) root.clearDone()
-                      else root.deleteAt(root.selectedIndex)
+                      root.deleteAt(root.selectedIndex)
                       event.accepted = true
                     }
                     else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) { root.toggleAt(root.selectedIndex); event.accepted = true }
@@ -586,7 +568,7 @@ Scope {
                 }
                 Text {
                   anchors.centerIn: parent; visible: root._everLoaded && root.filtered.length === 0
-                  text: root.allEntries.length === 0 ? "No todos yet — Alt+N to add" : "No matches"
+                  text: root.allEntries.length === 0 ? "No todos yet — Ctrl+N to add" : "No matches"
                   color: Theme.fg; opacity: 0.55; font.family: Theme.monoFont; font.pixelSize: 13
                 }
                 Rectangle {
@@ -617,15 +599,13 @@ Scope {
                 spacing: 10
                 Text { text: "↵ Toggle"; color: Theme.fg; font.family: Theme.monoFont; font.pixelSize: 10; font.bold: true }
                 Text { text: "•"; color: Theme.fg; opacity: 0.30; font.pixelSize: 10 }
-                Text { text: "Alt+N Add"; color: Theme.fg; opacity: 0.70; font.family: Theme.monoFont; font.pixelSize: 10 }
+                Text { text: "Ctrl+N Add"; color: Theme.fg; opacity: 0.70; font.family: Theme.monoFont; font.pixelSize: 10 }
                 Text { text: "•"; color: Theme.fg; opacity: 0.30; font.pixelSize: 10 }
-                Text { text: "Alt+E Edit"; color: Theme.fg; opacity: 0.70; font.family: Theme.monoFont; font.pixelSize: 10 }
+                Text { text: "Ctrl+E Edit"; color: Theme.fg; opacity: 0.70; font.family: Theme.monoFont; font.pixelSize: 10 }
                 Text { text: "•"; color: Theme.fg; opacity: 0.30; font.pixelSize: 10 }
-                Text { text: "Alt+D Delete"; color: Theme.fg; opacity: 0.70; font.family: Theme.monoFont; font.pixelSize: 10 }
+                Text { text: "Ctrl+Y Yank"; color: Theme.fg; opacity: 0.70; font.family: Theme.monoFont; font.pixelSize: 10 }
                 Text { text: "•"; color: Theme.fg; opacity: 0.30; font.pixelSize: 10 }
-                Text { text: "Alt+C Clear done"; color: Theme.fg; opacity: 0.70; font.family: Theme.monoFont; font.pixelSize: 10 }
-                Text { text: "•"; color: Theme.fg; opacity: 0.30; font.pixelSize: 10 }
-                Text { text: "Alt+Y Copy"; color: Theme.fg; opacity: 0.70; font.family: Theme.monoFont; font.pixelSize: 10 }
+                Text { text: "Del Delete"; color: Theme.fg; opacity: 0.70; font.family: Theme.monoFont; font.pixelSize: 10 }
                 Text { text: "•"; color: Theme.fg; opacity: 0.30; font.pixelSize: 10 }
                 Text { text: "Alt+J/K Move"; color: Theme.fg; opacity: 0.70; font.family: Theme.monoFont; font.pixelSize: 10 }
                 Text { text: "•"; color: Theme.fg; opacity: 0.30; font.pixelSize: 10 }
