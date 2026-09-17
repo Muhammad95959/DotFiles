@@ -267,11 +267,11 @@ hl.window_rule({ match = { class = "^flameshot$" }, float = true, border_size = 
 hl.window_rule({ match = { class = "^octave-cli.*$" }, float = true, size = "1600 900" })
 hl.window_rule({ match = { class = "^xdg-desktop-portal-gtk$" }, float = true, size = "960 600" })
 hl.window_rule({ match = { class = "^net%.sapples%.LiveCaptions$" }, float = true, move = "500 900" })
-hl.window_rule({ match = { class = "^Waydroid$" }, float = true, size = "468 1036", move = "1444 34" })
 hl.window_rule({ match = { class = "^termfilechooser$" }, float = true, center = true, size = "1280 720" })
 hl.window_rule({ match = { class = "^hiddenkitty.*$" }, float = true, no_initial_focus = true, move = "3000 3000" })
 hl.window_rule({ match = { class = "^org%.telegram%.desktop$", title = "^Media viewer$" }, float = true, fullscreen = true })
 hl.window_rule({ match = { class = "^explorer.exe$", title = "^WineDesktop - Wine Desktop$" }, float = true, center = true })
+hl.window_rule({ match = { class = "^Waydroid$" }, float = true, size = "468 1036", move = "1444 34", no_initial_focus = true })
 hl.window_rule({ match = { class = "^brave-translate.google.com.eg__-Default$" }, float = true, size = "740 960", opacity = 0.8 })
 hl.window_rule({ match = { class = "^chrome-translate.google.com.eg__-Default$" }, float = true, size = "740 960", opacity = 0.8 })
 
