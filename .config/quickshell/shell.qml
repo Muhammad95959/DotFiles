@@ -11,6 +11,7 @@ import "modules/braveHistory"
 import "modules/clipboard"
 import "modules/corners"
 import "modules/launcher"
+import "modules/appgrid"
 import "modules/liveWall"
 import "modules/mpvHistory"
 import "modules/notifications"
@@ -35,12 +36,15 @@ import "modules/zathuraRecolor"
 ShellRoot {
   // ── Bar ────────────────────────────────────────────────────────────
   Bar {
-    onLauncherRequested: launcher.toggle()
+    onLauncherRequested: appgrid.toggle()
     onPowermenuRequested: powermenu.toggle()
   }
 
   // ── Launcher ───────────────────────────────────────────────────────
-  AppLauncher { id: launcher }
+  Launcher { id: launcher }
+
+  // ── App Grid (classic) ───────────────────────────────────────────────
+  AppGrid { id: appgrid }
 
   // ── Power Menu ─────────────────────────────────────────────────────
   PowerMenu { id: powermenu }

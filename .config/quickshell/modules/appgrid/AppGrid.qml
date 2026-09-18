@@ -11,7 +11,7 @@ import Quickshell.Widgets
 import "../common"
 
 Scope {
-  id: launcherRoot
+  id: appGridRoot
   property bool visible: false
 
   function toggle() { visible = !visible }
@@ -160,7 +160,7 @@ Scope {
   }
 
   LazyLoader {
-    active: launcherRoot.visible
+    active: appGridRoot.visible
 
     Variants {
     model: Quickshell.screens
@@ -168,7 +168,7 @@ Scope {
     PanelWindow {
       required property var modelData
       screen: modelData
-      visible: launcherRoot.visible
+      visible: appGridRoot.visible
       color: "transparent"
       exclusionMode: ExclusionMode.Ignore
       WlrLayershell.layer: WlrLayer.Overlay
@@ -178,7 +178,7 @@ Scope {
 
       MouseArea {
         anchors.fill: parent
-        onClicked: launcherRoot.close()
+        onClicked: appGridRoot.close()
       }
 
       Rectangle {
@@ -199,24 +199,24 @@ Scope {
         focus: true
         Keys.onPressed: event => {
           const hasAlt = (event.modifiers & Qt.AltModifier) || event.key === Qt.Key_Alt
-          if (hasAlt) launcherRoot._altHeld = true
-          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_A) { launcherRoot.selectedCategory = "All"; event.accepted = true; return }
-          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_D) { launcherRoot.selectedCategory = "Development"; event.accepted = true; return }
-          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_O) { launcherRoot.selectedCategory = "Office"; event.accepted = true; return }
-          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_G) { launcherRoot.selectedCategory = "Graphics"; event.accepted = true; return }
-          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_I) { launcherRoot.selectedCategory = "Network"; event.accepted = true; return }
-          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_M) { launcherRoot.selectedCategory = "AudioVideo"; event.accepted = true; return }
-          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_E) { launcherRoot.selectedCategory = "Game"; event.accepted = true; return }
-          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_S) { launcherRoot.selectedCategory = "System"; event.accepted = true; return }
-          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_U) { launcherRoot.selectedCategory = "Utility"; event.accepted = true; return }
-          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_T) { launcherRoot.selectedCategory = "Settings"; event.accepted = true; return }
-          if (event.key === Qt.Key_Alt) launcherRoot._altHeld = true
+          if (hasAlt) appGridRoot._altHeld = true
+          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_A) { appGridRoot.selectedCategory = "All"; event.accepted = true; return }
+          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_D) { appGridRoot.selectedCategory = "Development"; event.accepted = true; return }
+          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_O) { appGridRoot.selectedCategory = "Office"; event.accepted = true; return }
+          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_G) { appGridRoot.selectedCategory = "Graphics"; event.accepted = true; return }
+          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_I) { appGridRoot.selectedCategory = "Network"; event.accepted = true; return }
+          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_M) { appGridRoot.selectedCategory = "AudioVideo"; event.accepted = true; return }
+          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_E) { appGridRoot.selectedCategory = "Game"; event.accepted = true; return }
+          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_S) { appGridRoot.selectedCategory = "System"; event.accepted = true; return }
+          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_U) { appGridRoot.selectedCategory = "Utility"; event.accepted = true; return }
+          if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_T) { appGridRoot.selectedCategory = "Settings"; event.accepted = true; return }
+          if (event.key === Qt.Key_Alt) appGridRoot._altHeld = true
         }
         Keys.onReleased: event => {
-          if (event.key === Qt.Key_Alt) launcherRoot._altHeld = false
-          else launcherRoot._altHeld = Boolean(event.modifiers & Qt.AltModifier)
+          if (event.key === Qt.Key_Alt) appGridRoot._altHeld = false
+          else appGridRoot._altHeld = Boolean(event.modifiers & Qt.AltModifier)
         }
-        MouseArea { anchors.fill: parent; hoverEnabled: true; onPositionChanged: { if (launcherRoot._blockHover) { launcherRoot._blockHover = false } }
+        MouseArea { anchors.fill: parent; hoverEnabled: true; onPositionChanged: { if (appGridRoot._blockHover) { appGridRoot._blockHover = false } }
                 onClicked: {} }
 
         ColumnLayout {
@@ -254,42 +254,42 @@ Scope {
                 font.pixelSize: 14
                 focus: true
                 activeFocusOnTab: false
-                onTextChanged: launcherRoot.query = text
-                onAccepted: launcherRoot.launchAt(launcherRoot.selectedIndex)
+                onTextChanged: appGridRoot.query = text
+                onAccepted: appGridRoot.launchAt(appGridRoot.selectedIndex)
 
                 Keys.onPressed: event => {
                   const hasAlt = (event.modifiers & Qt.AltModifier) || event.key === Qt.Key_Alt
-                  if (hasAlt) launcherRoot._altHeld = true
-                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_A) { launcherRoot.selectedCategory = "All"; event.accepted = true; return }
-                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_D) { launcherRoot.selectedCategory = "Development"; event.accepted = true; return }
-                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_O) { launcherRoot.selectedCategory = "Office"; event.accepted = true; return }
-                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_G) { launcherRoot.selectedCategory = "Graphics"; event.accepted = true; return }
-                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_I) { launcherRoot.selectedCategory = "Network"; event.accepted = true; return }
-                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_M) { launcherRoot.selectedCategory = "AudioVideo"; event.accepted = true; return }
-                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_E) { launcherRoot.selectedCategory = "Game"; event.accepted = true; return }
-                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_S) { launcherRoot.selectedCategory = "System"; event.accepted = true; return }
-                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_U) { launcherRoot.selectedCategory = "Utility"; event.accepted = true; return }
-if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_T) { launcherRoot.selectedCategory = "Settings"; event.accepted = true; return }
-                  if (event.key === Qt.Key_Alt) launcherRoot._altHeld = true
-                  if (event.key === Qt.Key_Escape) { launcherRoot.close(); event.accepted = true }
-                  else if (event.key === Qt.Key_Backtab) { launcherRoot.moveHorizontal(-1); event.accepted = true }
+                  if (hasAlt) appGridRoot._altHeld = true
+                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_A) { appGridRoot.selectedCategory = "All"; event.accepted = true; return }
+                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_D) { appGridRoot.selectedCategory = "Development"; event.accepted = true; return }
+                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_O) { appGridRoot.selectedCategory = "Office"; event.accepted = true; return }
+                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_G) { appGridRoot.selectedCategory = "Graphics"; event.accepted = true; return }
+                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_I) { appGridRoot.selectedCategory = "Network"; event.accepted = true; return }
+                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_M) { appGridRoot.selectedCategory = "AudioVideo"; event.accepted = true; return }
+                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_E) { appGridRoot.selectedCategory = "Game"; event.accepted = true; return }
+                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_S) { appGridRoot.selectedCategory = "System"; event.accepted = true; return }
+                  if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_U) { appGridRoot.selectedCategory = "Utility"; event.accepted = true; return }
+if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_T) { appGridRoot.selectedCategory = "Settings"; event.accepted = true; return }
+                  if (event.key === Qt.Key_Alt) appGridRoot._altHeld = true
+                  if (event.key === Qt.Key_Escape) { appGridRoot.close(); event.accepted = true }
+                  else if (event.key === Qt.Key_Backtab) { appGridRoot.moveHorizontal(-1); event.accepted = true }
                   else if (event.key === Qt.Key_Tab) {
-                    if (event.modifiers & Qt.ShiftModifier) launcherRoot.moveHorizontal(-1)
-                    else launcherRoot.moveHorizontal(1)
+                    if (event.modifiers & Qt.ShiftModifier) appGridRoot.moveHorizontal(-1)
+                    else appGridRoot.moveHorizontal(1)
                     event.accepted = true
-                  } else if (event.key === Qt.Key_Down) { launcherRoot.moveVerticalNoWrap(1); event.accepted = true }
-                  else if (event.key === Qt.Key_Up) { launcherRoot.moveVerticalNoWrap(-1); event.accepted = true }
-                  else if (event.key === Qt.Key_Right) { launcherRoot.moveHorizontalNoWrap(1); event.accepted = true }
-                  else if (event.key === Qt.Key_Left) { launcherRoot.moveHorizontalNoWrap(-1); event.accepted = true }
-                  else if (event.key === Qt.Key_Home) { launcherRoot.goHome(); event.accepted = true }
-                  else if (event.key === Qt.Key_End) { launcherRoot.goEnd(); event.accepted = true }
-                  else if (event.key === Qt.Key_PageUp) { launcherRoot.pageMove(-1); event.accepted = true }
-                  else if (event.key === Qt.Key_PageDown) { launcherRoot.pageMove(1); event.accepted = true }
-                  else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) { launcherRoot.launchAt(launcherRoot.selectedIndex); event.accepted = true }
+                  } else if (event.key === Qt.Key_Down) { appGridRoot.moveVerticalNoWrap(1); event.accepted = true }
+                  else if (event.key === Qt.Key_Up) { appGridRoot.moveVerticalNoWrap(-1); event.accepted = true }
+                  else if (event.key === Qt.Key_Right) { appGridRoot.moveHorizontalNoWrap(1); event.accepted = true }
+                  else if (event.key === Qt.Key_Left) { appGridRoot.moveHorizontalNoWrap(-1); event.accepted = true }
+                  else if (event.key === Qt.Key_Home) { appGridRoot.goHome(); event.accepted = true }
+                  else if (event.key === Qt.Key_End) { appGridRoot.goEnd(); event.accepted = true }
+                  else if (event.key === Qt.Key_PageUp) { appGridRoot.pageMove(-1); event.accepted = true }
+                  else if (event.key === Qt.Key_PageDown) { appGridRoot.pageMove(1); event.accepted = true }
+                  else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) { appGridRoot.launchAt(appGridRoot.selectedIndex); event.accepted = true }
                 }
                 Keys.onReleased: event => {
-                  if (event.key === Qt.Key_Alt) launcherRoot._altHeld = false
-                  else launcherRoot._altHeld = Boolean(event.modifiers & Qt.AltModifier)
+                  if (event.key === Qt.Key_Alt) appGridRoot._altHeld = false
+                  else appGridRoot._altHeld = Boolean(event.modifiers & Qt.AltModifier)
                 }
 
                 Text {
@@ -314,7 +314,7 @@ if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_T) { launcherRoot
                 MouseArea {
                   anchors.fill: parent
                   cursorShape: Qt.PointingHandCursor
-                  onClicked: { searchField.text = ""; launcherRoot.query = "" }
+                  onClicked: { searchField.text = ""; appGridRoot.query = "" }
                 }
               }
             }
@@ -338,22 +338,22 @@ if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_T) { launcherRoot
               x: Math.max(0, (catFlick.width - width) / 2)
 
               Repeater {
-                model: launcherRoot.categories
+                model: appGridRoot.categories
                 Rectangle {
                   required property var modelData
                   required property int index
                   height: 28
                   width: catLabel.width + 22
                   radius: 14
-                  color: launcherRoot.selectedCategory === modelData.key ? Theme.fg : Theme.surface
-                  border.color: launcherRoot.selectedCategory === modelData.key ? Theme.fg : Theme.border
+                  color: appGridRoot.selectedCategory === modelData.key ? Theme.fg : Theme.surface
+                  border.color: appGridRoot.selectedCategory === modelData.key ? Theme.fg : Theme.border
                   border.width: 1
 
                   Text {
                     id: catLabel
                     anchors.centerIn: parent
                     text: {
-                      if (!launcherRoot._altHeld) return modelData.label
+                      if (!appGridRoot._altHeld) return modelData.label
                       const hint = modelData.hint || ""
                       const lbl = modelData.label
                       const idx = lbl.toLowerCase().indexOf(hint.toLowerCase())
@@ -363,17 +363,17 @@ if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_T) { launcherRoot
                         return "<u>" + hint + "</u> " + lbl
                       }
                     }
-                    textFormat: launcherRoot._altHeld ? Text.RichText : Text.PlainText
-                    color: launcherRoot.selectedCategory === modelData.key ? Theme.bg : Theme.fg
+                    textFormat: appGridRoot._altHeld ? Text.RichText : Text.PlainText
+                    color: appGridRoot.selectedCategory === modelData.key ? Theme.bg : Theme.fg
                     font.family: Theme.monoFont
                     font.pixelSize: 11
-                    font.bold: launcherRoot.selectedCategory === modelData.key
+                    font.bold: appGridRoot.selectedCategory === modelData.key
                   }
 
                   MouseArea {
                     anchors.fill: parent
                     cursorShape: Qt.PointingHandCursor
-                    onClicked: launcherRoot.selectedCategory = modelData.key
+                    onClicked: appGridRoot.selectedCategory = modelData.key
                   }
                 }
               }
@@ -435,7 +435,7 @@ if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_T) { launcherRoot
           }
 
           Text {
-            text: launcherRoot.filteredApps.length + " apps" + (launcherRoot.selectedCategory !== "All" ? " · " + launcherRoot.selectedCategory : "")
+            text: appGridRoot.filteredApps.length + " apps" + (appGridRoot.selectedCategory !== "All" ? " · " + appGridRoot.selectedCategory : "")
             Layout.preferredHeight: 16
             anchors.horizontalCenter: parent.horizontalCenter
             color: Theme.fg
@@ -446,7 +446,7 @@ if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_T) { launcherRoot
 
           Item {
             Layout.fillWidth: true
-            Layout.preferredHeight: launcherRoot.visibleRows * grid.cellHeight
+            Layout.preferredHeight: appGridRoot.visibleRows * grid.cellHeight
             clip: true
 
             GridView {
@@ -454,14 +454,14 @@ if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_T) { launcherRoot
               anchors.top: parent.top
               anchors.bottom: parent.bottom
               anchors.horizontalCenter: parent.horizontalCenter
-              width: Math.min(parent.width, launcherRoot.columns * cellWidth)
+              width: Math.min(parent.width, appGridRoot.columns * cellWidth)
               clip: true
               cellWidth: 132
               cellHeight: 104
-              model: launcherRoot.filteredApps
-              currentIndex: launcherRoot.selectedIndex
-              function snapPage(idx) { if (idx < 0) return; const size = launcherRoot.pageRows() * launcherRoot.columns; positionViewAtIndex(Math.floor(idx / size) * size, GridView.Beginning) }
-              onCurrentIndexChanged: { launcherRoot.selectedIndex = currentIndex; snapPage(currentIndex) }
+              model: appGridRoot.filteredApps
+              currentIndex: appGridRoot.selectedIndex
+              function snapPage(idx) { if (idx < 0) return; const size = appGridRoot.pageRows() * appGridRoot.columns; positionViewAtIndex(Math.floor(idx / size) * size, GridView.Beginning) }
+              onCurrentIndexChanged: { appGridRoot.selectedIndex = currentIndex; snapPage(currentIndex) }
               highlightMoveDuration: 80
               boundsBehavior: Flickable.StopAtBounds
               flickDeceleration: 6000
@@ -488,8 +488,8 @@ if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_T) { launcherRoot
                 required property var modelData
                 required property int index
                 readonly property bool _isRight: {
-                  const cols = launcherRoot.columns
-                  const n = launcherRoot.filteredApps.length
+                  const cols = appGridRoot.columns
+                  const n = appGridRoot.filteredApps.length
                   const row = Math.floor(index / cols)
                   const rowEnd = Math.min(row * cols + cols, n) - 1
                   return index === rowEnd
@@ -497,9 +497,9 @@ if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_T) { launcherRoot
                 width: grid.cellWidth - (_isRight ? 0 : 8)
                 height: grid.cellHeight - 8
                 radius: Theme.radiusMd
-                color: launcherRoot.selectedIndex === index ? Theme.surfaceHover : "transparent"
-                border.color: launcherRoot.selectedIndex === index ? Qt.alpha(Theme.fg, 0.33) : "transparent"
-                border.width: launcherRoot.selectedIndex === index ? 1 : 0
+                color: appGridRoot.selectedIndex === index ? Theme.surfaceHover : "transparent"
+                border.color: appGridRoot.selectedIndex === index ? Qt.alpha(Theme.fg, 0.33) : "transparent"
+                border.width: appGridRoot.selectedIndex === index ? 1 : 0
 
                 ColumnLayout {
                   anchors.centerIn: parent
@@ -519,7 +519,7 @@ if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_T) { launcherRoot
                     color: Theme.fg
                     font.family: Theme.monoFont
                     font.pixelSize: 11
-                    font.bold: launcherRoot.selectedIndex === del.index
+                    font.bold: appGridRoot.selectedIndex === del.index
                     elide: Text.ElideRight
                     maximumLineCount: 2
                     wrapMode: Text.WordWrap
@@ -530,13 +530,13 @@ if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_T) { launcherRoot
                   anchors.fill: parent
                   hoverEnabled: true
                   cursorShape: Qt.PointingHandCursor
-                  onClicked: { if (launcherRoot.selectedIndex === del.index) launcherRoot.launchAt(del.index); else launcherRoot.selectedIndex = del.index }
+                  onClicked: { if (appGridRoot.selectedIndex === del.index) appGridRoot.launchAt(del.index); else appGridRoot.selectedIndex = del.index }
                 }
               }
 
               Text {
                 anchors.centerIn: parent
-                visible: launcherRoot.filteredApps.length === 0
+                visible: appGridRoot.filteredApps.length === 0
                 text: "No results"
                 color: Theme.fg
                 opacity: 0.55
@@ -557,14 +557,14 @@ if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_T) { launcherRoot
         }
 
         Component.onCompleted: {
-          if (launcherRoot.visible) searchField.forceActiveFocus()
+          if (appGridRoot.visible) searchField.forceActiveFocus()
         }
         Connections {
-          target: launcherRoot
+          target: appGridRoot
           function onVisibleChanged() {
-            if (launcherRoot.visible) {
+            if (appGridRoot.visible) {
               searchField.text = ""
-              launcherRoot.query = ""
+              appGridRoot.query = ""
               searchField.forceActiveFocus()
             }
           }
@@ -576,15 +576,15 @@ if ((event.modifiers & Qt.AltModifier) && event.key === Qt.Key_T) { launcherRoot
   }
 
   IpcHandler {
-    target: "launcher"
-    function toggle() { launcherRoot.toggle() }
-    function open() { launcherRoot.open() }
-    function close() { launcherRoot.close() }
+    target: "appgrid"
+    function toggle() { appGridRoot.toggle() }
+    function open() { appGridRoot.open() }
+    function close() { appGridRoot.close() }
   }
 
   GlobalShortcut {
-    name: "launcherToggle"
-    description: "Toggle app launcher"
-    onPressed: launcherRoot.toggle()
+    name: "appgridToggle"
+    description: "Toggle app grid"
+    onPressed: appGridRoot.toggle()
   }
 }

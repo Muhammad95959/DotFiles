@@ -1,0 +1,197 @@
+[
+  {
+    "icon": "archlinux.svg",
+    "name": "Arch Wiki",
+    "trigger": "a",
+    "url": "https://wiki.archlinux.org/index.php?search=%s"
+  },
+  {
+    "icon": "amazon.svg",
+    "name": "Amazon",
+    "trigger": "e",
+    "url": "https://www.amazon.eg/s?k=%s"
+  },
+  {
+    "icon": "freepik.svg",
+    "name": "Freepik",
+    "trigger": "f",
+    "url": "https://www.freepik.com/search?format=search&selection=1&orientation=landscape&query=%s"
+  },
+  {
+    "icon": "google.svg",
+    "name": "Google",
+    "trigger": "g",
+    "url": "https://www.google.com/search?q=%s",
+    "default": true
+  },
+  {
+    "icon": "github.svg",
+    "name": "GitHub",
+    "trigger": "h",
+    "url": "https://github.com/search?utf8=✓&q=%s"
+  },
+  {
+    "icon": "iconscout.svg",
+    "name": "Iconscout",
+    "trigger": "i",
+    "url": "https://iconscout.com/icons/%s?price=free"
+  },
+  {
+    "icon": "jumia.svg",
+    "name": "Jumia",
+    "trigger": "j",
+    "url": "https://www.jumia.com.eg/ar/catalog/?q=%s"
+  },
+  {
+    "icon": "noon.svg",
+    "name": "Noon",
+    "trigger": "n",
+    "url": "https://www.noon.com/egypt-ar/search/?q=%s"
+  },
+  {
+    "icon": "reddit.svg",
+    "name": "Reddit",
+    "trigger": "r",
+    "url": "https://www.reddit.com/search/?q=%s"
+  },
+  {
+    "icon": "Urban-Dictionary.svg",
+    "name": "Urban Dictionary",
+    "trigger": "u",
+    "url": "https://www.urbandictionary.com/define.php?term=%s"
+  },
+  {
+    "icon": "youtube.svg",
+    "name": "YouTube",
+    "trigger": "y",
+    "url": "https://www.youtube.com/results?search_query=%s"
+  },
+
+  {
+    "icon": "gemini.svg",
+    "name": "Gemini",
+    "trigger": "lg",
+    "url": "https://gemini.google.com/app?prompt=%s&send=1"
+  },
+  {
+    "icon": "chatgpt.svg",
+    "name": "ChatGPT",
+    "trigger": "lo",
+    "url": "https://chatgpt.com/?prompt=%s&send=1"
+  },
+  {
+    "icon": "claude.svg",
+    "name": "Claude",
+    "trigger": "lc",
+    "url": "https://claude.ai/new?prompt=%s&send=1"
+  },
+  {
+    "icon": "grok.svg",
+    "name": "Grok",
+    "trigger": "lx",
+    "url": "https://grok.com/?q=%s"
+  },
+  {
+    "icon": "perplexity.svg",
+    "name": "Perplexity",
+    "trigger": "lp",
+    "url": "https://www.perplexity.ai/?q=%s"
+  },
+  {
+    "icon": "meta.svg",
+    "name": "Meta AI",
+    "trigger": "lm",
+    "url": "https://www.meta.ai/?prompt=%s&send=1"
+  },
+  {
+    "icon": "deepseek.svg",
+    "name": "DeepSeek",
+    "trigger": "ld",
+    "url": "https://chat.deepseek.com/?prompt=%s&send=1"
+  },
+  {
+    "icon": "qwen.svg",
+    "name": "Qwen",
+    "trigger": "lq",
+    "url": "https://chat.qwen.ai/?prompt=%s&send=1"
+  },
+  {
+    "icon": "kimi.svg",
+    "name": "Kimi",
+    "trigger": "lk",
+    "url": "https://www.kimi.com/?prompt=%s&send=1"
+  },
+  {
+    "icon": "manus.svg",
+    "name": "Manus",
+    "trigger": "la",
+    "url": "https://manus.im/?prompt=%s&send=1"
+  },
+  {
+    "icon": "poe.svg",
+    "name": "Poe",
+    "trigger": "le",
+    "url": "https://poe.com/?prompt=%s&send=1"
+  },
+  {
+    "icon": "zai.svg",
+    "name": "Z.ai",
+    "trigger": "lz",
+    "url": "https://chat.z.ai/?prompt=%s&send=1"
+  },
+  {
+    "icon": "pi.png",
+    "name": "Pi.ai",
+    "trigger": "li",
+    "url": "https://pi.ai/?prompt=%s&send=1"
+  },
+  {
+    "icon": "duckai.svg",
+    "name": "Duck.ai",
+    "trigger": "lu",
+    "url": "https://duck.ai/?prompt=%s&send=1"
+  },
+  {
+    "icon": "venice.svg",
+    "name": "Venice",
+    "trigger": "lv",
+    "url": "https://venice.ai/?prompt=%s&send=1"
+  },
+  {
+    "icon": "openrouter.svg",
+    "name": "OpenRouter",
+    "trigger": "lr",
+    "url": "https://openrouter.ai/?prompt=%s&send=1"
+  },
+  {
+    "icon": "t3chat.png",
+    "name": "T3 Chat",
+    "trigger": "lt",
+    "url": "https://t3.chat/?prompt=%s&send=1"
+  },
+  {
+    "icon": "genspark.svg",
+    "name": "Genspark",
+    "trigger": "ls",
+    "url": "https://www.genspark.ai/?prompt=%s&send=1"
+  },
+
+  {
+    "icon": "mdn.svg",
+    "name": "MDN",
+    "trigger": "mdn",
+    "url": "https://developer.mozilla.org/en-US/search?q=%s"
+  },
+  {
+    "icon": "npm.svg",
+    "name": "NPM",
+    "trigger": "npm",
+    "url": "https://www.npmjs.com/search?q=%s"
+  },
+  {
+    "icon": "wikipedia.svg",
+    "name": "Wikipedia",
+    "trigger": "wiki",
+    "url": "https://en.wikipedia.org/wiki/Special:Search?search=%s"
+  }
+]
