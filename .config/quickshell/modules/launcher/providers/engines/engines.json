@@ -1,0 +1,123 @@
+[
+  {
+    "icon": "amazon.svg",
+    "name": "Amazon",
+    "trigger": "e",
+    "url": "https://www.amazon.eg/s?k=%s"
+  },
+  {
+    "icon": "archlinux.svg",
+    "name": "Arch Wiki",
+    "trigger": "a",
+    "url": "https://wiki.archlinux.org/index.php?search=%s"
+  },
+  {
+    "icon": "chatgpt.svg",
+    "name": "ChatGPT",
+    "trigger": "c",
+    "url": "https://chat.openai.com/?q=%s"
+  },
+  {
+    "icon": "claude.svg",
+    "name": "Claude",
+    "trigger": "l",
+    "url": "https://claude.ai/new?q=%s"
+  },
+  {
+    "icon": "freepik.svg",
+    "name": "Freepik",
+    "trigger": "f",
+    "url": "https://www.freepik.com/search?format=search&selection=1&orientation=landscape&query=%s"
+  },
+  {
+    "icon": "gemini.svg",
+    "name": "Gemini",
+    "trigger": "m",
+    "url": "https://gemini.google.com/app?q=%s"
+  },
+  {
+    "icon": "github.svg",
+    "name": "GitHub",
+    "trigger": "git",
+    "url": "https://github.com/search?utf8=✓&q=%s"
+  },
+  {
+    "icon": "google.svg",
+    "name": "Google",
+    "trigger": "g",
+    "url": "https://www.google.com/search?q=%s",
+    "default": true
+  },
+  {
+    "icon": "grok.svg",
+    "name": "Grok",
+    "trigger": "k",
+    "url": "https://grok.com?q=%s"
+  },
+  {
+    "icon": "iconscout.svg",
+    "name": "Iconscout",
+    "trigger": "i",
+    "url": "https://iconscout.com/icons/%s?price=free"
+  },
+  {
+    "icon": "jumia.svg",
+    "name": "Jumia",
+    "trigger": "j",
+    "url": "https://www.jumia.com.eg/ar/catalog/?q=%s"
+  },
+  {
+    "icon": "mdn.svg",
+    "name": "MDN",
+    "trigger": "mdn",
+    "url": "https://developer.mozilla.org/en-US/search?q=%s"
+  },
+  {
+    "icon": "npm.svg",
+    "name": "NPM",
+    "trigger": "npm",
+    "url": "https://www.npmjs.com/search?q=%s"
+  },
+  {
+    "icon": "noon.svg",
+    "name": "Noon",
+    "trigger": "n",
+    "url": "https://www.noon.com/egypt-ar/search/?q=%s"
+  },
+  {
+    "icon": "perplexity.svg",
+    "name": "Perplexity",
+    "trigger": "p",
+    "url": "https://www.perplexity.ai/search/?q=%s"
+  },
+  {
+    "icon": "reddit.svg",
+    "name": "Reddit",
+    "trigger": "r",
+    "url": "https://www.reddit.com/search/?q=%s"
+  },
+  {
+    "icon": "tailwind.svg",
+    "name": "Tailwind",
+    "trigger": "t",
+    "url": "https://tailwindcss.com/docs/%s"
+  },
+  {
+    "icon": "Urban-Dictionary.svg",
+    "name": "Urban Dictionary",
+    "trigger": "u",
+    "url": "https://www.urbandictionary.com/define.php?term=%s"
+  },
+  {
+    "icon": "wikipedia.svg",
+    "name": "Wikipedia",
+    "trigger": "w",
+    "url": "https://en.wikipedia.org/wiki/Special:Search?search=%s"
+  },
+  {
+    "icon": "youtube.svg",
+    "name": "YouTube",
+    "trigger": "y",
+    "url": "https://www.youtube.com/results?search_query=%s"
+  }
+]
