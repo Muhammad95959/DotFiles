@@ -87,16 +87,32 @@ Scope {
     }
     if (runPrefix !== "" && spaced.startsWith(runPrefix)) return runProvider.runItems(spaced.slice(runPrefix.length).trim())
 
+    // Websearch mode: `w` lists engines, `wl` narrows to triggers starting
+    // with `l`, `wlg hello` searches `hello` in matching engines.
+    if (webPrefix !== "" && spaced.toLowerCase().startsWith(webPrefix.toLowerCase())) {
+      let after = spaced.slice(webPrefix.length).replace(/^ +/, "")
+      const si = after.indexOf(" ")
+      if (si === -1) {
+        const picks = engineProvider.enginePickItems(after)
+        if (picks.length > 0 || after === "")
+          return picks
+      } else {
+        const f = after.slice(0, si)
+        const q = after.slice(si + 1).trim()
+        const webs = engineProvider.webItemsForPrefix(f, q)
+        if (webs.length > 0)
+          return webs
+      }
+    }
+
     const sp = spaced.indexOf(" ")
     if (sp > 0) {
       const pre = spaced.slice(0, sp).toLowerCase()
       const rest = spaced.slice(sp + 1).trim()
-      if (webPrefix !== "" && pre === webPrefix.toLowerCase()) return engineProvider.searchEngines(rest)
       if (bookmarkPrefix !== "" && pre === bookmarkPrefix.toLowerCase()) return bookmarkProvider.bookmarkHits(Match.toksOf(rest), 0)
       const eng = engineProvider.engineByTrigger(pre)
       if (eng) return [engineProvider.webItem(eng, rest)]
     }
-    if (webPrefix !== "" && spaced.toLowerCase() === webPrefix.toLowerCase()) return engineProvider.searchEngines("")
     const toks = Match.toksOf(raw)
     let out = []
 
@@ -189,7 +205,7 @@ Scope {
     } else if (it.kind === "bookmark") {
       openBookmark(it.url, it.source)
     } else if (it.kind === "engine") {
-      query = (it.trigger || "") + " "
+      query = webPrefix + (it.trigger || "") + " "
       selectedIndex = 0
     } else if (it.kind === "web") {
       openUrl(it.url)

@@ -51,24 +51,32 @@ Scope {
     const url = eng.url.replace("%s", encodeURIComponent(rest))
     return { kind: "web", title: rest !== "" ? eng.name + ": " + rest : eng.name, subtitle: url, icon: "󰖟", iconFile: root.engineIconFile(eng), url: url }
   }
-  function allWebItems(rest) {
-    let out = []
-    for (let i = 0; i < root.engines.length; i++)
-      out.push(root.webItem(root.engines[i], rest))
-    return out
-  }
-  function searchEngines(filterText) {
-    const toks = String(filterText || "").toLowerCase().trim().split(/\s+/).filter(function (t) { return t.length > 0 })
+  function enginesMatching(prefix) {
+    const p = String(prefix || "").toLowerCase()
+    if (p === "")
+      return root.engines.slice()
     let out = []
     for (let i = 0; i < root.engines.length; i++) {
       const eng = root.engines[i]
-      const hay = String(eng.name + " " + eng.trigger).toLowerCase()
-      let ok = true
-      for (let j = 0; j < toks.length; j++)
-        if (!hay.includes(toks[j])) { ok = false; break }
-      if (!ok) continue
-      out.push({ kind: "engine", title: eng.name, subtitle: eng.trigger + " — select to search", icon: "󰖟", iconFile: root.engineIconFile(eng), trigger: eng.trigger })
+      if (String(eng.trigger || "").toLowerCase().startsWith(p))
+        out.push(eng)
     }
+    return out
+  }
+  function enginePickItems(prefix) {
+    const matched = root.enginesMatching(prefix)
+    let out = []
+    for (let i = 0; i < matched.length; i++) {
+      const eng = matched[i]
+      out.push({ kind: "engine", title: eng.name, subtitle: eng.trigger + " — space to search", icon: "󰖟", iconFile: root.engineIconFile(eng), trigger: eng.trigger })
+    }
+    return out
+  }
+  function webItemsForPrefix(prefix, query) {
+    const matched = root.enginesMatching(prefix)
+    let out = []
+    for (let i = 0; i < matched.length; i++)
+      out.push(root.webItem(matched[i], query))
     return out
   }
   function refresh() {
