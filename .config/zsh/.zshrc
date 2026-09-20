@@ -150,8 +150,6 @@ export EDITOR=nvim
 export TERMCMD=kitty
 export MANPAGER='nvim +Man!'
 export BAT_THEME="tokyonight_moon"
-export ANDROID_HOME="$HOME/Android/Sdk"
-export PATH="$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin:$HOME/.local/bin:$PATH"
 export CLOUDFLARE_ACCOUNT_ID=$([ -f ~/.config/opencode/api_keys/cloudflare_account_id ] && cat ~/.config/opencode/api_keys/cloudflare_account_id)
 export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS \
   --ansi \
@@ -356,44 +354,69 @@ function audiosep() {
   notify-send -t 7500 "Audio Separation Completed"
 }
 
+### android emulator ------------------------------------------------------
+
+function start-emu() {
+  local emu_bin="$HOME/.android/Sdk/emulator/emulator"
+  [[ ! -f "$emu_bin" ]] && { echo "Error: Emulator binary not found at $emu_bin"; return 1; }
+  local avds=($("$emu_bin" -list-avds 2>/dev/null))
+  local avd_count=${#avds[@]}
+  local selected_avd=""
+  if [[ $avd_count -eq 0 ]]; then
+    echo "No Android Virtual Devices (AVDs) found."
+    return 1
+  elif [[ $avd_count -eq 1 ]]; then
+    echo "Only one AVD found. Auto-selecting ${avds[0]}..."
+    selected_avd="${avds[0]}"
+  else
+    command -v fzf &> /dev/null || { echo "Error: fzf is required for selection but not installed."; return 1; }
+    selected_avd=$(printf "%s\n" "${avds[@]}" | fzf --prompt="Select AVD > " --layout=reverse)
+  fi
+  [[ -z "$selected_avd" ]] && { echo "No AVD selected. Aborting."; return 1; }
+  echo "Booting $selected_avd using Android Studio default configurations..."
+  QT_QPA_PLATFORM=xcb "$emu_bin" -avd "$selected_avd" \
+    -no-metrics \
+    -no-snapshot-load -no-boot-anim -netfast \
+    > "/tmp/emu_${selected_avd}.log" 2>&1
+}
+
 ### android app installer -------------------------------------------------
 
 function install-app() {
-  # 1. Device selection (Shell-agnostic)
-  local devices_list
-  devices_list=$(adb devices | awk 'NR>1 && $2=="device" {print $1}')
-  
-  if [[ -z "$devices_list" ]]; then
-    echo "No ADB devices found."
-    return 1
-  fi
-
-  local device_count
-  device_count=$(echo "$devices_list" | wc -l | tr -d ' ')
+  local devices_raw
+  devices_raw=$(adb devices -l | awk 'NR>1 && $2=="device" {print}')
+  [[ -z "$devices_raw" ]] && { echo "No ADB devices found."; return 1; }
+  local -a lines labeled
+  lines=("${(@f)devices_raw}")
+  local line s label
+  for line in "${lines[@]}"; do
+    s=${line%% *}
+    label=""
+    if [[ "$s" == emulator-* ]]; then
+      label=$(adb -s "$s" emu avd name 2>/dev/null | sed '/^OK$/d' | tr -d '\r' | head -n1)
+    fi
+    if [[ -z "$label" ]]; then
+      label=${line##*model:}
+      label=${label%% *}
+    fi
+    labeled+=("$(printf '%-22s %s' "$s" "$label")")
+  done
   local serial
-
-  if [[ "$device_count" -eq 1 ]]; then
-    serial="$devices_list"
-    echo "Using device: $serial"
+  if [[ ${#labeled[@]} -eq 1 ]]; then
+    serial=${labeled[1]%% *}
+    echo "Using device: ${labeled[1]}"
   else
-    serial=$(echo "$devices_list" | fzf --prompt="Select device: ")
-    [[ -z "$serial" ]] && { echo "No device selected."; return 1; }
+    local picked
+    picked=$(printf '%s\n' "${labeled[@]}" | fzf --prompt="Select device: ")
+    [[ -z "$picked" ]] && { echo "No device selected."; return 1; }
+    serial=${picked%% *}
   fi
-
-  # 2. Build & Install
   [[ ! -f "./gradlew" ]] && { echo "No gradlew found — run from project root."; return 1; }
   local module="${1:-app}"
   ANDROID_SERIAL="$serial" ./gradlew ":${module}:installDebug" || return 1
-
-  # 3. Extract package name directly from merged manifest
   local app_id
   local manifest_file="${module}/build/intermediates/merged_manifests/debug/AndroidManifest.xml"
-  
-  if [[ -f "$manifest_file" ]]; then
-    app_id=$(grep -m1 -oE 'package="[^"]+"' "$manifest_file" | cut -d'"' -f2)
-  fi
-
-  # Fallback: Extract from build.gradle(.kts)
+  [[ -f "$manifest_file" ]] && app_id=$(grep -m1 -oE 'package="[^"]+"' "$manifest_file" | cut -d'"' -f2)
   if [[ -z "$app_id" ]]; then
     local gradle_file="${module}/build.gradle.kts"
     [[ -f "$gradle_file" ]] || gradle_file="${module}/build.gradle"
@@ -401,21 +424,10 @@ function install-app() {
     local suffix=$(awk '/debug[[:space:]]*\{/{f=1} f && /}/{exit} f' "$gradle_file" | grep -m1 -oE 'applicationIdSuffix[[:space:]]*=?[[:space:]]*"[^"]+"' | sed -E 's/.*"([^"]+)".*/\1/')
     app_id="${app_id}${suffix}"
   fi
-
-  if [[ -z "$app_id" ]]; then
-    echo "Couldn't determine applicationId for module :${module}"
-    return 1
-  fi
-
-  # 4. Resolve exact activity and launch explicitly via am start
+  [[ -z "$app_id" ]] && { echo "Couldn't determine applicationId for module :${module}"; return 1; }
   local target
   target=$(adb -s "$serial" shell "cmd package resolve-activity --brief -a android.intent.action.MAIN -c android.intent.category.LAUNCHER $app_id" | tail -n 1 | tr -d '\r')
-  
-  if [[ -z "$target" || "$target" == "No activity found" ]]; then
-    echo "Could not resolve launcher activity on device for $app_id"
-    return 1
-  fi
-
+  [[ -z "$target" || "$target" == "No activity found" ]] && { echo "Could not resolve launcher activity on device for $app_id"; return 1; }
   echo "Launching $target..."
   adb -s "$serial" shell am start -n "$target"
 }

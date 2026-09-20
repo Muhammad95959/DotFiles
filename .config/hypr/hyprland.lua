@@ -258,6 +258,7 @@ hl.window_rule({ match = { title = "^WhatsApp Web$" }, tile = true })
 
 hl.window_rule({ match = { class = "^yt-dlp$" }, workspace = 9 })
 hl.window_rule({ match = { title = "^meet.google.com is sharing your screen.$" }, workspace = "9 silent" })
+hl.window_rule({ match = { class = "^Emulator$", title = "^Emulator$", float = true }, workspace = "special:hidden silent" })
 hl.window_rule({ match = { class = "^brave-__home_muhammad_Projects_new-tab-page_index.html-Default$" }, workspace = "special:hidden silent" })
 hl.window_rule({ match = { class = "^chrome-__home_muhammad_Projects_new-tab-page_index.html-Default$" }, workspace = "special:hidden silent" })
 
