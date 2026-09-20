@@ -220,6 +220,7 @@ AUTO_NOTIFY_IGNORE+=(
 alias d='selected=$(grep -xv "$PWD" ~/.local/share/zdirs | fzf); [[ -n $selected ]] && cd "$selected"'
 alias ls='eza --icons -a --group-directories-first'
 alias ll='eza --icons -a --group-directories-first -l'
+alias wm='workmux'
 alias ta='tmux attach'
 alias quit='pkill -KILL -u $USER'
 alias softreboot='sudo systemctl soft-reboot'
@@ -353,4 +354,68 @@ function audiosep() {
     fi
   done
   notify-send -t 7500 "Audio Separation Completed"
+}
+
+### android app installer -------------------------------------------------
+
+function install-app() {
+  # 1. Device selection (Shell-agnostic)
+  local devices_list
+  devices_list=$(adb devices | awk 'NR>1 && $2=="device" {print $1}')
+  
+  if [[ -z "$devices_list" ]]; then
+    echo "No ADB devices found."
+    return 1
+  fi
+
+  local device_count
+  device_count=$(echo "$devices_list" | wc -l | tr -d ' ')
+  local serial
+
+  if [[ "$device_count" -eq 1 ]]; then
+    serial="$devices_list"
+    echo "Using device: $serial"
+  else
+    serial=$(echo "$devices_list" | fzf --prompt="Select device: ")
+    [[ -z "$serial" ]] && { echo "No device selected."; return 1; }
+  fi
+
+  # 2. Build & Install
+  [[ ! -f "./gradlew" ]] && { echo "No gradlew found — run from project root."; return 1; }
+  local module="${1:-app}"
+  ANDROID_SERIAL="$serial" ./gradlew ":${module}:installDebug" || return 1
+
+  # 3. Extract package name directly from merged manifest
+  local app_id
+  local manifest_file="${module}/build/intermediates/merged_manifests/debug/AndroidManifest.xml"
+  
+  if [[ -f "$manifest_file" ]]; then
+    app_id=$(grep -m1 -oE 'package="[^"]+"' "$manifest_file" | cut -d'"' -f2)
+  fi
+
+  # Fallback: Extract from build.gradle(.kts)
+  if [[ -z "$app_id" ]]; then
+    local gradle_file="${module}/build.gradle.kts"
+    [[ -f "$gradle_file" ]] || gradle_file="${module}/build.gradle"
+    app_id=$(grep -m1 -oE '(applicationId|namespace)[[:space:]]*=?[[:space:]]*"[^"]+"' "$gradle_file" | sed -E 's/.*"([^"]+)".*/\1/')
+    local suffix=$(awk '/debug[[:space:]]*\{/{f=1} f && /}/{exit} f' "$gradle_file" | grep -m1 -oE 'applicationIdSuffix[[:space:]]*=?[[:space:]]*"[^"]+"' | sed -E 's/.*"([^"]+)".*/\1/')
+    app_id="${app_id}${suffix}"
+  fi
+
+  if [[ -z "$app_id" ]]; then
+    echo "Couldn't determine applicationId for module :${module}"
+    return 1
+  fi
+
+  # 4. Resolve exact activity and launch explicitly via am start
+  local target
+  target=$(adb -s "$serial" shell "cmd package resolve-activity --brief -a android.intent.action.MAIN -c android.intent.category.LAUNCHER $app_id" | tail -n 1 | tr -d '\r')
+  
+  if [[ -z "$target" || "$target" == "No activity found" ]]; then
+    echo "Could not resolve launcher activity on device for $app_id"
+    return 1
+  fi
+
+  echo "Launching $target..."
+  adb -s "$serial" shell am start -n "$target"
 }
