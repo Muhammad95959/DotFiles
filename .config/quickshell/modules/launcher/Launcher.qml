@@ -87,22 +87,15 @@ Scope {
     }
     if (runPrefix !== "" && spaced.startsWith(runPrefix)) return runProvider.runItems(spaced.slice(runPrefix.length).trim())
 
-    // Websearch mode: `w` lists engines, `wl` narrows to triggers starting
-    // with `l`, `wlg hello` searches `hello` in matching engines.
+    // Websearch mode: `w` searches engines by name.
     if (webPrefix !== "" && spaced.toLowerCase().startsWith(webPrefix.toLowerCase())) {
       let after = spaced.slice(webPrefix.length).replace(/^ +/, "")
       const si = after.indexOf(" ")
-      if (si === -1) {
-        const picks = engineProvider.enginePickItems(after)
-        if (picks.length > 0 || after === "")
-          return picks
-      } else {
-        const f = after.slice(0, si)
-        const q = after.slice(si + 1).trim()
-        const webs = engineProvider.webItemsForPrefix(f, q)
-        if (webs.length > 0)
-          return webs
-      }
+      if (si !== -1)
+        return []
+      const picks = engineProvider.enginePickItems(after)
+      if (picks.length > 0)
+        return picks
     }
 
     const sp = spaced.indexOf(" ")
@@ -137,6 +130,9 @@ Scope {
 
     const bmHits = bookmarkProvider.bookmarkHits(toks, 0)
     for (let i = 0; i < bmHits.length; i++) out.push(bmHits[i])
+
+    const engHits = engineProvider.engineHits(toks, 0)
+    for (let i = 0; i < engHits.length; i++) out.push(engHits[i])
 
     if (!raw.includes(" ")) {
       const bins = runProvider.binHits(raw.toLowerCase(), 0)
@@ -205,7 +201,7 @@ Scope {
     } else if (it.kind === "bookmark") {
       openBookmark(it.url, it.source)
     } else if (it.kind === "engine") {
-      query = webPrefix + (it.trigger || "") + " "
+      query = (it.trigger || "") + " "
       selectedIndex = 0
     } else if (it.kind === "web") {
       openUrl(it.url)

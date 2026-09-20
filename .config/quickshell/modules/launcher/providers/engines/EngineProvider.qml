@@ -58,7 +58,9 @@ Scope {
     let out = []
     for (let i = 0; i < root.engines.length; i++) {
       const eng = root.engines[i]
-      if (String(eng.trigger || "").toLowerCase().startsWith(p))
+      const triggerMatch = String(eng.trigger || "").toLowerCase().startsWith(p)
+      const nameMatch = (eng.name || "").toLowerCase().startsWith(p)
+      if (triggerMatch || nameMatch)
         out.push(eng)
     }
     return out
@@ -72,11 +74,21 @@ Scope {
     }
     return out
   }
-  function webItemsForPrefix(prefix, query) {
-    const matched = root.enginesMatching(prefix)
+  function engineHits(toks, limit) {
+    const raw = toks.join(" ")
     let out = []
-    for (let i = 0; i < matched.length; i++)
-      out.push(root.webItem(matched[i], query))
+    for (let i = 0; i < root.engines.length; i++) {
+      const eng = root.engines[i]
+      const hay = [eng.name, eng.trigger].filter(x => x).join(" ").toLowerCase()
+      if (!hay.includes(raw))
+        continue
+      const n = String(eng.name || "").toLowerCase()
+      const score = n.startsWith(raw) ? 0 : n.includes(raw) ? 1 : 2
+      out.push({ kind: "engine", title: eng.name, subtitle: eng.trigger + " — w " + eng.trigger + " to search", icon: "󰖟", iconFile: root.engineIconFile(eng), trigger: eng.trigger, score: score })
+    }
+    out.sort((a, b) => a.score - b.score || String(a.title).localeCompare(String(b.title)))
+    if (limit > 0)
+      out = out.slice(0, limit)
     return out
   }
   function refresh() {
