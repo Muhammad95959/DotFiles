@@ -59,7 +59,7 @@
     "icon": "kimi.svg",
     "name": "Kimi",
     "trigger": "k",
-    "url": "https://www.kimi.com/?prompt=%s&send=1"
+    "url": "https://www.kimi.ai/?prompt=%s&send=1"
   },
   {
     "icon": "claude.svg",
@@ -89,7 +89,7 @@
     "icon": "perplexity.svg",
     "name": "Perplexity",
     "trigger": "p",
-    "url": "https://www.perplexity.ai/?q=%s"
+    "url": "https://www.perplexity.ai/?prompt=%s&send=1"
   },
   {
     "icon": "qwen.svg",
@@ -113,7 +113,7 @@
     "icon": "meta.svg",
     "name": "Meta AI",
     "trigger": "t",
-    "url": "https://www.meta.ai/?prompt=%s&send=1"
+    "url": "https://meta.ai/?prompt=%s&send=1"
   },
   {
     "icon": "Urban-Dictionary.svg",
@@ -131,7 +131,7 @@
     "icon": "grok.svg",
     "name": "Grok",
     "trigger": "x",
-    "url": "https://grok.com/?q=%s"
+    "url": "https://grok.com/?prompt=%s&send=1"
   },
   {
     "icon": "youtube.svg",
@@ -162,7 +162,7 @@
     "icon": "openrouter.svg",
     "name": "OpenRouter",
     "trigger": "or",
-    "url": "https://openrouter.ai/?prompt=%s&send=1"
+    "url": "https://openrouter.ai/chat/?prompt=%s&send=1"
   },
   {
     "icon": "pi.svg",
