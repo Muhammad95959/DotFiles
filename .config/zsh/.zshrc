@@ -150,6 +150,7 @@ export EDITOR=nvim
 export TERMCMD=kitty
 export MANPAGER='nvim +Man!'
 export BAT_THEME="tokyonight_moon"
+export PATH="$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin:$HOME/.local/bin:$PATH"
 export CLOUDFLARE_ACCOUNT_ID=$([ -f ~/.config/opencode/api_keys/cloudflare_account_id ] && cat ~/.config/opencode/api_keys/cloudflare_account_id)
 export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS \
   --ansi \
@@ -384,36 +385,47 @@ function start-emu() {
 
 function install-app() {
   local devices_raw
-  devices_raw=$(adb devices -l | awk 'NR>1 && $2=="device" {print}')
+  devices_raw=$(adb devices | awk -F'\t' 'NR>1 && $2=="device" {print $1}')
   [[ -z "$devices_raw" ]] && { echo "No ADB devices found."; return 1; }
-  local -a lines labeled
-  lines=("${(@f)devices_raw}")
-  local line s label
-  for line in "${lines[@]}"; do
-    s=${line%% *}
+  local -a serials labels
+  serials=("${(@f)devices_raw}")
+  local s label extra
+  for s in "${serials[@]}"; do
     label=""
     if [[ "$s" == emulator-* ]]; then
       label=$(adb -s "$s" emu avd name 2>/dev/null | sed '/^OK$/d' | tr -d '\r' | head -n1)
     fi
     if [[ -z "$label" ]]; then
-      label=${line##*model:}
+      extra=$(adb devices -l | awk -v s="$s" 'index($0, s)==1')
+      label=${extra##*model:}
       label=${label%% *}
     fi
-    labeled+=("$(printf '%-22s %s' "$s" "$label")")
+    labels+=("$label")
   done
   local serial
-  if [[ ${#labeled[@]} -eq 1 ]]; then
-    serial=${labeled[1]%% *}
-    echo "Using device: ${labeled[1]}"
+  if [[ ${#serials[@]} -eq 1 ]]; then
+    serial=${serials[1]}
+    echo "Using device: $serial  ${labels[1]}"
   else
+    local i picked_idx
+    local -a display
+    for i in {1..${#serials[@]}}; do
+      display+=("$i) ${serials[$i]}   ${labels[$i]}")
+    done
     local picked
-    picked=$(printf '%s\n' "${labeled[@]}" | fzf --prompt="Select device: ")
+    picked=$(printf '%s\n' "${display[@]}" | fzf --prompt="Select device: ")
     [[ -z "$picked" ]] && { echo "No device selected."; return 1; }
-    serial=${picked%% *}
+    picked_idx=${picked%%)*}
+    serial=${serials[$picked_idx]}
   fi
   [[ ! -f "./gradlew" ]] && { echo "No gradlew found — run from project root."; return 1; }
   local module="${1:-app}"
-  ANDROID_SERIAL="$serial" ./gradlew ":${module}:installDebug" || return 1
+  ./gradlew ":${module}:assembleDebug" || return 1
+  local apk_path
+  apk_path=$(find "${module}/build/outputs/apk/debug" -name "*.apk" -print -quit)
+  [[ -z "$apk_path" ]] && { echo "Couldn't find built APK under ${module}/build/outputs/apk/debug"; return 1; }
+  echo "Installing $apk_path to '$serial'..."
+  adb -s "$serial" install -r "$apk_path" || return 1
   local app_id
   local manifest_file="${module}/build/intermediates/merged_manifests/debug/AndroidManifest.xml"
   [[ -f "$manifest_file" ]] && app_id=$(grep -m1 -oE 'package="[^"]+"' "$manifest_file" | cut -d'"' -f2)
