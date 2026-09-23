@@ -147,8 +147,8 @@ compdef _paru_all_packages paru
 
 NOTIFY_WHITELIST=(
   "aria2c" "audio-separator" "cargo" "cmake" "convert" "curl" "deno" "ffmpeg"
-  "flatpak" "flutter" "gcc" "go" "gradlew" "magick" "make" "musicremover"
-  "npm" "npx" "pacman" "paru" "pip" "pnpm" "rsync" "wget" "yt-dlp"
+  "flatpak" "flutter" "gcc" "go" "gradlew" "install-app" "magick" "make"
+  "musicremover" "npm" "npx" "pacman" "paru" "pip" "pnpm" "rsync" "wget" "yt-dlp"
 )
 NOTIFY_THRESHOLD=10
 
@@ -166,7 +166,11 @@ _notify_precmd() {
   local base_cmd=${_notify_cmd_name:t}  # strip path, e.g. /usr/bin/npm -> npm
 
   if (( elapsed >= NOTIFY_THRESHOLD )) && (( ${NOTIFY_WHITELIST[(Ie)$base_cmd]} )); then
-    notify-send "Done" "$_notify_cmd_name finished (${elapsed}s, exit $exit_code)"
+    if (( exit_code == 0 )); then
+      notify-send "Done" "$_notify_cmd_name finished (${elapsed}s, exit $exit_code)"
+    else
+      notify-send -u critical "Error" "$_notify_cmd_name failed (${elapsed}s, exit $exit_code)"
+    fi
   fi
   unset _notify_cmd_start _notify_cmd_name
 }
