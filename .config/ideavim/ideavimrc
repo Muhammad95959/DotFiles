@@ -2,7 +2,7 @@
 let mapleader=" "
 
 """ Plugins  --------------------------------
-set NERDTree 
+set NERDTree
 set which-key
 set surround
 set multiple-cursors
@@ -33,6 +33,7 @@ set notimeout
 set noerrorbells
 set clipboard=unnamedplus
 set clipboard+=ideaput
+set virtualedit=block
 
 """ Idea specific settings ------------------
 set ideajoin
@@ -51,24 +52,30 @@ vnoremap > >gv
 vnoremap <A-j> :m .+1<CR>==gv
 vnoremap <A-k> :m .-2<CR>==gv
 
-" clipboard magic
+" clipboard / black-hole (from LazyVim lua/config/keymaps.lua)
+" x/s/r/c/C/X/S/R -> black hole, <A-d> -> black hole
 noremap x "_x
+noremap X "_X
 noremap s "_s
+noremap S "_S
 noremap r "_r
-" noremap ,p "_dp
-" vnoremap <C-p> "+p
-" nnoremap <C-p> "+p
-" vnoremap <leader>p "*p
-" nnoremap <leader>p "*p
-" vnoremap ,c "_c
-" nnoremap ,c "_c
-" nnoremap ,C "_C
-" vnoremap ,d "_d
-" nnoremap ,d "_d
-" nnoremap ,D "_D
-" vnoremap <leader>y "+y
-" nnoremap <leader>y "+y
-" nnoremap <leader>Y "+Y
+noremap R "_R
+noremap c "_c
+noremap C "_C
+noremap <A-d> "_d
+noremap <A-D> "_D
+
+" visual paste swap p<->P (LazyVim keymaps.lua:8)
+xnoremap p P
+xnoremap P p
+
+" keep visual selection yank/paste with Ctrl (LazyVim keymaps.lua:21)
+vnoremap <C-c> y
+vnoremap <C-v> p
+
+" save/close buffer (LazyVim ZZ/ZQ -> Save_and_close_buffer / Close_buffer)
+nnoremap ZZ :w<CR><Action>(CloseContent)<CR>
+nnoremap ZQ <Action>(CloseContent)<CR>
 
 nmap <C-n> <Plug>NextWholeOccurrence
 xmap <C-n> <Plug>NextWholeOccurrence
@@ -90,17 +97,6 @@ map <leader>s :source ~/.ideavimrc<CR>
 map <leader>w <Action>(EditorToggleUseSoftWraps)
 map <A-l> :action NextTab<CR>
 map <A-h> :action PreviousTab<CR>
-
-""" Online help -----------------------------
-"" -- Map IDE actions to IdeaVim -- https://jb.gg/abva4t
-"" Map \r to the Reformat Code action
-"map \r <Action>(ReformatCode)
-
-"" Map <leader>d to start debug
-"map <leader>d <Action>(Debug)
-
-"" Map \b to toggle the breakpoint on the current line
-"map \b <Action>(ToggleLineBreakpoint)
-
-
-" Find more examples here: https://jb.gg/share-ideavimrc
+map <A-,> <Action>(MoveTabLeft)<CR>
+map <A-.> <Action>(MoveTabRight)<CR>
+map <leader>cs <Action>(Stop)<CR>
