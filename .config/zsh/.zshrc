@@ -43,7 +43,6 @@ source $ZDOTDIR/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 source $ZDOTDIR/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
 source $ZDOTDIR/plugins/zsh-completions/zsh-completions.plugin.zsh
 source $ZDOTDIR/plugins/fzf-tab-completion/zsh/fzf-zsh-completion.sh
-source $ZDOTDIR/plugins/zsh-auto-notify/auto-notify.plugin.zsh
 source $ZDOTDIR/plugins/_dircycle/dircycle.plugin.zsh
 
 ### VI mode ---------------------------------------------------------------
@@ -144,6 +143,37 @@ _paru_all_packages() {
 }
 compdef _paru_all_packages paru
 
+### Command-finish notifications -------------------------------------------
+
+NOTIFY_WHITELIST=(
+  "aria2c" "audio-separator" "cargo" "cmake" "convert" "curl" "deno" "ffmpeg"
+  "flatpak" "flutter" "gcc" "go" "gradlew" "magick" "make" "musicremover"
+  "npm" "npx" "pacman" "paru" "pip" "pnpm" "rsync" "wget" "yt-dlp"
+)
+NOTIFY_THRESHOLD=10
+
+zmodload zsh/datetime
+
+_notify_preexec() {
+  _notify_cmd_start=$EPOCHSECONDS
+  _notify_cmd_name=${1%% *}
+}
+
+_notify_precmd() {
+  local exit_code=$?
+  [[ -z $_notify_cmd_start ]] && return
+  local elapsed=$(( EPOCHSECONDS - _notify_cmd_start ))
+  local base_cmd=${_notify_cmd_name:t}  # strip path, e.g. /usr/bin/npm -> npm
+
+  if (( elapsed >= NOTIFY_THRESHOLD )) && (( ${NOTIFY_WHITELIST[(Ie)$base_cmd]} )); then
+    notify-send "Done" "$_notify_cmd_name finished (${elapsed}s, exit $exit_code)"
+  fi
+  unset _notify_cmd_start _notify_cmd_name
+}
+
+add-zsh-hook preexec _notify_preexec
+add-zsh-hook precmd _notify_precmd
+
 ### Environment variables -------------------------------------------------
 
 export EDITOR=nvim
@@ -175,44 +205,6 @@ export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS \
   --color=separator:#ff966c \
   --color=spinner:#ff007c \
 "
-AUTO_NOTIFY_IGNORE+=(
-  "alsamixer"
-  "brave-origin"
-  "btm"
-  "clipdel"
-  "delta"
-  "ff"
-  "ffplay"
-  "firefox"
-  "free-coding-models"
-  "fzf"
-  "git diff"
-  "git log"
-  "git show"
-  "kanata"
-  "kilo"
-  "lazygit"
-  "litecli"
-  "live-server"
-  "mongosh"
-  "mpv"
-  "nmtui"
-  "nvtop"
-  "octave-cli"
-  "opencode"
-  "pass"
-  "pgcli"
-  "ping"
-  "pulsemixer"
-  "rofi"
-  "seshi"
-  "tmux"
-  "unimatrix"
-  "vimiv"
-  "yazi"
-  "yy"
-  "zathura"
-)
 
 ### Aliases ---------------------------------------------------------------
 

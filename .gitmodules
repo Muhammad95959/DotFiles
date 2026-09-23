@@ -6,10 +6,6 @@
 	path = .config/zsh/plugins/powerlevel10k
 	url = https://github.com/romkatv/powerlevel10k.git
 
-[submodule ".config/zsh/zsh-auto-notify"]
-	path = .config/zsh/plugins/zsh-auto-notify
-	url = https://github.com/MichaelAquilina/zsh-auto-notify
-
 [submodule ".config/zsh/zsh-autosuggestions"]
 	path = .config/zsh/plugins/zsh-autosuggestions
 	url = https://github.com/zsh-users/zsh-autosuggestions.git
