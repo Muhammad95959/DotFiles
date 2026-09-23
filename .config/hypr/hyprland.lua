@@ -467,6 +467,53 @@ function ToggleFocusFloat()
   end
 end
 
+function GroupAll()
+  local directions = { "u", "r", "d", "l" }
+  local workspace = hl.get_active_workspace()
+  if not workspace then return end
+  local windows = hl.get_windows({ workspace = workspace })
+  if #windows < 2 then return end -- nothing to group
+  local common_group = windows[1].group
+  local all_one_group = common_group ~= nil
+  if all_one_group then
+    for _, window in pairs(windows) do
+      if window.group ~= common_group then
+        all_one_group = false
+        break
+      end
+    end
+  end
+  if all_one_group then return end
+  local active_win = hl.get_active_window()
+  local anchor = windows[1]
+  for _, window in pairs(windows) do
+    if active_win and window.address == active_win.address then
+      anchor = window
+      break
+    end
+  end
+  if anchor.group == nil then
+    hl.dispatch(hl.dsp.group.toggle({ window = anchor }))
+  end
+  local dissolved_groups = {}
+  for _, window in pairs(windows) do
+    if window.address ~= anchor.address then
+      if window.group ~= nil and window.group ~= anchor.group then
+        if not dissolved_groups[window.group] then
+          hl.dispatch(hl.dsp.group.toggle({ window = window }))
+          dissolved_groups[window.group] = true
+        end
+      end
+      for _, direction in pairs(directions) do
+        hl.dispatch(hl.dsp.window.move({
+          window = window,
+          into_group = direction,
+        }))
+      end
+    end
+  end
+end
+
 function RestoreMinimized()
   local minimized = {}
   for _, win in ipairs(hl.get_windows()) do
@@ -736,6 +783,7 @@ hl.bind(mod .. " + y",              Waydroid)
 
 hl.bind(mod .. " + SHIFT + RETURN", hl.dsp.exec_cmd("quickshell ipc call launcher toggle"))
 hl.bind(mod .. " + SHIFT + SPACE",  ToggleFloating)
+hl.bind(mod .. " + SHIFT + a",      GroupAll)
 hl.bind(mod .. " + SHIFT + c",      hl.dsp.exec_cmd("quickshell ipc call notifications dismissAll"))
 hl.bind(mod .. " + SHIFT + d",      RestoreMinimized)
 hl.bind(mod .. " + SHIFT + f",      ToggleGaps)
