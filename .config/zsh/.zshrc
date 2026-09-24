@@ -351,7 +351,197 @@ function audiosep() {
   notify-send -t 7500 "Audio Separation Completed"
 }
 
-### android emulator ------------------------------------------------------
+### android functions -----------------------------------------------------
+
+_android_module() {
+  [[ ! -f "./gradlew" ]] && { echo "No gradlew found — run from project root." >&2; return 1; }
+  REPLY="${1:-app}"
+}
+
+_adb_pick_device() {
+  local devices_raw
+  devices_raw=$(adb devices | awk -F'\t' 'NR>1 && $2=="device" {print $1}')
+  [[ -z "$devices_raw" ]] && { echo "No ADB devices found." >&2; return 1; }
+  local -a serials labels
+  serials=("${(@f)devices_raw}")
+  local s label extra
+  for s in "${serials[@]}"; do
+    label=""
+    if [[ "$s" == emulator-* ]]; then
+      label=$(adb -s "$s" emu avd name 2>/dev/null | sed '/^OK$/d' | tr -d '\r' | head -n1)
+    fi
+    if [[ -z "$label" ]]; then
+      extra=$(adb devices -l | awk -v s="$s" 'index($0, s)==1')
+      label=${extra##*model:}
+      label=${label%% *}
+    fi
+    labels+=("$label")
+  done
+  local serial
+  if [[ ${#serials[@]} -eq 1 ]]; then
+    serial=${serials[1]}
+    echo "Using device: $serial  ${labels[1]}"
+  else
+    local i picked picked_idx
+    local -a display
+    for i in {1..${#serials[@]}}; do
+      display+=("$i) ${serials[$i]}   ${labels[$i]}")
+    done
+    picked=$(printf '%s\n' "${display[@]}" | fzf --prompt="Select device: ")
+    [[ -z "$picked" ]] && { echo "No device selected." >&2; return 1; }
+    picked_idx=${picked%%)*}
+    serial=${serials[$picked_idx]}
+  fi
+  REPLY="$serial"
+}
+
+_android_app_id() {
+  local module="$1" app_id suffix gradle_file
+  local manifest_file="${module}/build/intermediates/merged_manifests/debug/AndroidManifest.xml"
+  [[ -f "$manifest_file" ]] && app_id=$(grep -m1 -oE 'package="[^"]+"' "$manifest_file" | cut -d'"' -f2)
+  if [[ -z "$app_id" ]]; then
+    gradle_file="${module}/build.gradle.kts"
+    [[ -f "$gradle_file" ]] || gradle_file="${module}/build.gradle"
+    [[ -f "$gradle_file" ]] || { echo "No build.gradle(.kts) in module '${module}'." >&2; return 1; }
+    app_id=$(grep -m1 -oE 'applicationId[[:space:]]*=?[[:space:]]*"[^"]+"' "$gradle_file" | sed -E 's/.*"([^"]+)".*/\1/')
+    [[ -z "$app_id" ]] && app_id=$(grep -m1 -oE 'namespace[[:space:]]*=?[[:space:]]*"[^"]+"' "$gradle_file" | sed -E 's/.*"([^"]+)".*/\1/')
+    suffix=$(awk '/debug[[:space:]]*\{/{f=1} f && /}/{exit} f' "$gradle_file" | grep -m1 -oE 'applicationIdSuffix[[:space:]]*=?[[:space:]]*"[^"]+"' | sed -E 's/.*"([^"]+)".*/\1/')
+    app_id="${app_id}${suffix}"
+  fi
+  [[ -z "$app_id" ]] && { echo "Couldn't determine applicationId for module :${module}" >&2; return 1; }
+  REPLY="$app_id"
+}
+
+_logcat_filter() {
+  awk -v app="$1" -v minlvl="$2" -v seed="$3" '
+    function marker(color, text) {
+      printf "@@ %d %s %s\n", color, time, text
+      fflush()
+    }
+    BEGIN {
+      rank["V"] = 0; rank["D"] = 1; rank["I"] = 2; rank["W"] = 3; rank["E"] = 4; rank["F"] = 5; rank["A"] = 5
+      minrank = rank[minlvl]
+      n = split(seed, sp, " ")
+      for (i = 1; i <= n; i++) pids[sp[i]] = 1
+    }
+    {
+      sub(/\r$/, "")
+      if (!match($0, /^[0-9][0-9]-[0-9][0-9] [0-9:.]+ +[0-9]+ +[0-9]+ [VDIWEFA] /)) next
+      hdr = substr($0, 1, RLENGTH); rest = substr($0, RLENGTH + 1)
+      split(hdr, h, " ")
+      time = h[2]; pid = h[3]; lvl = h[5]
+      i = index(rest, ": ")
+      if (i > 0) { tag = substr(rest, 1, i - 1); msg = substr(rest, i + 2) }
+      else       { tag = rest; sub(/:$/, "", tag); msg = "" }
+      sub(/ +$/, "", tag)
+      if (tag == "ActivityManager") {
+        if (msg ~ /^Start proc [0-9]+:/) {
+          s = substr(msg, 12); c = index(s, ":")
+          p = substr(s, 1, c - 1); r = substr(s, c + 1)
+          sl = index(r, "/"); pkg = (sl ? substr(r, 1, sl - 1) : r)
+          if (pkg == app || index(pkg, app ":") == 1) {
+            pids[p] = 1
+            marker(75, "process " pkg " started (pid " p ")")
+          }
+        } else if (msg ~ /^Process .* \(pid [0-9]+\) has died/) {
+          q = index(msg, "(pid "); p = substr(msg, q + 5) + 0
+          if (p in pids) { delete pids[p]; marker(203, "process died (pid " p ")") }
+        } else if (msg ~ /^Killing [0-9]+:/) {
+          p = substr(msg, 9) + 0
+          if (p in pids) { delete pids[p]; marker(203, "process killed (pid " p ")") }
+        }
+      }
+      if (!(pid in pids)) next
+      if (rank[lvl] < minrank) next
+      print $0
+      fflush()
+    }'
+}
+
+_logcat_colorize() {
+  awk '
+    BEGIN {
+      ESC = sprintf("%c", 27); RST = ESC "[0m"
+      # Palette (256 colors) — tweak here
+      fg["V"] = 250; fg["D"] = 75; fg["I"] = 71; fg["W"] = 178; fg["E"] = 203; fg["F"] = 196; fg["A"] = 196
+      DIM = ESC "[38;5;242m"; BOLD = ESC "[1m"
+    }
+    /^@@ / {
+      line = substr($0, 4)
+      c = index(line, " "); color = substr(line, 1, c - 1); line = substr(line, c + 1)
+      c = index(line, " "); mtime = substr(line, 1, c - 1); text = substr(line, c + 1)
+      printf "%s%s  ── %s ──%s\n", ESC "[38;5;" color "m", mtime, text, RST
+      fflush(); next
+    }
+    {
+      sub(/\r$/, "")
+      if (!match($0, /^[0-9][0-9]-[0-9][0-9] [0-9:.]+ +[0-9]+ +[0-9]+ [VDIWEFA] /)) next
+      hdr = substr($0, 1, RLENGTH); rest = substr($0, RLENGTH + 1)
+      split(hdr, h, " ")
+      time = h[2]; pid = h[3]; tid = h[4]; lvl = h[5]
+      i = index(rest, ": ")
+      if (i > 0) { tag = substr(rest, 1, i - 1); msg = substr(rest, i + 2) }
+      else       { tag = rest; sub(/:$/, "", tag); msg = "" }
+      sub(/ +$/, "", tag)
+      col = ESC "[38;5;" fg[lvl] "m"
+      badge = ESC "[30;48;5;" fg[lvl] "m " lvl " " RST
+      if (tag == lasttag) t = sprintf("%-23s", ""); else t = sprintf("%-23.23s", tag)
+      lasttag = tag
+      msgstyle = (lvl == "F" || lvl == "A") ? BOLD col : col
+      printf "%s%s  %5d-%-5d%s  %s%s%s%s %s %s%s%s\n", \
+        DIM, time, pid, tid, RST, BOLD, col, t, RST, badge, msgstyle, msg, RST
+      fflush()
+    }'
+}
+
+function install-app() {
+  _android_module "$1" || return 1
+  local module="$REPLY"
+  _adb_pick_device || return 1
+  local serial="$REPLY"
+  ./gradlew ":${module}:assembleDebug" || return 1
+  local apk_path
+  apk_path=$(find "${module}/build/outputs/apk/debug" -name "*.apk" -print -quit)
+  [[ -z "$apk_path" ]] && { echo "Couldn't find built APK under ${module}/build/outputs/apk/debug"; return 1; }
+  echo "Installing $apk_path to '$serial'..."
+  adb -s "$serial" install -r "$apk_path" || return 1
+  _android_app_id "$module" || return 1
+  local app_id="$REPLY"
+  local target
+  target=$(adb -s "$serial" shell "cmd package resolve-activity --brief -a android.intent.action.MAIN -c android.intent.category.LAUNCHER $app_id" | tail -n 1 | tr -d '\r')
+  [[ -z "$target" || "$target" == "No activity found" ]] && { echo "Could not resolve launcher activity on device for $app_id"; return 1; }
+  echo "Launching $target..."
+  adb -s "$serial" shell am start -n "$target"
+}
+
+function logcat() {
+  local -A opts
+  zparseopts -D -E -A opts c l:
+  local level="${(U)${opts[-l]:-V}}"
+  [[ "$level" == [VDIWEFA] ]] || { echo "Invalid level '$level' (use V, D, I, W, E, F)." >&2; return 1; }
+  _android_module "$1" || return 1
+  local module="$REPLY"
+  _android_app_id "$module" || return 1
+  local app_id="$REPLY"
+  _adb_pick_device || return 1
+  local serial="$REPLY"
+  (( ${+opts[-c]} )) && adb -s "$serial" logcat -c
+  echo "Logcat for $app_id on $serial  (min level: $level, Ctrl-C to stop)"
+  local pids
+  local -a rc extra_args
+  while true; do
+    pids=$(adb -s "$serial" shell pidof "$app_id" 2>/dev/null | tr -d '\r')
+    adb -s "$serial" logcat -b main,system,crash -v threadtime "${extra_args[@]}" 2>/dev/null \
+      | _logcat_filter "$app_id" "$level" "$pids" \
+      | _logcat_colorize
+    rc=("${pipestatus[@]}")
+    (( ${rc[(I)130]} )) && break   # Ctrl-C
+    echo "\e[38;5;178m-- device disconnected, waiting for it to come back --\e[0m"
+    adb -s "$serial" wait-for-device
+    sleep 2
+    extra_args=(-T 1)   # don't replay the whole buffer after reconnecting
+  done
+}
 
 function start-emu() {
   local emu_bin="$HOME/.android/Sdk/emulator/emulator"
@@ -375,67 +565,4 @@ function start-emu() {
     -no-metrics \
     -no-snapshot-load -no-boot-anim -netfast \
     > "/tmp/emu_${selected_avd}.log" 2>&1
-}
-
-### android app installer -------------------------------------------------
-
-function install-app() {
-  local devices_raw
-  devices_raw=$(adb devices | awk -F'\t' 'NR>1 && $2=="device" {print $1}')
-  [[ -z "$devices_raw" ]] && { echo "No ADB devices found."; return 1; }
-  local -a serials labels
-  serials=("${(@f)devices_raw}")
-  local s label extra
-  for s in "${serials[@]}"; do
-    label=""
-    if [[ "$s" == emulator-* ]]; then
-      label=$(adb -s "$s" emu avd name 2>/dev/null | sed '/^OK$/d' | tr -d '\r' | head -n1)
-    fi
-    if [[ -z "$label" ]]; then
-      extra=$(adb devices -l | awk -v s="$s" 'index($0, s)==1')
-      label=${extra##*model:}
-      label=${label%% *}
-    fi
-    labels+=("$label")
-  done
-  local serial
-  if [[ ${#serials[@]} -eq 1 ]]; then
-    serial=${serials[1]}
-    echo "Using device: $serial  ${labels[1]}"
-  else
-    local i picked_idx
-    local -a display
-    for i in {1..${#serials[@]}}; do
-      display+=("$i) ${serials[$i]}   ${labels[$i]}")
-    done
-    local picked
-    picked=$(printf '%s\n' "${display[@]}" | fzf --prompt="Select device: ")
-    [[ -z "$picked" ]] && { echo "No device selected."; return 1; }
-    picked_idx=${picked%%)*}
-    serial=${serials[$picked_idx]}
-  fi
-  [[ ! -f "./gradlew" ]] && { echo "No gradlew found — run from project root."; return 1; }
-  local module="${1:-app}"
-  ./gradlew ":${module}:assembleDebug" || return 1
-  local apk_path
-  apk_path=$(find "${module}/build/outputs/apk/debug" -name "*.apk" -print -quit)
-  [[ -z "$apk_path" ]] && { echo "Couldn't find built APK under ${module}/build/outputs/apk/debug"; return 1; }
-  echo "Installing $apk_path to '$serial'..."
-  adb -s "$serial" install -r "$apk_path" || return 1
-  local app_id
-  local manifest_file="${module}/build/intermediates/merged_manifests/debug/AndroidManifest.xml"
-  [[ -f "$manifest_file" ]] && app_id=$(grep -m1 -oE 'package="[^"]+"' "$manifest_file" | cut -d'"' -f2)
-  if [[ -z "$app_id" ]]; then
-    local gradle_file="${module}/build.gradle.kts"
-    [[ -f "$gradle_file" ]] || gradle_file="${module}/build.gradle"
-    app_id=$(grep -m1 -oE '(applicationId|namespace)[[:space:]]*=?[[:space:]]*"[^"]+"' "$gradle_file" | sed -E 's/.*"([^"]+)".*/\1/')
-    local suffix=$(awk '/debug[[:space:]]*\{/{f=1} f && /}/{exit} f' "$gradle_file" | grep -m1 -oE 'applicationIdSuffix[[:space:]]*=?[[:space:]]*"[^"]+"' | sed -E 's/.*"([^"]+)".*/\1/')
-    app_id="${app_id}${suffix}"
-  fi
-  [[ -z "$app_id" ]] && { echo "Couldn't determine applicationId for module :${module}"; return 1; }
-  local target
-  target=$(adb -s "$serial" shell "cmd package resolve-activity --brief -a android.intent.action.MAIN -c android.intent.category.LAUNCHER $app_id" | tail -n 1 | tr -d '\r')
-  [[ -z "$target" || "$target" == "No activity found" ]] && { echo "Could not resolve launcher activity on device for $app_id"; return 1; }
-  echo "Launching $target..."
-  adb -s "$serial" shell am start -n "$target"
 }
