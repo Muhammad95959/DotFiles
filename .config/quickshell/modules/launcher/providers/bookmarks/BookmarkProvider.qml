@@ -6,7 +6,7 @@ import "../../logic/match.js" as Match
 // Bookmarks: `b <query>` mode plus matches merged into unified results.
 Scope {
   id: root
-  property var bookmarkBrowsers: ["brave-origin", "firefox"]
+  required property var bookmarkBrowsers
   property var allBookmarks: []
 
   function bookmarkAllowed(src) {

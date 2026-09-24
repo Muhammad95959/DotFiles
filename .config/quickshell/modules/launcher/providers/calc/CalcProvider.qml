@@ -6,8 +6,8 @@ import Quickshell.Io
 // Calculator: explicit `= expr` mode plus implicit math detection.
 Scope {
   id: root
-  property string query: ""
-  property string calcPrefix: "="
+  required property string query
+  required property string calcPrefix
   property string calcResult: ""
   property string calcExpr: ""
   property string calcError: ""

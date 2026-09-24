@@ -38,7 +38,7 @@ Scope {
 
   // Browsers whose bookmarks should appear. Sources are normalized to:
   // brave, brave-origin, helium, chrome, chromium, vivaldi, firefox
-  property var bookmarkBrowsers: ["brave-origin", "firefox"]
+  property var bookmarkBrowsers: ["brave-origin"]
   // Preferred executables per bookmark source. First found via `command -v` wins, else xdg-open.
   property var browserCommands: ({
     "brave": ["brave", "brave-browser", "brave-browser-stable"],
