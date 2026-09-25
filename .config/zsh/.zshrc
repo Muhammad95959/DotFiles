@@ -223,6 +223,7 @@ alias tree='eza --tree'
 alias cmatrix='unimatrix -n -s 96 -l o'
 alias zrefresh='source $ZDOTDIR/.zshrc'
 alias zshrc='nvim $ZDOTDIR/.zshrc'
+alias autodlp='cd /tmp && auto-ytdlp; cd -'
 alias pgcli='echo -ne "\e[2 q" && pgcli'
 alias litecli='echo -ne "\e[2 q" && litecli'
 alias musicremover='~/Scripts/video_music_remover.sh'
@@ -363,15 +364,35 @@ _adb_pick_device() {
   devices_raw=$(adb devices | awk -F'\t' 'NR>1 && $2=="device" {print $1}')
   [[ -z "$devices_raw" ]] && { echo "No ADB devices found." >&2; return 1; }
   local -a serials labels
-  serials=("${(@f)devices_raw}")
-  local s label extra
-  for s in "${serials[@]}"; do
+  local -A seen serial_idx
+  local raw_s label extra key current_serial current_len candidate_len idx android_id
+  raw_s=("${(@f)devices_raw}")
+  for raw_s in "${raw_s[@]}"; do
+    key=$(adb -s "$raw_s" shell getprop ro.serialno 2>/dev/null | tr -d '\r')
+    [[ -z "$key" ]] && key=$(adb -s "$raw_s" shell getprop ro.boot.serialno 2>/dev/null | tr -d '\r')
+    android_id=$(adb -s "$raw_s" shell settings get secure android_id 2>/dev/null | tr -d '\r')
+    [[ -z "$key" && "$android_id" != "null" && -n "$android_id" ]] && key="android:$android_id"
+    [[ -z "$key" || "$key" == "null" ]] && key="$raw_s"
+    if [[ -n "${seen[$key]}" ]]; then
+      current_serial=${seen[$key]}
+      current_len=${#current_serial}
+      candidate_len=${#raw_s}
+      if (( candidate_len < current_len )); then
+        idx=${serial_idx[$key]}
+        serials[$idx]="$raw_s"
+        seen[$key]="$raw_s"
+      fi
+      continue
+    fi
+    seen[$key]="$raw_s"
+    serial_idx[$key]=$(( ${#serials[@]} + 1 ))
+    serials+=("$raw_s")
     label=""
-    if [[ "$s" == emulator-* ]]; then
-      label=$(adb -s "$s" emu avd name 2>/dev/null | sed '/^OK$/d' | tr -d '\r' | head -n1)
+    if [[ "$raw_s" == emulator-* ]]; then
+      label=$(adb -s "$raw_s" emu avd name 2>/dev/null | sed '/^OK$/d' | tr -d '\r' | head -n1)
     fi
     if [[ -z "$label" ]]; then
-      extra=$(adb devices -l | awk -v s="$s" 'index($0, s)==1')
+      extra=$(adb devices -l | awk -v s="$raw_s" 'index($0, s)==1')
       label=${extra##*model:}
       label=${label%% *}
     fi
@@ -396,9 +417,9 @@ _adb_pick_device() {
 }
 
 _android_app_id() {
-  local module="$1" app_id suffix gradle_file
-  local manifest_file="${module}/build/intermediates/merged_manifests/debug/AndroidManifest.xml"
-  [[ -f "$manifest_file" ]] && app_id=$(grep -m1 -oE 'package="[^"]+"' "$manifest_file" | cut -d'"' -f2)
+  local module="$1" app_id suffix gradle_file manifest_file
+  manifest_file=$(find "${module}/build/intermediates" -path "*merged_manifest*" -name "AndroidManifest.xml" -print -quit 2>/dev/null)
+  [[ -n "$manifest_file" ]] && app_id=$(grep -m1 -oE 'package="[^"]+"' "$manifest_file" | cut -d'"' -f2)
   if [[ -z "$app_id" ]]; then
     gradle_file="${module}/build.gradle.kts"
     [[ -f "$gradle_file" ]] || gradle_file="${module}/build.gradle"
@@ -494,6 +515,15 @@ _logcat_colorize() {
     }'
 }
 
+_apk_package() {
+  local apk="$1" aapt_bin pkg
+  aapt_bin=$(ls -d "$ANDROID_HOME/build-tools/"*/aapt "$HOME/Android/Sdk/build-tools/"*/aapt "$HOME/.android/Sdk/build-tools/"*/aapt 2>/dev/null | sort -V | tail -n 1)
+  [[ -n "$aapt_bin" ]] || return 1
+  pkg=$("$aapt_bin" dump badging "$apk" 2>/dev/null | grep -m1 -oE "^package: name='[^']+'" | cut -d"'" -f2)
+  [[ -n "$pkg" ]] || return 1
+  echo "$pkg"
+}
+
 function install-app() {
   _android_module "$1" || return 1
   local module="$REPLY"
@@ -503,15 +533,29 @@ function install-app() {
   local apk_path
   apk_path=$(find "${module}/build/outputs/apk/debug" -name "*.apk" -print -quit)
   [[ -z "$apk_path" ]] && { echo "Couldn't find built APK under ${module}/build/outputs/apk/debug"; return 1; }
-  echo "Installing $apk_path to '$serial'..."
+  local app_id
+  app_id=$(_apk_package "$apk_path" 2>/dev/null) || {
+    _android_app_id "$module" || return 1
+    app_id="$REPLY"
+  }
+  local user
+  user=$(adb -s "$serial" shell am get-current-user 2>/dev/null | tr -d '\r')
+  [[ "$user" =~ ^[0-9]+$ ]] || user=0
+  echo "Installing $apk_path to '$serial' (user $user)..."
   adb -s "$serial" install -r "$apk_path" || return 1
-  _android_app_id "$module" || return 1
-  local app_id="$REPLY"
+  if ! adb -s "$serial" shell pm list packages --user "$user" 2>/dev/null | tr -d '\r' | grep -qx "package:$app_id"; then
+    echo "Package not enabled for user $user — restoring (stale per-user uninstall state)..."
+    adb -s "$serial" shell pm install-existing --user "$user" "$app_id" || return 1
+  fi
   local target
-  target=$(adb -s "$serial" shell "cmd package resolve-activity --brief -a android.intent.action.MAIN -c android.intent.category.LAUNCHER $app_id" | tail -n 1 | tr -d '\r')
-  [[ -z "$target" || "$target" == "No activity found" ]] && { echo "Could not resolve launcher activity on device for $app_id"; return 1; }
+  target=$(adb -s "$serial" shell cmd package resolve-activity --user "$user" --brief -a android.intent.action.MAIN -c android.intent.category.LAUNCHER "$app_id" | tail -n 1 | tr -d '\r')
+  [[ -z "$target" || "$target" == "No activity found" ]] && {
+    echo "Could not resolve launcher activity on device for $app_id (user $user)." >&2
+    echo "Hint: check per-user state via 'adb -s \"$serial\" shell dumpsys package $app_id | grep -A1 \"User $user\"'." >&2
+    return 1
+  }
   echo "Launching $target..."
-  adb -s "$serial" shell am start -n "$target"
+  adb -s "$serial" shell am start --user "$user" -n "$target"
 }
 
 function logcat() {
