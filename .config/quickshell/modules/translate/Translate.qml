@@ -4,6 +4,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Io
+import "../launcher/logic/match.js" as Match
 
 Scope {
   id: root
@@ -25,24 +26,13 @@ Scope {
     if (qmenu.visible)
       qmenu.close()
   }
-  function isArabic(t) {
-    let arabic = 0, english = 0
-    for (let i = 0; i < t.length; i++) {
-      const c = t.charCodeAt(i)
-      if ((c >= 0x0600 && c <= 0x06FF) || (c >= 0x0750 && c <= 0x077F) || (c >= 0x08A0 && c <= 0x08FF) || (c >= 0xFB50 && c <= 0xFDFF) || (c >= 0xFE70 && c <= 0xFEFF))
-        arabic++
-      else if ((c >= 65 && c <= 90) || (c >= 97 && c <= 122))
-        english++
-    }
-    return arabic > english
-  }
   function doTranslate(text) {
     const t = String(text || "").trim()
     if (t.length === 0)
       return
     const enToAr = "https://translate.google.com.eg/?hl=ar&tab=rT1&sl=en&tl=ar&op=translate"
     const arToEn = "https://translate.google.com.eg/?hl=ar&tab=rT1&sl=ar&tl=en&op=translate"
-    const base = isArabic(t) ? arToEn : enToAr
+    const base = Match.isArabic(t) ? arToEn : enToAr
     const url = base + "&text=" + encodeURIComponent(t)
     Quickshell.execDetached(["brave-origin", "--app=" + url, "--test-type", "--password-store=basic"])
     close()

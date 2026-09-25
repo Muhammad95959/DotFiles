@@ -13,6 +13,7 @@ import "providers/bookmarks"
 import "providers/calc"
 import "providers/engines"
 import "providers/run"
+import "providers/translate"
 import "logic/match.js" as Match
 
 // Single-window launcher: prefix routing over provider results.
@@ -33,6 +34,7 @@ Scope {
   // Prefixes: = and > match on first char, words need `trigger + space`
   property string calcPrefix: "="
   property string runPrefix: ">"
+  property string translatePrefix: "@"
   property string bookmarkPrefix: "b"
   property string webPrefix: "w"
 
@@ -65,20 +67,29 @@ Scope {
   RunProvider {
     id: runProvider
   }
+  TranslateProvider {
+    id: translateProvider
+    query: launcherRoot.query
+    translatePrefix: launcherRoot.translatePrefix
+  }
 
   function toggle() { visible ? close() : open() }
-  function open() { _suppressHeightAnim = true; _everOpened = true; visible = true; query = ""; selectedIndex = 0; calcProvider.reset(); refresh(); Qt.callLater(() => _suppressHeightAnim = false) }
-  function close() { _suppressHeightAnim = true; visible = false; query = ""; selectedIndex = 0; calcProvider.reset() }
+  function open() { _suppressHeightAnim = true; _everOpened = true; visible = true; query = ""; selectedIndex = 0; calcProvider.reset(); translateProvider.reset(); refresh(); Qt.callLater(() => _suppressHeightAnim = false) }
+  function close() { _suppressHeightAnim = true; visible = false; query = ""; selectedIndex = 0; calcProvider.reset(); translateProvider.reset() }
   function closeAndClear() { close() }
 
   function refresh() {
     engineProvider.refresh()
     bookmarkProvider.refresh()
     runProvider.refresh()
+    translateProvider.refresh()
   }
 
   readonly property var filtered: {
     const spaced = String(query || "").replace(/\n/g, " ").replace(/^\s+/, "")
+    // Translation keeps the user's line breaks; every other provider wants the
+    // flattened form above.
+    const lines = String(query || "").replace(/^\s+/, "")
     const raw = spaced.trim()
     if (raw === "") return []
 
@@ -86,6 +97,7 @@ Scope {
       return [calcProvider.explicitItem(spaced)]
     }
     if (runPrefix !== "" && spaced.startsWith(runPrefix)) return runProvider.runItems(spaced.slice(runPrefix.length).trim())
+    if (translatePrefix !== "" && lines.startsWith(translatePrefix)) return translateProvider.translateItems(lines)
 
     // Websearch mode: `w` searches engines by name.
     if (webPrefix !== "" && spaced.toLowerCase().startsWith(webPrefix.toLowerCase())) {
@@ -176,19 +188,80 @@ Scope {
     closeAndClear()
   }
 
+  // No -t: the notification server picks its own timeout.
+  function notify(msg) {
+    Quickshell.execDetached(["sh", "-c", "notify-send 'Launcher' " + Match.shQuote(String(msg))])
+  }
+  function copySummary(text) {
+    const lines = String(text || "").split("\n").filter(x => x.trim() !== "")
+    if (lines.length > 1)
+      return "Copied " + lines.length + " lines"
+    const head = (lines[0] || "").trim()
+    return "Copied " + (head.length > 72 ? head.slice(0, 71).trim() + "…" : head)
+  }
+  function copyToClipboard(text) {
+    const t = String(text || "")
+    if (t === "")
+      return
+    Quickshell.execDetached(["sh", "-c", "printf '%s' " + Match.shQuote(t) + " | wl-copy && notify-send 'Launcher' " + Match.shQuote(copySummary(t))])
+  }
+  function runInTerminal(cmd, workingDirectory) {
+    if (!Array.isArray(cmd) || cmd.length === 0)
+      return
+    const script = 'if command -v xdg-terminal-exec >/dev/null 2>&1; then exec xdg-terminal-exec "$@"; elif command -v kitty >/dev/null 2>&1; then exec kitty -e "$@"; else exec "$@"; fi'
+    const argv = ["sh", "-c", script, "sh"].concat(cmd)
+    Quickshell.execDetached(workingDirectory ? { command: argv, workingDirectory: workingDirectory } : argv)
+  }
+  // Right-hand tag on each row; empty means no tag.
+  function tagOf(it) {
+    if (!it)
+      return ""
+    if (it.tag)
+      return String(it.tag)
+    if (it.kind === "bookmark")
+      return it.source || "mark"
+    if (it.kind === "engine")
+      return "engine"
+    if (it.kind === "web")
+      return "web"
+    if (it.kind === "calc")
+      return "calc"
+    if (it.kind === "translate")
+      return "tr"
+    if (it.kind === "translate-install" || it.kind === "translate-deps")
+      return "setup"
+    return ""
+  }
+  // Engine and models are installed separately, so each missing piece runs its
+  // own setup command in a terminal.
+  function runTranslateSetup(cmd, message) {
+    runInTerminal(cmd)
+    translateProvider.noteSetupStarted()
+    notify(message)
+  }
+
   function activateAt(idx) {
     const list = filtered
     if (idx < 0 || idx >= list.length) return
     const it = list[idx]
     if (it.kind === "calc") {
       if (calcProvider.calcResult === "") { closeAndClear(); return }
-      Quickshell.execDetached(["sh", "-c", "printf '%s' " + Match.shQuote(String(calcProvider.calcResult)) + " | wl-copy && notify-send -t 2000 'Launcher' " + Match.shQuote("Copied " + String(calcProvider.calcResult))])
+      copyToClipboard(calcProvider.calcResult)
+      closeAndClear()
+    } else if (it.kind === "translate") {
+      if (it.text)
+        copyToClipboard(it.text)
+      closeAndClear()
+    } else if (it.kind === "translate-install") {
+      runTranslateSetup(translateProvider.downloadCmd, "Downloading translation models in a terminal — reopen the launcher when it finishes")
+      closeAndClear()
+    } else if (it.kind === "translate-deps") {
+      runTranslateSetup(translateProvider.depsCmd, "Installing the translation engine — reopen the launcher when it finishes")
       closeAndClear()
     } else if (it.kind === "app") {
       const e = it.entry
       if (e.runInTerminal) {
-        const cmd = e.command
-        Quickshell.execDetached({ command: ["sh", "-c", 'if command -v xdg-terminal-exec >/dev/null 2>&1; then exec xdg-terminal-exec "$@"; elif command -v kitty >/dev/null 2>&1; then exec kitty -e "$@"; else exec "$@"; fi', "sh"].concat(cmd), workingDirectory: e.workingDirectory })
+        runInTerminal(e.command, e.workingDirectory)
       } else {
         e.execute()
       }
@@ -432,8 +505,8 @@ Scope {
                     }
                   }
                   Text {
-                    visible: del.modelData.kind === "calc" || del.modelData.kind === "bookmark" || del.modelData.kind === "web" || del.modelData.kind === "engine"
-                    text: del.modelData.kind === "calc" ? "calc" : del.modelData.kind === "bookmark" ? (del.modelData.source || "mark") : del.modelData.kind === "engine" ? "engine" : "web"
+                    visible: launcherRoot.tagOf(del.modelData) !== ""
+                    text: launcherRoot.tagOf(del.modelData)
                     color: Theme.fg
                     opacity: 0.4
                     font.family: Theme.monoFont
