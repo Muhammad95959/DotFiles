@@ -79,8 +79,6 @@ PanelWindow {
               else if (event.key === Qt.Key_Left) { qmenuRoot.moveNoWrap(-1); event.accepted = true }
               else if (event.key === Qt.Key_Down) { qmenuRoot.moveNoWrap(1); event.accepted = true }
               else if (event.key === Qt.Key_Up) { qmenuRoot.moveNoWrap(-1); event.accepted = true }
-              else if (event.key === Qt.Key_Home) { qmenuRoot.goHome(); event.accepted = true }
-              else if (event.key === Qt.Key_End) { qmenuRoot.goEnd(); event.accepted = true }
               else if (event.key === Qt.Key_PageUp) { qmenuRoot.pageMove(-1); event.accepted = true }
               else if (event.key === Qt.Key_PageDown) { qmenuRoot.pageMove(1); event.accepted = true }
             }

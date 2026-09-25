@@ -93,8 +93,6 @@ Scope {
     _markKeyboard(); const n = filtered.length; if (n===0) return
     const ni = selectedIndex + delta; if (ni < 0 || ni >= n) return; selectedIndex = ni
   }
-  function goHome() { _markKeyboard(); if (filtered.length>0) selectedIndex=0 }
-  function goEnd() { _markKeyboard(); const n=filtered.length; if(n>0) selectedIndex=n-1 }
   function snapPage(list, idx){ if(!list||idx<0) return; try{ list.positionViewAtIndex(Math.floor(idx / root.rowsVisible) * root.rowsVisible, ListView.Beginning) }catch(e){} }
   function pageMove(dir) {
     _markKeyboard(); const n=filtered.length; if(n===0) return
@@ -213,8 +211,6 @@ Scope {
                   else if (event.key===Qt.Key_Down){ root.moveNoWrap(1); event.accepted=true}
                   else if (event.key===Qt.Key_Left){ root.moveNoWrap(-1); event.accepted=true}
                   else if (event.key===Qt.Key_Right){ root.moveNoWrap(1); event.accepted=true}
-                  else if (event.key===Qt.Key_Home){ root.goHome(); event.accepted=true}
-                  else if (event.key===Qt.Key_End){ root.goEnd(); event.accepted=true}
                   else if (event.key===Qt.Key_PageUp){ root.pageMove(-1); event.accepted=true}
                   else if (event.key===Qt.Key_PageDown){ root.pageMove(1); event.accepted=true}
                   else if (event.key===Qt.Key_Return||event.key===Qt.Key_Enter){ root.activateAt(root.selectedIndex); event.accepted=true}

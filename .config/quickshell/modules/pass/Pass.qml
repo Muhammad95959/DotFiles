@@ -231,18 +231,6 @@ Scope {
             close()
         }
     }
-    function goEnd() {
-        _markKeyboard()
-        if (_showFieldPicker) { const n = filteredFields.length; if (n > 0) _fieldIndex = n - 1; return }
-        if (_showActions) { const n = filteredActions.length; if (n > 0) actionIndex = n - 1; return }
-        const n = filtered.length; if (n > 0) selectedIndex = n - 1
-    }
-    function goHome() {
-        _markKeyboard()
-        if (_showFieldPicker) { if (filteredFields.length > 0) _fieldIndex = 0; return }
-        if (_showActions) { if (filteredActions.length > 0) actionIndex = 0; return }
-        if (filtered.length > 0) selectedIndex = 0
-    }
     function move(delta) {
         _markKeyboard()
         if (_showFieldPicker) {
@@ -1009,8 +997,6 @@ Scope {
                                         else if (event.key === Qt.Key_Down) { root.moveNoWrap(1); event.accepted = true }
                                         else if (event.key === Qt.Key_Left) { root.moveNoWrap(-1); event.accepted = true }
                                         else if (event.key === Qt.Key_Right) { root.moveNoWrap(1); event.accepted = true }
-                                        else if (event.key === Qt.Key_Home) { root.goHome(); event.accepted = true }
-                                        else if (event.key === Qt.Key_End) { root.goEnd(); event.accepted = true }
                                         else if (event.key === Qt.Key_PageUp) { root.pageMove(-1); event.accepted = true }
                                         else if (event.key === Qt.Key_PageDown) { root.pageMove(1); event.accepted = true }
                                         else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {

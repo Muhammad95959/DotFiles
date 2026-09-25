@@ -164,8 +164,6 @@ Scope {
   function moveNoWrap(delta){
     _markKeyboard(); const n=currentCount; if(n===0)return; const ni=selectedIndex+delta; if(ni<0||ni>=n) return; selectedIndex=ni
   }
-  function goHome(){ _markKeyboard(); if(currentCount>0) selectedIndex=0 }
-  function goEnd(){ _markKeyboard(); if(currentCount>0) selectedIndex=currentCount-1 }
   function pageMove(dir){
     _markKeyboard(); const n=currentCount; if(n===0)return; let page=10; try{ const h=listView?listView.height:0; if(h>0) page=Math.max(1, Math.floor(h/42))}catch(e){} let ni=selectedIndex+dir*page; if(ni<0) ni=0; if(ni>=n) ni=n-1; selectedIndex=ni; try{ if(typeof listView!=="undefined"&&listView) listView.positionViewAtIndex(ni, ListView.Contain)}catch(e){}
   }
@@ -224,8 +222,6 @@ Scope {
                   else if(event.key===Qt.Key_Down){ root.moveNoWrap(1); event.accepted=true}
                   else if(event.key===Qt.Key_Left){ root.moveNoWrap(-1); event.accepted=true}
                   else if(event.key===Qt.Key_Right){ root.moveNoWrap(1); event.accepted=true}
-                  else if(event.key===Qt.Key_Home){ root.goHome(); event.accepted=true}
-                  else if(event.key===Qt.Key_End){ root.goEnd(); event.accepted=true}
                   else if(event.key===Qt.Key_PageUp){ root.pageMove(-1); event.accepted=true}
                   else if(event.key===Qt.Key_PageDown){ root.pageMove(1); event.accepted=true}
                   else if(event.key===Qt.Key_Return||event.key===Qt.Key_Enter){ root.onAccepted(); event.accepted=true}

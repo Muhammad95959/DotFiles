@@ -351,8 +351,6 @@ Scope {
     clearHold(); const n = filtered.length; if(n===0) return
     const ni = selectedIndex+delta; if(ni<0||ni>=n) return; selectedIndex=ni
   }
-  function goHome(){ clearHold(); if(filtered.length>0) selectedIndex=0 }
-  function goEnd(){ clearHold(); const n=filtered.length; if(n>0) selectedIndex=n-1 }
   function pageMove(dir){
     clearHold(); const n=filtered.length; if(n===0) return
     const page=clipRoot.visibleRows
@@ -432,8 +430,6 @@ Scope {
                   else if (event.key === Qt.Key_Down) { clipRoot.moveNoWrap(1); event.accepted=true }
                   else if (event.key === Qt.Key_Left) { clipRoot.moveNoWrap(-1); event.accepted=true }
                   else if (event.key === Qt.Key_Right) { clipRoot.moveNoWrap(1); event.accepted=true }
-                  else if (event.key === Qt.Key_Home) { clipRoot.goHome(); event.accepted=true }
-                  else if (event.key === Qt.Key_End) { clipRoot.goEnd(); event.accepted=true }
                   else if (event.key === Qt.Key_PageUp) { clipRoot.pageMove(-1); event.accepted=true }
                   else if (event.key === Qt.Key_PageDown) { clipRoot.pageMove(1); event.accepted=true }
                   else if (event.key === Qt.Key_Delete) {

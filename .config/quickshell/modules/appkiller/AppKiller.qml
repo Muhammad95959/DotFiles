@@ -98,8 +98,6 @@ Scope {
     const n = filteredApps.length; if (n===0) return
     const ni = selectedIndex + delta; if (ni<0||ni>=n) return; selectedIndex = ni
   }
-  function goHome() { _markKeyboard(); if(filteredApps.length>0) selectedIndex=0 }
-  function goEnd() { _markKeyboard(); const n=filteredApps.length; if(n>0) selectedIndex=n-1 }
   function snapPage(list, idx) {
     if (!list || idx < 0) return
     try { list.positionViewAtIndex(Math.floor(idx / killerRoot.rowsVisible) * killerRoot.rowsVisible, ListView.Beginning) } catch(e) {}
@@ -192,8 +190,6 @@ Scope {
                   else if (event.key === Qt.Key_Down) { killerRoot.moveNoWrap(1); event.accepted = true }
                   else if (event.key === Qt.Key_Left) { killerRoot.moveNoWrap(-1); event.accepted = true }
                   else if (event.key === Qt.Key_Right) { killerRoot.moveNoWrap(1); event.accepted = true }
-                  else if (event.key === Qt.Key_Home) { killerRoot.goHome(); event.accepted = true }
-                  else if (event.key === Qt.Key_End) { killerRoot.goEnd(); event.accepted = true }
                   else if (event.key === Qt.Key_PageUp) { killerRoot.pageMove(-1); event.accepted = true }
                   else if (event.key === Qt.Key_PageDown) { killerRoot.pageMove(1); event.accepted = true }
                   else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {

@@ -149,8 +149,6 @@ Scope {
 
   function move(delta) { const n = filtered.length; if (n === 0) return; let ni = selectedIndex + delta; if (ni < 0) ni = n - 1; if (ni >= n) ni = 0; selectedIndex = ni }
   function moveNoWrap(delta) { const n = filtered.length; if (n === 0) return; const ni = selectedIndex + delta; if (ni < 0 || ni >= n) return; selectedIndex = ni }
-  function goHome() { if (filtered.length > 0) selectedIndex = 0 }
-  function goEnd() { const n = filtered.length; if (n > 0) selectedIndex = n - 1 }
   function pageMove(dir) { const n = filtered.length; if (n === 0) return; let ni = selectedIndex + dir * visibleRows; if (ni < 0) ni = 0; if (ni >= n) ni = n - 1; selectedIndex = ni }
 
   function openUrl(url) {
@@ -327,8 +325,6 @@ Scope {
                       }
                       else if (event.key === Qt.Key_Up) { launcherRoot.moveNoWrap(-1); event.accepted = true }
                       else if (event.key === Qt.Key_Down) { launcherRoot.moveNoWrap(1); event.accepted = true }
-                      else if (event.key === Qt.Key_Home && !(event.modifiers & Qt.ControlModifier)) { launcherRoot.goHome(); event.accepted = true }
-                      else if (event.key === Qt.Key_End && !(event.modifiers & Qt.ControlModifier)) { launcherRoot.goEnd(); event.accepted = true }
                       else if (event.key === Qt.Key_PageUp) { launcherRoot.pageMove(-1); event.accepted = true }
                       else if (event.key === Qt.Key_PageDown) { launcherRoot.pageMove(1); event.accepted = true }
                       else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
