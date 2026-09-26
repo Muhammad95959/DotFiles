@@ -98,7 +98,7 @@ keymap = [
 	{ on = [ "c", "d" ], run = "copy dirpath",                                             desc = "Copy the directory path" },
 	{ on = [ "c", "n" ], run = "copy filename",                                            desc = "Copy the filename" },
 	{ on = [ "c", "N" ], run = "copy name_without_ext",                                    desc = "Copy the filename without extension" },
-	{ on = [ "c", "i" ], run = '''shell 'magick "$0" png:- | wl-copy --type image/png'''', desc = "Copy the image to clipboard" },
+	{ on = [ "c", "i" ], run = '''shell 'magick %h png:- | wl-copy --type image/png'''', desc = "Copy the image to clipboard" },
 
 	# Filter
 	{ on = "f", run = "filter --smart", desc = "Filter files" },
