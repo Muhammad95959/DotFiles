@@ -7,6 +7,7 @@ import "../../logic/match.js" as Match
 // Offline Arabic <-> English translation via local CTranslate2 models.
 // The engine (ctranslate2 + sentencepiece) and the models are installed
 // separately, so each missing piece gets its own prompt and its own remedy.
+// Alt+Enter inserts a line break in the launcher input; line breaks are kept.
 Scope {
   id: root
   required property string query
@@ -75,7 +76,7 @@ Scope {
     const text = root.sourceTextOf(spaced)
     const echo = root.lastLineOf(text)
     if (text === "")
-      return [{ kind: "translate", title: "Translate", subtitle: "Alt+Enter for a new line", icon: "󰗼" }]
+      return [{ kind: "translate", title: "Translator", subtitle: "Type a phrase in Arabic or English", icon: "󰗼" }]
     if (root._modelState === 2)
       return [{ kind: "translate-deps", title: "Install translation engine", subtitle: root.depsMissing, icon: "" }]
     if (root._modelState === 3)

@@ -87,8 +87,9 @@ Scope {
 
   readonly property var filtered: {
     const spaced = String(query || "").replace(/\n/g, " ").replace(/^\s+/, "")
-    // Translation keeps the user's line breaks; every other provider wants the
-    // flattened form above.
+    // Translation and the web engines keep the user's line breaks, so a pasted
+    // code block reaches the LLM with its indentation intact; everything else
+    // (app search, run, tokens) wants the flattened form above.
     const lines = String(query || "").replace(/^\s+/, "")
     const raw = spaced.trim()
     if (raw === "") return []
@@ -110,10 +111,12 @@ Scope {
         return picks
     }
 
-    const sp = spaced.indexOf(" ")
+    const sp = lines.indexOf(" ")
     if (sp > 0) {
-      const pre = spaced.slice(0, sp).toLowerCase()
-      const rest = spaced.slice(sp + 1).trim()
+      // Index into `lines`, not `spaced`: a query like "c def f():\n    return 1"
+      // is one line in `spaced`, which would hand the model a squashed prompt.
+      const pre = lines.slice(0, sp).toLowerCase()
+      const rest = lines.slice(sp + 1).trim()
       if (bookmarkPrefix !== "" && pre === bookmarkPrefix.toLowerCase()) return bookmarkProvider.bookmarkHits(Match.toksOf(rest), 0)
       const eng = engineProvider.engineByTrigger(pre)
       if (eng) return [engineProvider.webItem(eng, rest)]
@@ -152,7 +155,7 @@ Scope {
     }
 
     const defEng = engineProvider.defaultEngine()
-    if (defEng) out.push(engineProvider.webItem(defEng, raw))
+    if (defEng) out.push(engineProvider.webItem(defEng, lines.trim()))
     out.push({ kind: "run", title: "Run: " + raw, subtitle: raw, icon: "", cmd: raw })
     return out
   }

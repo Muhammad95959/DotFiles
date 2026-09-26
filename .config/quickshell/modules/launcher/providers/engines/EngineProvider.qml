@@ -49,7 +49,9 @@ Scope {
   }
   function webItem(eng, rest) {
     const url = eng.url.replace("%s", encodeURIComponent(rest))
-    return { kind: "web", title: rest !== "" ? eng.name + ": " + rest : eng.name, subtitle: url, icon: "󰖟", iconFile: root.engineIconFile(eng), url: url }
+    // Show line breaks in the result row; a raw newline would break the layout.
+    const preview = String(rest || "").replace(/\n/g, " ⏎ ")
+    return { kind: "web", title: rest !== "" ? eng.name + ": " + preview : eng.name, subtitle: url, icon: "󰖟", iconFile: root.engineIconFile(eng), url: url }
   }
   function enginesMatching(prefix) {
     const p = String(prefix || "").toLowerCase()
