@@ -100,6 +100,10 @@ okular = [
 pdfarranger = [
   { run = 'setsid pdfarranger %s >/dev/null 2>&1 &', block = false, desc = "pdfarranger" },
 ]
+# For Fonts
+font-viewer = [
+  { run = 'setsid /usr/lib/font-manager/font-viewer %s >/dev/null 2>&1 &', block = false, desc = "font-viewer" },
+]
 
 [open]
 rules = [
@@ -122,6 +126,9 @@ rules = [
 	{ mime = "inode/empty", use = [ "edit", "reveal" ] },
   # PDF
 	{ mime = "application/pdf", use = [ "zathura", "okular", "pdfarranger", "edit", "reveal" ] },
+  # Font
+  { mime = "font/*", use = [ "font-viewer", "edit", "reveal" ] },
+  { mime = "application/ms-opentype", use = [ "font-viewer", "edit", "reveal" ] },
 	# Virtual file system
 	{ mime = "vfs/{absent,stale}", use = "download" },
 	# Trash
