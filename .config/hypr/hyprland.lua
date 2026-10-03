@@ -24,6 +24,7 @@ hl.monitor({ output = "HDMI-A-1", mirror = "eDP-1" })
 local mod = "SUPER"
 
 local reset                = "hyprctl dispatch 'hl.dsp.submap(\"reset\")' && "
+local SCRATCHPAD_WS        = "special:scratchpad"
 local scratchpad_window    = nil
 local last_tiled_window    = {}
 local last_floating_window = {}
@@ -252,11 +253,13 @@ hl.window_rule({ match = { class = "^nl%.hjdskes%.gcolor3$" }, float = true })
 hl.window_rule({ match = { class = "^hyprland-share-picker$" }, float = true })
 hl.window_rule({ match = { class = "^thunar$", title = "^Rename.*$" }, float = true })
 hl.window_rule({ match = { class = "^thunar$", title = "^File Operation Progress$" }, float = true })
+hl.window_rule({ match = { class = "^org.inkscape.Inkscape$", title = "^SVG Input$" }, float = true })
 
 hl.window_rule({ match = { class = "^com-jetbrains-toolbox-entry-ToolboxEntry$" }, tile = true })
 hl.window_rule({ match = { title = "^WhatsApp Web$" }, tile = true })
 
 hl.window_rule({ match = { class = "^yt-dlp$" }, workspace = 9 })
+hl.window_rule({ match = { class = "^autodlp$" }, workspace = 9 })
 hl.window_rule({ match = { title = "^meet.google.com is sharing your screen.$" }, workspace = "9 silent" })
 hl.window_rule({ match = { class = "^Emulator$", title = "^Emulator$", float = true }, workspace = "special:hidden silent" })
 hl.window_rule({ match = { class = "^brave-__home_muhammad_Projects_new-tab-page_index.html-Default$" }, workspace = "special:hidden silent" })
@@ -280,6 +283,30 @@ hl.layer_rule({ match = { namespace = "logout_dialog" }, blur = true })
 -------------------
 ---- FUNCTIONS ----
 -------------------
+
+local function is_hidden(win)
+  local wsw = win.workspace
+  if wsw == nil then return true end
+  return wsw.special == true
+end
+
+local function is_marked(addr)
+  return scratchpad_window ~= nil and scratchpad_window.address == addr
+end
+
+local function find_window(addr)
+  if addr == nil then return nil end
+  for _, win in ipairs(hl.get_windows()) do
+    if win.address == addr then return win end
+  end
+  return nil
+end
+
+local function call_window(win, ws)
+  hl.dispatch(hl.dsp.window.move({ workspace = ws.id, window = win, follow = false }))
+  hl.dispatch(hl.dsp.focus({ window = win }))
+  hl.dispatch(hl.dsp.window.bring_to_top())
+end
 
 local function group_navigate_or_fallback(group_dir, fallback)
   local w = hl.get_active_window()
@@ -418,11 +445,17 @@ function ToggleSmartGaps()
 end
 
 function ToggleFloating()
-  local w = hl.get_active_window()
-  if scratchpad_window == w then scratchpad_window = nil end
-  hl.dispatch(hl.dsp.window.float({ action = "toggle" }))
-  w = hl.get_active_window()
-  if w == nil or not w.floating then return end
+  local before = hl.get_active_window()
+  if before == nil then return end
+  local addr = before.address
+  local was_floating = before.floating
+  hl.dispatch(hl.dsp.window.float({ action = "toggle", window = before }))
+  local w = find_window(addr)
+  if w == nil then return end
+  if was_floating and not w.floating and not is_hidden(w) and is_marked(addr) then
+    scratchpad_window = nil
+  end
+  if not w.floating then return end
   hl.dispatch(hl.dsp.window.center())
   hl.dispatch(hl.dsp.window.bring_to_top())
   local resizeClasses = { kitty = true, helium = true, ["brave-origin"] = true }
@@ -531,52 +564,24 @@ end
 function Scratchpad()
   local SCRATCH_WIDTH = 1600
   local SCRATCH_HEIGHT = 900
-  local w = hl.get_active_window()
-  -- check if saved window still exists
-  if scratchpad_window ~= nil then
-    local exists = false
-    for _, win in ipairs(hl.get_windows()) do
-      if win.address == scratchpad_window.address then
-        exists = true
-        break
-      end
-    end
-    if not exists then
-      scratchpad_window = nil
-    end
-  end
-  if scratchpad_window ~= nil then
-    if w ~= nil and w.address == scratchpad_window.address then
-      -- current window is scratchpad, toggle away
-      hl.dispatch(hl.dsp.window.move({ workspace = "special:scratchpad", follow = false }))
-    else
-      -- pull into current workspace
-      local ws = hl.get_active_workspace()
-      if ws == nil or ws.id < 0 then return end
-      hl.dispatch(hl.dsp.window.move({ workspace = ws.id, window = scratchpad_window, follow = false }))
-      hl.dispatch(hl.dsp.focus({ window = scratchpad_window }))
-      hl.dispatch(hl.dsp.window.bring_to_top())
-    end
-    return
-  end
-  -- no tracked scratchpad; check for any windows in special:scratchpad
   local ws = hl.get_active_workspace()
-  if ws ~= nil and ws.id >= 0 then
-    local orphans = {}
-    for _, win in ipairs(hl.get_windows()) do
-      if win.workspace ~= nil and win.workspace.name == "special:scratchpad" then
-        table.insert(orphans, win)
-      end
-    end
-    if #orphans > 0 then
-      for _, win in ipairs(orphans) do
-        hl.dispatch(hl.dsp.window.move({ workspace = ws.id, window = win, follow = false }))
-      end
-      hl.dispatch(hl.dsp.focus({ window = orphans[#orphans] }))
+  if ws == nil or ws.id < 0 then return end
+  local tracked = nil
+  if scratchpad_window ~= nil then
+    tracked = find_window(scratchpad_window.address)
+    if tracked == nil then scratchpad_window = nil end
+  end
+  if tracked ~= nil then
+    scratchpad_window = tracked
+    if is_hidden(tracked) or tracked.workspace.id ~= ws.id then
+      call_window(tracked, ws)
+      scratchpad_window = tracked -- restoring never drops the marking
       return
     end
+    hl.dispatch(hl.dsp.window.move({ workspace = SCRATCHPAD_WS, window = tracked, follow = false }))
+    return
   end
-  -- no scratchpad, promote active window
+  local w = hl.get_active_window()
   if w == nil then return end
   if not w.floating then
     hl.dispatch(hl.dsp.window.float({ action = "set" }))
@@ -584,7 +589,7 @@ function Scratchpad()
     hl.dispatch(hl.dsp.window.center())
   end
   scratchpad_window = w
-  hl.dispatch(hl.dsp.window.move({ workspace = "special:scratchpad", follow = false }))
+  hl.dispatch(hl.dsp.window.move({ workspace = SCRATCHPAD_WS, window = w, follow = false }))
 end
 
 function BraveTranslate()
@@ -681,12 +686,13 @@ hl.define_submap("apps", function()
   hl.bind("s", hl.dsp.exec_cmd(reset .. "libreoffice /mnt/Disk_D/Muhammad/swears.odt"))
   hl.bind("t", hl.dsp.exec_cmd(reset .. "telegram-desktop"))
   hl.bind("w", hl.dsp.exec_cmd(reset .. "/usr/bin/brave-origin --test-type --app-id=hnpfjngllnobngcgfapefoaidbinmjnm"))
-  hl.bind("y", hl.dsp.exec_cmd(reset .. "kitty --class yt-dlp -e ~/Scripts/yt-dlp_script.sh"))
+  hl.bind("y", hl.dsp.exec_cmd(reset .. "kitty --class autodlp --hold -e sh -c 'cd /tmp && auto-ytdlp; cd -'"))
   hl.bind("SHIFT + b", hl.dsp.exec_cmd(reset .. "notify-send -t 5000 \"$(acpi)\""))
   hl.bind("SHIFT + c", hl.dsp.exec_cmd(reset .. "hyprpicker -a"))
   hl.bind("SHIFT + m", hl.dsp.exec_cmd(reset .. "kitty --class pulsemixer --hold -e pulsemixer"))
   hl.bind("SHIFT + s", hl.dsp.exec_cmd(reset .. "notify-send -t 30000 \"$(~/Scripts/bilal.sh -a)\""))
   hl.bind("SHIFT + t", hl.dsp.exec_cmd(reset .. "blanket"))
+  hl.bind("SHIFT + y", hl.dsp.exec_cmd(reset .. "kitty --class yt-dlp -e ~/Scripts/yt-dlp_script.sh"))
 
   hl.bind("ESCAPE",             hl.dsp.submap("reset"))
   hl.bind(mod .. " + CTRL + q", hl.dsp.submap("reset"))
