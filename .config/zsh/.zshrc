@@ -180,11 +180,15 @@ add-zsh-hook precmd _notify_precmd
 
 ### Environment variables -------------------------------------------------
 
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.local/share/npm/bin:$PATH"
+export PATH="$ANDROID_HOME/platform-tools:$PATH"
+export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
+
 export EDITOR=nvim
 export TERMCMD=kitty
 export MANPAGER='nvim +Man!'
 export BAT_THEME="tokyonight_moon"
-export PATH="$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin:$HOME/.local/bin:$PATH"
 export CLOUDFLARE_ACCOUNT_ID=$([ -f ~/.config/opencode/api_keys/cloudflare_account_id ] && cat ~/.config/opencode/api_keys/cloudflare_account_id)
 export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS \
   --ansi \
@@ -223,6 +227,7 @@ alias tree='eza --tree'
 alias cmatrix='unimatrix -n -s 96 -l o'
 alias zrefresh='source $ZDOTDIR/.zshrc'
 alias zshrc='nvim $ZDOTDIR/.zshrc'
+alias autodlp='cd /tmp && auto-ytdlp; cd -'
 alias pgcli='echo -ne "\e[2 q" && pgcli'
 alias litecli='echo -ne "\e[2 q" && litecli'
 alias musicremover='~/Scripts/video_music_remover.sh'
