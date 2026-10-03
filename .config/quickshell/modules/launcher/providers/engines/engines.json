@@ -56,12 +56,6 @@
     "url": "https://www.jumia.com.eg/ar/catalog/?q=%s"
   },
   {
-    "icon": "kimi.svg",
-    "name": "Kimi",
-    "trigger": "k",
-    "url": "https://www.kimi.ai/?prompt=%s&send=1"
-  },
-  {
     "icon": "claude.svg",
     "name": "Claude",
     "trigger": "l",
@@ -80,22 +74,10 @@
     "url": "https://www.noon.com/egypt-ar/search/?q=%s"
   },
   {
-    "icon": "poe.svg",
-    "name": "Poe",
-    "trigger": "o",
-    "url": "https://poe.com/?prompt=%s&send=1"
-  },
-  {
     "icon": "perplexity.svg",
     "name": "Perplexity",
     "trigger": "p",
-    "url": "https://www.perplexity.ai/?prompt=%s&send=1"
-  },
-  {
-    "icon": "qwen.svg",
-    "name": "Qwen",
-    "trigger": "q",
-    "url": "https://chat.qwen.ai/?prompt=%s&send=1"
+    "url": "https://www.perplexity.ai/?q=%s"
   },
   {
     "icon": "reddit.svg",
@@ -104,77 +86,22 @@
     "url": "https://www.reddit.com/search/?q=%s"
   },
   {
-    "icon": "manus.svg",
-    "name": "Manus",
-    "trigger": "s",
-    "url": "https://manus.im/?prompt=%s&send=1"
-  },
-  {
-    "icon": "meta.svg",
-    "name": "Meta AI",
-    "trigger": "t",
-    "url": "https://meta.ai/?prompt=%s&send=1"
-  },
-  {
     "icon": "Urban-Dictionary.svg",
     "name": "Urban Dictionary",
     "trigger": "u",
     "url": "https://www.urbandictionary.com/define.php?term=%s"
   },
   {
-    "icon": "venice.svg",
-    "name": "Venice",
-    "trigger": "v",
-    "url": "https://venice.ai/?prompt=%s&send=1"
-  },
-  {
     "icon": "grok.svg",
     "name": "Grok",
     "trigger": "x",
-    "url": "https://grok.com/?prompt=%s&send=1"
+    "url": "https://grok.com/?q=%s"
   },
   {
     "icon": "youtube.svg",
     "name": "YouTube",
     "trigger": "y",
     "url": "https://www.youtube.com/results?search_query=%s"
-  },
-  {
-    "icon": "zai.svg",
-    "name": "Z.ai",
-    "trigger": "z",
-    "url": "https://chat.z.ai/?prompt=%s&send=1"
-  },
-
-  {
-    "icon": "duckai.svg",
-    "name": "Duck.ai",
-    "trigger": "da",
-    "url": "https://duck.ai/?prompt=%s&send=1"
-  },
-  {
-    "icon": "genspark.svg",
-    "name": "Genspark",
-    "trigger": "gs",
-    "url": "https://www.genspark.ai/?prompt=%s&send=1"
-  },
-  {
-    "icon": "openrouter.svg",
-    "name": "OpenRouter",
-    "trigger": "or",
-    "url": "https://openrouter.ai/chat/?prompt=%s&send=1"
-  },
-  {
-    "icon": "pi.svg",
-    "name": "Pi.ai",
-    "trigger": "pi",
-    "url": "https://pi.ai/?prompt=%s&send=1"
-  },
-  {
-    "icon": "t3chat.svg",
-    "name": "T3 Chat",
-    "trigger": "t3",
-    "url": "https://t3.chat/?prompt=%s&send=1"
   },
 
   {
