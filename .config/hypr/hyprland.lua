@@ -154,11 +154,8 @@ hl.config({
   misc = {
     disable_hyprland_logo      = true,
     enable_anr_dialog          = false,
-    enable_swallow             = true,
     initial_workspace_tracking = 0,
     layers_hog_keyboard_focus  = false,
-    swallow_exception_regex    = "^(.*)(Yazi|nvim|tmux|gopreload)(.*)$",
-    swallow_regex              = "^(kitty)$",
   },
 
   cursor = {
