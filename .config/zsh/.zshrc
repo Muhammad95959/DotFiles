@@ -163,14 +163,14 @@ _notify_precmd() {
   local exit_code=$?
   [[ -z $_notify_cmd_start ]] && return
   local elapsed=$(( EPOCHSECONDS - _notify_cmd_start ))
-  local base_cmd=${_notify_cmd_name:t}  # strip path, e.g. /usr/bin/npm -> npm
+  local base_cmd=${_notify_cmd_name:t}
 
   if (( elapsed >= NOTIFY_THRESHOLD )) && (( ${NOTIFY_WHITELIST[(Ie)$base_cmd]} )); then
-    if (( exit_code == 0 )); then
-      notify-send "Done" "$_notify_cmd_name finished (${elapsed}s, exit $exit_code)"
-    else
-      notify-send -u critical "Error" "$_notify_cmd_name failed (${elapsed}s, exit $exit_code)"
-    fi
+    case $exit_code in
+      0) notify-send "Done" "$_notify_cmd_name finished (${elapsed}s, exit $exit_code)" ;;
+      130|131|143) ;;
+      *) notify-send -u critical "Error" "$_notify_cmd_name failed (${elapsed}s, exit $exit_code)" ;;
+    esac
   fi
   unset _notify_cmd_start _notify_cmd_name
 }
