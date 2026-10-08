@@ -24,7 +24,6 @@ import "modules/showkeys"
 import "modules/systemd"
 import "modules/reload"
 import "modules/resize"
-import "modules/runner"
 import "modules/translate"
 import "modules/todo"
 import "modules/urlMpv"
@@ -87,9 +86,6 @@ ShellRoot {
 
   // ── Brave ──────────────────────────────────────────────────────────
   BraveHistory {}
-
-  // ── Runner ─────────────────────────────────────────────────────────
-  Runner {}
 
   // ── Theming ────────────────────────────────────────────────────────
   ZathuraRecolor {}
