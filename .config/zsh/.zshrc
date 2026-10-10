@@ -147,8 +147,8 @@ compdef _paru_all_packages paru
 
 NOTIFY_WHITELIST=(
   "aria2c" "audio-separator" "cargo" "cmake" "convert" "curl" "deno" "ffmpeg"
-  "flatpak" "flutter" "gcc" "go" "gradlew" "install-app" "magick" "make"
-  "musicremover" "npm" "npx" "pacman" "paru" "pip" "pnpm" "rsync" "wget" "yt-dlp"
+  "flatpak" "gcc" "go" "gradlew" "install-app" "magick" "make" "musicremover"
+  "npm" "npx" "pacman" "paru" "pip" "pnpm" "rsync" "uninstall-app" "wget" "yt-dlp"
 )
 NOTIFY_THRESHOLD=10
 
@@ -235,7 +235,7 @@ alias hyprconfig='nvim $HOME/.config/hypr/hyprland.lua'
 alias webtemplate='cp -r /mnt/Disk_D/Muhammad/Website-Template/* .'
 alias cppath="pwd | sed 's/\(^.*$\)/\"\1\"/' | wl-copy"
 alias salawat='printf "%s" "ﷺ" | wl-copy'
-alias copycmd='tail -n 2 ~/.zhistory | head -n 1 | tr -d "\n" | wl-copy'
+alias copycmd='tail -n 2 $ZDOTDIR/.zhistory | head -n 1 | tr -d "\n" | wl-copy'
 alias cbimage='wl-paste --type image/png > /tmp/clipboard.png && kitty +kitten icat /tmp/clipboard.png'
 alias free-coding-models='free-coding-models --config-dir ~/.config/free-coding-models'
 alias systemd-plot='systemd-analyze plot > /tmp/plot.svg && brave-origin --test-type /tmp/plot.svg'
@@ -502,21 +502,32 @@ _logcat_colorize() {
 function install-app() {
   _android_module "$1" || return 1
   local module="$REPLY"
+  _android_app_id "$module" || return 1
+  local app_id="$REPLY"
   _adb_pick_device || return 1
   local serial="$REPLY"
   ./gradlew ":${module}:assembleDebug" || return 1
   local apk_path
   apk_path=$(find "${module}/build/outputs/apk/debug" -name "*.apk" -print -quit)
   [[ -z "$apk_path" ]] && { echo "Couldn't find built APK under ${module}/build/outputs/apk/debug"; return 1; }
-  echo "Installing $apk_path to '$serial'..."
-  adb -s "$serial" install -r "$apk_path" || return 1
-  _android_app_id "$module" || return 1
-  local app_id="$REPLY"
+  echo "Installing $apk_path to '$serial' (user 0)..."
+  adb -s "$serial" install -r --user 0 "$apk_path" || return 1
   local target
   target=$(adb -s "$serial" shell "cmd package resolve-activity --brief -a android.intent.action.MAIN -c android.intent.category.LAUNCHER $app_id" | tail -n 1 | tr -d '\r')
   [[ -z "$target" || "$target" == "No activity found" ]] && { echo "Could not resolve launcher activity on device for $app_id"; return 1; }
   echo "Launching $target..."
   adb -s "$serial" shell am start -n "$target"
+}
+
+function uninstall-app() {
+  _android_module "$1" || return 1
+  local module="$REPLY"
+  _android_app_id "$module" || return 1
+  local app_id="$REPLY"
+  _adb_pick_device || return 1
+  local serial="$REPLY"
+  echo "Uninstalling $app_id from '$serial'"
+  adb -s "$serial" shell pm uninstall "$app_id"
 }
 
 function logcat() {
@@ -569,5 +580,5 @@ function start-emu() {
   QT_QPA_PLATFORM=xcb "$emu_bin" -avd "$selected_avd" \
     -no-metrics \
     -no-snapshot-load -no-boot-anim -netfast \
-    > "/tmp/emu_${selected_avd}.log" 2>&1
+    > "/tmp/emu_${selected_avd}.log" 2>&1 & disown
 }
