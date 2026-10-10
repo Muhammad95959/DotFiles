@@ -14,6 +14,7 @@ Scope {
 
     property int actionIndex: 0
     property var allEntries: []
+    property int clearSearchToken: 0
     property string query: ""
     property int selectedIndex: 0
     property bool visible: false
@@ -329,6 +330,7 @@ Scope {
         _showFieldPicker = true
         _fieldIndex = 0
         query = ""
+        clearSearchToken++
     }
     function snapPage(list, idx) {
         if (!list || idx < 0) return
@@ -483,6 +485,7 @@ Scope {
                     _showFieldPicker = true
                     _fieldIndex = 0
                     query = ""
+                    clearSearchToken++
                 }
                 _pendingFieldPicker = false
                 _pendingKey = ""
@@ -534,6 +537,7 @@ Scope {
                     _showFieldPicker = true
                     _fieldIndex = 0
                     query = ""
+                    clearSearchToken++
                 } else {
                     notifyErr("No fields to pick")
                 }
@@ -659,6 +663,7 @@ Scope {
         _showActions = true
         actionIndex = 0
         query = ""
+        clearSearchToken++
     }
 
     function activateFieldAt(idx) {
@@ -854,13 +859,13 @@ Scope {
                         if (alt && event.key === Qt.Key_BracketLeft) { root.nextStore(); event.accepted = true; return }
                         if (event.key === Qt.Key_Escape) {
                             if (root._showFieldPicker) {
-                                root._showFieldPicker = false; root._fieldMode = ""; root.query = ""
+                                root._showFieldPicker = false; root._fieldMode = ""; searchField.text = ""; root.query = ""
                                 const ck = root._targetEntry ? root.cacheKey(root._targetEntry.store || root._currentStore, root._targetEntry.label) : ""
                                 const hit = ck ? root._cache[ck] : null
                                 if (hit) { root._fieldsMap = hit.map; root._fieldsList = hit.list } else { root.schedulePreview() }
                                 event.accepted = true
                             } else if (root._showActions) {
-                                root._showActions = false; root.query = ""; root._revealPass = false; root._actionFieldsMap = null
+                                root._showActions = false; searchField.text = ""; root.query = ""; root._revealPass = false; root._actionFieldsMap = null
                                 root.schedulePreview()
                                 event.accepted = true
                             } else root.close()
@@ -1240,6 +1245,11 @@ Scope {
                                 container.forceActiveFocus()
                                 searchField.forceActiveFocus()
                             }
+                        }
+                        function onClearSearchTokenChanged() {
+                            searchField.text = ""
+                            root.query = ""
+                            searchField.forceActiveFocus()
                         }
                     }
                 }
