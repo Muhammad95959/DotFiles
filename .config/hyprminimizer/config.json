@@ -1,7 +1,7 @@
 {
   "specialWorkspace": "minimized",
   "restoreLauncher": "/home/muhammad/.config/quickshell/modules/qmenu/qmenu",
-  "restoreLauncherArgs": "-p \"Restore window:\" --style Style1",
+  "restoreLauncherArgs": "-p \"Restore window:\" --style Default",
   "maxMinimizedWindows": 50,
   "excludeWindowClasses": [
     "waybar",
