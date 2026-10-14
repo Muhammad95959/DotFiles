@@ -651,7 +651,7 @@ end
 
 -- Passthrough submap
 hl.define_submap("passthrough", function()
-  hl.bind(mod .. " + CTRL + q", hl.dsp.submap("reset"))
+  hl.bind(mod .. " + CTRL + v", hl.dsp.submap("reset"))
 end)
 
 -- Hyprsunset submap
@@ -664,7 +664,7 @@ hl.define_submap("hyprsunset", function()
   hl.bind("r", hl.dsp.exec_cmd(reset .. "killall hyprsunset"))
 
   hl.bind("ESCAPE",             hl.dsp.submap("reset"))
-  hl.bind(mod .. " + CTRL + q", hl.dsp.submap("reset"))
+  hl.bind(mod .. " + n",        hl.dsp.submap("reset"))
 end)
 
 -- Apps submap
@@ -692,7 +692,7 @@ hl.define_submap("apps", function()
   hl.bind("SHIFT + y", hl.dsp.exec_cmd(reset .. "kitty --class yt-dlp -e ~/Scripts/yt-dlp_script.sh"))
 
   hl.bind("ESCAPE",             hl.dsp.submap("reset"))
-  hl.bind(mod .. " + CTRL + q", hl.dsp.submap("reset"))
+  hl.bind(mod .. " + a",        hl.dsp.submap("reset"))
 end)
 
 -- Shell submap
@@ -717,7 +717,7 @@ hl.define_submap("shell", function()
   hl.bind("SHIFT + l", hl.dsp.exec_cmd(reset .. "quickshell ipc call liveWall toggleLive"))
 
   hl.bind("ESCAPE",             hl.dsp.submap("reset"))
-  hl.bind(mod .. " + CTRL + q", hl.dsp.submap("reset"))
+  hl.bind(mod .. " + o",        hl.dsp.submap("reset"))
 end)
 
 -- Mouse submap
@@ -756,7 +756,7 @@ hl.define_submap("mouse", function()
   hl.bind("8", hl.dsp.cursor.move({ x = 480,  y = 810 }))
   hl.bind("9", hl.dsp.cursor.move({ x = 1440, y = 810 }))
 
-  hl.bind(mod .. " + CTRL + q", hl.dsp.submap("reset"))
+  hl.bind(mod .. " + m",        hl.dsp.submap("reset"))
 end)
 
 ---------------------
