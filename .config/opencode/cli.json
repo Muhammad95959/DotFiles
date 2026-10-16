@@ -15,7 +15,9 @@
     "indicators": "status",
     "scope": "cwd"
   },
-  "plugins": [],
+  "plugins": [
+    "vimcode@git+https://github.com/oribarilan/vimcode.git#v0.19.2"
+  ],
   "diffs": {
     "wrap": "word"
   },
