@@ -80,8 +80,8 @@ vimiv = [
 shotwell = [
   { run = 'setsid shotwell %s >/dev/null 2>&1 &', block = false, desc = "shotwell" },
 ]
-gimp = [
-  { run = 'setsid gimp %s >/dev/null 2>&1 &', block = false, desc = "gimp" },
+photocraft = [
+  { run = 'setsid photocraft -- %s >/dev/null 2>&1 &', block = false, desc = "photocraft" },
 ]
 inkscape = [
   { run = 'setsid inkscape %s >/dev/null 2>&1 &', block = false, desc = "inkscape" },
@@ -114,7 +114,7 @@ rules = [
 	# Text
 	{ mime = "text/*", use = [ "edit", "reveal" ] },
 	# Image
-	{ mime = "image/*", use = [ "vimiv", "shotwell", "gimp", "inkscape", "open", "reveal" ] },
+	{ mime = "image/*", use = [ "vimiv", "shotwell", "photocraft", "inkscape", "open", "reveal" ] },
 	# Media
 	{ mime = "{audio,video}/*", use = [ "play", "reveal" ] },
 	# Archive
