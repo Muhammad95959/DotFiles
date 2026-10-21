@@ -182,6 +182,7 @@ add-zsh-hook precmd _notify_precmd
 
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.local/share/npm/bin:$PATH"
+export PATH="$HOME/.local/share/cargo/bin:$PATH"
 export PATH="$ANDROID_HOME/platform-tools:$PATH"
 export PATH="$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"
 
@@ -287,6 +288,11 @@ function ff() {
 
 # fzf integration with zsh
 [ -x "$(command -v fzf)" ] && eval "$(fzf --zsh)"
+
+### workmux setup --------------------------------------------------------
+
+eval "$(workmux completions zsh)"
+
 
 ### systemd-boot reboot picker --------------------------------------------
 
