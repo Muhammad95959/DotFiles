@@ -15,14 +15,12 @@
     "indicators": "status",
     "scope": "cwd"
   },
-  "plugins": [
-    "vimcode@git+https://github.com/oribarilan/vimcode.git#v0.19.2"
-  ],
+  "plugins": [],
   "diffs": {
     "wrap": "word"
   },
   "session": {
-    "sidebar": "auto",
+    "sidebar": "hide",
     "scrollbar": false,
     "thinking": "show"
   },

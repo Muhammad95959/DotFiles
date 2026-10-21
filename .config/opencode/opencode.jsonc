@@ -11,6 +11,21 @@
           "X-Goog-Api-Key": "{file:~/.config/opencode/api_keys/stitch}",
         },
       },
+      "figma": {
+        "type": "remote",
+        "url": "https://mcp.figma.com/mcp"
+      },
+      "photocraft": {
+        "type": "local",
+        "command": [
+          "/usr/bin/photocraft-cli",
+          "mcp",
+          "--automation-read-root",
+          "/home/muhammad/Downloads/photocraft",
+          "--automation-write-root",
+          "/home/muhammad/Downloads/photocraft"
+        ]
+      },
     },
   },
   "providers": {
@@ -103,4 +118,7 @@
       "effect": "allow",
     },
   ],
+  "experimental": {
+    "todo": true,
+  },
 }
