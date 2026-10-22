@@ -1,0 +1,28 @@
+{
+  "lastChangelogVersion": "1.4.0",
+  "packages": [
+    "npm:pi-free",
+    "npm:opencode-pi",
+    "npm:pi-subagents",
+    "npm:pi-web-access",
+    "npm:pi-vim",
+    "npm:@juicesharp/rpiv-todo",
+    "npm:@pi-unipi/notify",
+    "npm:@juicesharp/rpiv-ask-user-question",
+    "npm:pi-background-tasks",
+    "npm:pi-mcp-adapter",
+    "npm:pi-figma-remote-auth",
+    "npm:pi-workspace-history",
+    "npm:@d3ara1n/pi-command-palette",
+    "npm:pi-token-speed"
+  ],
+  "editorPaddingX": 1,
+  "tuiMode": "fullscreen",
+  "defaultProvider": "cline",
+  "defaultModel": "reflection/beam-free",
+  "extensions": [
+    "-builtin:mcp"
+  ],
+  "fullscreenCopyOnSelect": true,
+  "defaultThinkingLevel": "high"
+}

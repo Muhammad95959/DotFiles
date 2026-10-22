@@ -1,0 +1,27 @@
+{
+  "mcpServers": {
+    "stitch": {
+      "url": "https://stitch.googleapis.com/mcp",
+      "headers": {
+        "X-Goog-Api-Key": "!tr -d '\\n' < /home/muhammad/.config/opencode/api_keys/stitch"
+      }
+    },
+    "figma": {
+      "url": "https://mcp.figma.com/mcp",
+      "oauth": {},
+      "lifecycle": "lazy",
+      "exposeResources": true,
+      "directTools": false
+    },
+    "photocraft": {
+      "command": "/usr/bin/photocraft-cli",
+      "args": [
+        "mcp",
+        "--automation-read-root",
+        "/home/muhammad/Pictures",
+        "--automation-write-root",
+        "/home/muhammad/Pictures"
+      ]
+    }
+  }
+}

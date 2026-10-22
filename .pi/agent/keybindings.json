@@ -1,0 +1,6 @@
+{
+  "$schema": "https://pi.dev/schemas/keybindings.schema.json",
+  "app.exit": [],
+  "tui.altScreen.halfPageUp": "ctrl+shift+u",
+  "tui.altScreen.halfPageDown": "ctrl+shift+d"
+}
