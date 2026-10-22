@@ -21,9 +21,9 @@
           "/usr/bin/photocraft-cli",
           "mcp",
           "--automation-read-root",
-          "/home/muhammad/Downloads/photocraft",
+          "/home/muhammad/Pictures",
           "--automation-write-root",
-          "/home/muhammad/Downloads/photocraft"
+          "/home/muhammad/Pictures"
         ]
       },
     },
