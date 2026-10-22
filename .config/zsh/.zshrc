@@ -240,7 +240,7 @@ alias copycmd='tail -n 2 $ZDOTDIR/.zhistory | head -n 1 | tr -d "\n" | wl-copy'
 alias cbimage='wl-paste --type image/png > /tmp/clipboard.png && kitty +kitten icat /tmp/clipboard.png'
 alias free-coding-models='free-coding-models --config-dir ~/.config/free-coding-models'
 alias systemd-plot='systemd-analyze plot > /tmp/plot.svg && brave-origin --test-type /tmp/plot.svg'
-alias fitwaydroid='for i in 1 2; do hyprctl dispatch "hl.dsp.window.resize({ x = 468, y = 1036 })"; done; adb connect 192.168.240.112:5555'
+alias fitwaydroid='for i in 1 2; do hyprctl dispatch "hl.dsp.window.resize({ x = 468, y = 1036 })"; done; waydroid adb connect'
 
 if command -v pacman &> /dev/null; then
   alias paruf='(pacman -Slq; cat ~/.cache/aur/packages.txt) | sort -u \
