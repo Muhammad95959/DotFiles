@@ -1,0 +1,9 @@
+device_config:
+  - is_loop: true
+    ignore: true
+    automount: false
+
+notifications:
+  device_added: false
+  device_removed: false
+  job_failed: false
