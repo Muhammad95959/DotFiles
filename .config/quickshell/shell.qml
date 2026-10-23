@@ -17,6 +17,7 @@ import "modules/mpvHistory"
 import "modules/notifications"
 import "modules/osd"
 import "modules/powermenu"
+import "modules/redroid"
 import "modules/glyphPicker"
 import "modules/pass"
 import "modules/qmenu"
@@ -92,6 +93,9 @@ ShellRoot {
 
   // ── VirtManager ────────────────────────────────────────────────────
   VirtManager {}
+
+  // ── Redroid ───────────────────────────────────────────────────────
+  Redroid {}
 
   // ── Live Wallpapers ────────────────────────────────────────────────
   LiveWallpaperBackground {}

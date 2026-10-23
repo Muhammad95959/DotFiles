@@ -24,6 +24,34 @@ Scope {
   readonly property string nerdFont: Theme.nerdFont
   readonly property string monoFont: Theme.monoFont
 
+  property var activeRedroids: []
+  Timer {
+    interval: 5000
+    repeat: true
+    running: true
+    triggeredOnStart: true
+    onTriggered: redroidListProc.running = true
+  }
+  Process {
+    id: redroidListProc
+    command: ["sh", "-c", "for v in 12 13 14 15; do port=$((5500+v)); if ss -ltn 2>/dev/null | awk '{print $4}' | grep -q \":$port$\"; then echo \"$v running\"; fi; done"]
+    stdout: StdioCollector {
+      waitForEnd: true
+      onStreamFinished: {
+        const lines = String(text || "").split("\n")
+        let out = []
+        for (let i = 0; i < lines.length; i++) {
+          const parts = lines[i].trim().split(/\s+/)
+          if (parts.length >= 1 && parts[0] !== "") {
+            const v = parseInt(parts[0])
+            out.push({ version: v, port: 5500 + v })
+          }
+        }
+        barScope.activeRedroids = out
+      }
+    }
+  }
+
   PwObjectTracker {
     objects: [ Pipewire.defaultAudioSink, Pipewire.defaultAudioSource ]
   }
@@ -908,6 +936,71 @@ Scope {
               }
             }
             Item { width: bar.mNetworkPad; height: 1 }
+          }
+
+          Row {
+            spacing: 0
+            anchors.verticalCenter: parent.verticalCenter
+            visible: barScope.activeRedroids.length > 0
+            Item { width: bar.mTrayOuterPad; height: 1 }
+            Rectangle {
+              height: bar.implicitHeight
+              width: redroidRow.implicitWidth
+              color: "transparent"
+              Row {
+                id: redroidRow
+                anchors.centerIn: parent
+                spacing: bar.pTrayIconGap
+                Repeater {
+                  model: barScope.activeRedroids
+                  Rectangle {
+                    id: rdBadge
+                    required property var modelData
+                    width: rdContent.implicitWidth + 8
+                    height: bar.implicitHeight - 4
+                    radius: 4
+                    color: rdMouse.containsMouse ? Qt.lighter(barScope.bg, 1.8) : "transparent"
+                    border.color: rdMouse.containsMouse ? Theme.border : "transparent"
+                    border.width: rdMouse.containsMouse ? 1 : 0
+                    Row {
+                      id: rdContent
+                      anchors.centerIn: parent
+                      spacing: 2
+                      Text {
+                        text: "󰀲"
+                        color: barScope.fg
+                        font.family: barScope.nerdFont
+                        font.pixelSize: bar.trayIconSize
+                        anchors.verticalCenter: parent.verticalCenter
+                      }
+                      Text {
+                        text: String(rdBadge.modelData.version)
+                        color: barScope.fg
+                        opacity: 0.7
+                        font.family: barScope.monoFont
+                        font.pixelSize: 9
+                        font.bold: true
+                        anchors.verticalCenter: parent.verticalCenter
+                      }
+                    }
+                    MouseArea {
+                      id: rdMouse
+                      anchors.fill: parent
+                      hoverEnabled: true
+                      cursorShape: Qt.PointingHandCursor
+                      acceptedButtons: Qt.LeftButton | Qt.RightButton
+                      onClicked: mouse => {
+                        if (mouse.button === Qt.RightButton)
+                          Quickshell.execDetached(["qs", "ipc", "call", "redroid", "stop", String(rdBadge.modelData.version)])
+                        else
+                          Quickshell.execDetached(["qs", "ipc", "call", "redroid", "openRunning", String(rdBadge.modelData.version)])
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            Item { width: bar.mTrayOuterPad; height: 1 }
           }
 
           Row {
