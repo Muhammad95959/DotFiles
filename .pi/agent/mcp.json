@@ -6,13 +6,6 @@
         "X-Goog-Api-Key": "!tr -d '\\n' < /home/muhammad/.config/opencode/api_keys/stitch"
       }
     },
-    "figma": {
-      "url": "https://mcp.figma.com/mcp",
-      "oauth": {},
-      "lifecycle": "lazy",
-      "exposeResources": true,
-      "directTools": false
-    },
     "photocraft": {
       "command": "/usr/bin/photocraft-cli",
       "args": [
