@@ -25,6 +25,7 @@ local mod = "SUPER"
 
 local reset                = "hyprctl dispatch 'hl.dsp.submap(\"reset\")' && "
 local SCRATCHPAD_WS        = "special:scratchpad"
+local default_layout       = "master"
 local scratchpad_window    = nil
 local last_tiled_window    = {}
 local last_floating_window = {}
@@ -68,13 +69,30 @@ hl.env("NVD_BACKEND",                  "direct")
 hl.env("XDG_SESSION_TYPE",             "wayland")
 hl.env("ELECTRON_OZONE_PLATFORM_HINT", "auto")
 
+------------------------
+---- CUSTOM LAYOUTS ----
+------------------------
+
+hl.layout.register("columns", {
+  recalculate = function(ctx)
+    local n = #ctx.targets
+    if n == 0 then
+      return
+    end
+
+    for i, target in ipairs(ctx.targets) do
+      target:place(ctx:column(n - i + 1, n))
+    end
+  end,
+})
+
 -----------------------
 ---- LOOK AND FEEL ----
 -----------------------
 
 hl.config({
   general = {
-    layout           = "master",
+    layout           = default_layout,
     gaps_in          = 4,
     gaps_out         = 8,
     border_size      = 2,
@@ -115,6 +133,10 @@ hl.config({
     mfact      = 0.5,
     new_on_top = true,
     new_status = "master",
+  },
+
+  scrolling = {
+    direction = "left",
   },
 
   group = {
@@ -426,6 +448,20 @@ function ToggleGaps()
   end
 end
 
+function ToggleLayout(target)
+  local ws = hl.get_active_workspace()
+  if not ws then
+    return
+  end
+  local new = (ws.tiled_layout == target) and default_layout or target
+  hl.workspace_rule({ workspace = tostring(ws.name), layout = new })
+  local label = (new:gsub("^lua:", ""))
+  hl.dispatch(hl.dsp.exec_cmd(
+    -- Use notify-send to display the current layout in a notification
+    "notify-send -t 2000 'Hyprland' 'Workspace " .. ws.name .. ": Layout changed to " .. label .. "'"
+  ))
+end
+
 function ToggleSmartGaps()
   smart_gaps = not smart_gaps
   if smart_gaps then
@@ -663,8 +699,8 @@ hl.define_submap("hyprsunset", function()
   end
   hl.bind("r", hl.dsp.exec_cmd(reset .. "killall hyprsunset"))
 
-  hl.bind("ESCAPE",             hl.dsp.submap("reset"))
-  hl.bind(mod .. " + n",        hl.dsp.submap("reset"))
+  hl.bind("ESCAPE",      hl.dsp.submap("reset"))
+  hl.bind(mod .. " + n", hl.dsp.submap("reset"))
 end)
 
 -- Apps submap
@@ -691,8 +727,8 @@ hl.define_submap("apps", function()
   hl.bind("SHIFT + t", hl.dsp.exec_cmd(reset .. "blanket"))
   hl.bind("SHIFT + y", hl.dsp.exec_cmd(reset .. "kitty --class yt-dlp -e ~/Scripts/yt-dlp_script.sh"))
 
-  hl.bind("ESCAPE",             hl.dsp.submap("reset"))
-  hl.bind(mod .. " + a",        hl.dsp.submap("reset"))
+  hl.bind("ESCAPE",      hl.dsp.submap("reset"))
+  hl.bind(mod .. " + a", hl.dsp.submap("reset"))
 end)
 
 -- Shell submap
@@ -717,8 +753,8 @@ hl.define_submap("shell", function()
   hl.bind("z", hl.dsp.exec_cmd(reset .. "quickshell ipc call zathuraHistory toggle"))
   hl.bind("SHIFT + l", hl.dsp.exec_cmd(reset .. "quickshell ipc call liveWall toggleLive"))
 
-  hl.bind("ESCAPE",             hl.dsp.submap("reset"))
-  hl.bind(mod .. " + o",        hl.dsp.submap("reset"))
+  hl.bind("ESCAPE",      hl.dsp.submap("reset"))
+  hl.bind(mod .. " + o", hl.dsp.submap("reset"))
 end)
 
 -- Mouse submap
@@ -757,7 +793,7 @@ hl.define_submap("mouse", function()
   hl.bind("8", hl.dsp.cursor.move({ x = 480,  y = 810 }))
   hl.bind("9", hl.dsp.cursor.move({ x = 1440, y = 810 }))
 
-  hl.bind(mod .. " + m",        hl.dsp.submap("reset"))
+  hl.bind(mod .. " + m", hl.dsp.submap("reset"))
 end)
 
 ---------------------
@@ -774,6 +810,7 @@ hl.bind(mod .. " + d",              hl.dsp.exec_cmd("hyprminimizer"))
 hl.bind(mod .. " + e",              hl.dsp.group.lock_active())
 hl.bind(mod .. " + f",              hl.dsp.window.fullscreen())
 hl.bind(mod .. " + g",              function() set_gaps(10) end, { repeating = true })
+hl.bind(mod .. " + i",              function() ToggleLayout("scrolling") end)
 hl.bind(mod .. " + m",              hl.dsp.submap("mouse"))
 hl.bind(mod .. " + n",              hl.dsp.submap("hyprsunset"))
 hl.bind(mod .. " + o",              hl.dsp.submap("shell"))
@@ -781,6 +818,7 @@ hl.bind(mod .. " + q",              hl.dsp.window.close())
 hl.bind(mod .. " + r",              hl.dsp.exec_cmd("kitty -e sh -c 'f=$(mktemp); yazi --cwd-file=\"$f\"; cd -- \"$(cat \"$f\")\"; rm -f \"$f\"; exec zsh'"))
 hl.bind(mod .. " + s",              Scratchpad)
 hl.bind(mod .. " + t",              BraveTranslate)
+hl.bind(mod .. " + u",              function() ToggleLayout("lua:columns") end)
 hl.bind(mod .. " + w",              hl.dsp.group.toggle())
 hl.bind(mod .. " + y",              Waydroid)
 
