@@ -1,5 +1,5 @@
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
-import { execFileSync, spawn } from "node:child_process";
+import { spawn } from "node:child_process";
 import * as fs from "node:fs";
 import * as path from "node:path";
 import * as os from "node:os";
@@ -20,8 +20,6 @@ const DEFAULTS: Record<string, string> = {
   error: "/usr/share/sounds/freedesktop/stereo/dialog-error.oga",
   question: "/usr/share/sounds/freedesktop/stereo/window-question.oga",
   permission: "/usr/share/sounds/freedesktop/stereo/dialog-warning.oga",
-  session_started: "/usr/share/sounds/freedesktop/stereo/message.oga",
-  user_message: "/usr/share/sounds/freedesktop/stereo/message-new-instant.oga",
   user_cancelled: "/usr/share/sounds/freedesktop/stereo/dialog-warning.oga",
 };
 
@@ -79,7 +77,6 @@ export default function (pi: ExtensionAPI) {
   pi.on("session_start", async (_e, ctx) => {
     startMs = Date.now();
     hadError = false;
-    dispatch("session_started", pi, ctx, cfg, startMs);
   });
 
   pi.on("agent_start", async () => { startMs = Date.now(); hadError = false; });

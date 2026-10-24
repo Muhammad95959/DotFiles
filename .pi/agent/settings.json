@@ -3,7 +3,6 @@
   "packages": [
     "npm:pi-free",
     "npm:pi-web-access",
-    "npm:@juicesharp/rpiv-todo",
     "npm:@juicesharp/rpiv-ask-user-question",
     "npm:pi-background-tasks",
     "npm:pi-figma-remote-auth",
@@ -13,7 +12,8 @@
     "npm:pi-mcp-adapter",
     "npm:pi-subagents",
     "npm:pi-cd",
-    "npm:pi-session-manager"
+    "npm:pi-session-manager",
+    "npm:pi-goal-x"
   ],
   "editorPaddingX": 1,
   "tuiMode": "fullscreen",
