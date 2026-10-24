@@ -945,62 +945,23 @@ Scope {
             Item { width: bar.mTrayOuterPad; height: 1 }
             Rectangle {
               height: bar.implicitHeight
-              width: redroidRow.implicitWidth
+              width: bar.trayIconSize
               color: "transparent"
-              Row {
-                id: redroidRow
+              Text {
                 anchors.centerIn: parent
-                spacing: bar.pTrayIconGap
-                Repeater {
-                  model: barScope.activeRedroids
-                  Rectangle {
-                    id: rdBadge
-                    required property var modelData
-                    width: rdContent.implicitWidth + 8
-                    height: bar.implicitHeight - 4
-                    radius: 4
-                    color: rdMouse.containsMouse ? Qt.lighter(barScope.bg, 1.8) : "transparent"
-                    border.color: rdMouse.containsMouse ? Theme.border : "transparent"
-                    border.width: rdMouse.containsMouse ? 1 : 0
-                    Row {
-                      id: rdContent
-                      anchors.centerIn: parent
-                      spacing: 2
-                      Text {
-                        text: "󰀲"
-                        color: barScope.fg
-                        font.family: barScope.nerdFont
-                        font.pixelSize: bar.trayIconSize
-                        anchors.verticalCenter: parent.verticalCenter
-                      }
-                      Text {
-                        text: String(rdBadge.modelData.version)
-                        color: barScope.fg
-                        opacity: 0.7
-                        font.family: barScope.monoFont
-                        font.pixelSize: 9
-                        font.bold: true
-                        anchors.verticalCenter: parent.verticalCenter
-                      }
-                    }
-                    MouseArea {
-                      id: rdMouse
-                      anchors.fill: parent
-                      hoverEnabled: true
-                      cursorShape: Qt.PointingHandCursor
-                      acceptedButtons: Qt.LeftButton | Qt.RightButton
-                      onClicked: mouse => {
-                        if (mouse.button === Qt.RightButton)
-                          Quickshell.execDetached(["qs", "ipc", "call", "redroid", "stop", String(rdBadge.modelData.version)])
-                        else
-                          Quickshell.execDetached(["qs", "ipc", "call", "redroid", "openRunning", String(rdBadge.modelData.version)])
-                      }
-                    }
-                  }
-                }
+                text: "󰀲"
+                color: barScope.fg
+                font.family: barScope.nerdFont
+                font.pixelSize: bar.trayIconSize
+              }
+              MouseArea {
+                anchors.fill: parent
+                hoverEnabled: true
+                cursorShape: Qt.PointingHandCursor
+                onClicked: Quickshell.execDetached(["qs", "ipc", "call", "redroid", "open"])
               }
             }
-            Item { width: bar.mTrayOuterPad; height: 1 }
+            Item { width: SystemTray.items.values.length > 0 ? 0 : bar.mTrayOuterPad; height: 1 }
           }
 
           Row {
