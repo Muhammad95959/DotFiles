@@ -2,10 +2,8 @@
   "lastChangelogVersion": "1.4.0",
   "packages": [
     "npm:pi-free",
-    "npm:opencode-pi",
     "npm:pi-web-access",
     "npm:@juicesharp/rpiv-todo",
-    "npm:@pi-unipi/notify",
     "npm:@juicesharp/rpiv-ask-user-question",
     "npm:pi-background-tasks",
     "npm:pi-figma-remote-auth",
