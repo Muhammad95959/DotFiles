@@ -146,8 +146,8 @@ compdef _paru_all_packages paru
 ### Command-finish notifications -------------------------------------------
 
 NOTIFY_WHITELIST=(
-  "aria2c" "audio-separator" "cargo" "cmake" "convert" "curl" "deno" "ffmpeg"
-  "flatpak" "gcc" "go" "gradlew" "install-app" "magick" "make" "musicremover"
+  "aria2c" "audio-separator" "cargo" "cmake" "convert" "curl" "deno" "docker"
+  "ffmpeg" "flatpak" "gcc" "go" "gradlew" "install-app" "magick" "make" "musicremover"
   "npm" "npx" "pacman" "paru" "pip" "pnpm" "rsync" "uninstall-app" "wget" "yt-dlp"
 )
 NOTIFY_THRESHOLD=10
@@ -361,6 +361,109 @@ function audiosep() {
   done
   notify-send -t 7500 "Audio Separation Completed"
 }
+
+### redroid setup ---------------------------------------------------------
+
+rd() {
+  local v=$1
+  [[ -z $v ]] && {
+    echo "usage: rd <12|13|14|15|16>"
+    return 1
+  }
+
+  local name="redroid$v" port=$((5500 + v)) tries=0
+
+  if ! command -v fzf >/dev/null 2>&1; then
+    echo "Error: fzf is not installed."
+    return 1
+  fi
+
+  # Format: category, resolution, density
+  local res_options="\
+Small Phone       720x1280   320
+Small Phone       720x1600   320
+Medium Phone      1080x1920  420
+Medium Phone      1080x2400  420
+Large Phone       1200x2670  440
+Large Phone       1440x3200  560
+Foldable (Outer)  904x2316   380
+Foldable (Inner)  1812x2176  420
+Small Tablet      1200x1920  240
+Large Tablet      1600x2560  320"
+
+  local selected_res
+  selected_res=$(printf '%s\n' "$res_options" | fzf --prompt="Select Device Screen Size: " --layout=reverse)
+
+  [[ -z "$selected_res" ]] && {
+    echo "Aborted by user."
+    return 1
+  }
+
+  local res_val density width height
+  res_val=$(awk '{print $(NF-1)}' <<< "$selected_res")
+  density=$(awk '{print $NF}' <<< "$selected_res")
+
+  width=${res_val%x*}
+  height=${res_val#*x}
+
+  if ! systemctl is-active --quiet docker; then
+    echo "Starting Docker service..."
+    sudo systemctl start docker || return 1
+  fi
+
+  if sudo docker ps --format '{{.Names}}' | grep -qx "$name"; then
+    echo "Android $v is already running. Applying new screen settings..."
+  else
+    echo "Booting Android $v as ${width}x${height} at ${density} dpi..."
+
+    sudo docker run -itd --rm --privileged --name "$name" \
+      -v "${name}-data:/data" \
+      -p "$port:5555" \
+      "redroid/redroid:${v}.0.0-latest" \
+      androidboot.redroid_gpu_mode=host \
+      androidboot.redroid_fps=60 \
+      androidboot.redroid_width="$width" \
+      androidboot.redroid_height="$height" \
+      androidboot.redroid_dpi="$density" >/dev/null || return 1
+  fi
+
+  echo "Waiting for Android $v..."
+
+  until adb connect "localhost:$port" >/dev/null 2>&1 &&
+        [[ "$(adb -s "localhost:$port" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" == "1" ]]; do
+    (( ++tries > 60 )) && {
+      echo "Timed out. Check: sudo docker logs $name"
+      return 1
+    }
+    sleep 2
+  done
+
+  # Apply the selected resolution and density to the running Android instance.
+  adb -s "localhost:$port" shell wm size "${width}x${height}" || return 1
+  adb -s "localhost:$port" shell wm density "$density" || return 1
+
+  echo "Android $v ready on localhost:$port"
+  echo "Resolution: ${width}x${height} | Density: ${density} dpi"
+
+  scrcpy -s "localhost:$port" \
+    --no-audio --hwdec=disabled --max-fps=60 -b 16M &!
+}
+
+alias rd12='rd 12'
+alias rd13='rd 13'
+alias rd14='rd 14'
+alias rd15='rd 15'
+alias rd16='rd 16'
+
+alias rdstop12='sudo docker stop redroid12'
+alias rdstop13='sudo docker stop redroid13'
+alias rdstop14='sudo docker stop redroid14'
+alias rdstop15='sudo docker stop redroid15'
+alias rdstop16='sudo docker stop redroid16'
+alias rdstopall='sudo docker stop $(sudo docker ps -q --filter "name=redroid")'
+
+alias rdls='sudo docker ps --filter "name=redroid"'
+alias rdbinder='sudo modprobe binder_linux devices="binder,hwbinder,vndbinder"'
 
 ### android functions -----------------------------------------------------
 
