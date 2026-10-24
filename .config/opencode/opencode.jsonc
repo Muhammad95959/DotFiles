@@ -1,6 +1,9 @@
 {
   "$schema": "https://opencode.ai/config.json",
-  "plugins": ["@mohak34/opencode-notifier@latest"],
+  "plugins": [
+    "@mohak34/opencode-notifier@latest",
+    "github:itsyasirkhandev/opencode-cline-free"
+  ],
   "mcp": {
     "servers": {
       "stitch": {
@@ -10,10 +13,6 @@
         "headers": {
           "X-Goog-Api-Key": "{file:~/.config/opencode/api_keys/stitch}",
         },
-      },
-      "figma": {
-        "type": "remote",
-        "url": "https://mcp.figma.com/mcp"
       },
       "photocraft": {
         "type": "local",
@@ -112,11 +111,10 @@
     },
   },
   "permissions": [
-    {
-      "action": "external_directory",
-      "resource": "*",
-      "effect": "allow",
-    },
+    { "action": "external_directory", "resource": "*", "effect": "ask" },
+    { "action": "shell", "resource": "*", "effect": "ask" },
+    { "action": "shell", "resource": "git status *", "effect": "allow" },
+    { "action": "shell", "resource": "git diff *", "effect": "allow" }
   ],
   "experimental": {
     "todo": true,
