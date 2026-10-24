@@ -356,7 +356,7 @@ function audiosep() {
   [ -z "$model" ] && return 1
   for file in "$@"; do
     if $bin_path --model_file_dir "$models_path" --model_filename "$model" --single_stem Vocals --output_format=MP3 "$file"; then
-      setsid paplay ~/.config/completion.mp3 &
+      setsid paplay /usr/share/sounds/freedesktop/stereo/complete.oga &
     fi
   done
   notify-send -t 7500 "Audio Separation Completed"
