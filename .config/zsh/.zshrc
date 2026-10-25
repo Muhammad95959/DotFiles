@@ -190,7 +190,6 @@ export EDITOR=nvim
 export TERMCMD=kitty
 export MANPAGER='nvim +Man!'
 export BAT_THEME="tokyonight_moon"
-export CLOUDFLARE_ACCOUNT_ID=$([ -f ~/.config/opencode/api_keys/cloudflare_account_id ] && cat ~/.config/opencode/api_keys/cloudflare_account_id)
 export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS \
   --ansi \
   --height=~99% \
