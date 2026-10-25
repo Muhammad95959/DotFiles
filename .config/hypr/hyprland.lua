@@ -124,7 +124,7 @@ hl.config({
   },
 
   dwindle = {
-    force_split                  = 2,
+    force_split                  = 1,
     preserve_split               = true,
     permanent_direction_override = true,
   },
@@ -327,6 +327,22 @@ local function call_window(win, ws)
   hl.dispatch(hl.dsp.window.bring_to_top())
 end
 
+local function current_layout()
+  local ws = hl.get_active_workspace()
+  if ws == nil then return default_layout end
+  return ws.tiled_layout or default_layout
+end
+
+local function is_columns()
+  local l = current_layout()
+  return l == "lua:columns" or l:find("columns", 1, true) ~= nil
+end
+
+local function group_dir_for(dir)
+  if dir == "left" or dir == "up" then return "prev" end
+  return "next"
+end
+
 local function group_navigate_or_fallback(group_dir, fallback)
   local w = hl.get_active_window()
   if w and w.group and w.group.size > 1 then
@@ -343,17 +359,37 @@ local function group_navigate_or_fallback(group_dir, fallback)
 end
 
 local function smart_focus(dir)
-  local group_dir = dir == "left" and "prev" or "next"
+  local group_dir = group_dir_for(dir)
   group_navigate_or_fallback(group_dir, function()
-    hl.dispatch(hl.dsp.focus({ direction = dir }))
-    hl.dispatch(hl.dsp.window.bring_to_top())
+    local layout = current_layout()
+    if layout == "scrolling" then
+      dir = ({ left = "r", right = "l", up = "u", down = "d" })[dir] or dir
+      hl.dispatch(hl.dsp.layout("focus " .. dir))
+    else
+      hl.dispatch(hl.dsp.focus({ direction = dir }))
+      hl.dispatch(hl.dsp.window.bring_to_top())
+    end
   end)
 end
 
 local function smart_cycle(cycle_dir)
   local group_dir = cycle_dir == "prev" and "prev" or "next"
   group_navigate_or_fallback(group_dir, function()
-    hl.dispatch(hl.dsp.layout(cycle_dir == "next" and "cyclenext" or "cycleprev"))
+    local layout = current_layout()
+    if layout == "scrolling" then
+      local d = cycle_dir == "next" and "d" or "u"
+      hl.dispatch(hl.dsp.layout("focus " .. d))
+    elseif layout == "dwindle" then
+      local dir = cycle_dir == "next" and "down" or "up"
+      hl.dispatch(hl.dsp.focus({ direction = dir }))
+      hl.dispatch(hl.dsp.window.bring_to_top())
+    elseif is_columns() then
+      local dir = cycle_dir == "next" and "down" or "up"
+      hl.dispatch(hl.dsp.focus({ direction = dir }))
+      hl.dispatch(hl.dsp.window.bring_to_top())
+    else
+      hl.dispatch(hl.dsp.layout(cycle_dir == "next" and "cyclenext" or "cycleprev"))
+    end
   end)
 end
 
@@ -413,7 +449,7 @@ local function move_window(direction)
   end, { timeout = 30, type = "oneshot" })
 end
 
-local function set_gaps(delta)
+function SetGaps(delta)
   local gaps_out = hl.get_config("general.gaps_out")
   local current_out = gaps_out.top or gaps_out
   local new_out = math.max(0, current_out + delta)
@@ -448,16 +484,14 @@ function ToggleGaps()
   end
 end
 
-function ToggleLayout(target)
+function SetWorkspaceLayout(target)
   local ws = hl.get_active_workspace()
   if not ws then
     return
   end
-  local new = (ws.tiled_layout == target) and default_layout or target
-  hl.workspace_rule({ workspace = tostring(ws.name), layout = new })
-  local label = (new:gsub("^lua:", ""))
+  hl.workspace_rule({ workspace = tostring(ws.name), layout = target })
+  local label = (target:gsub("^lua:", ""))
   hl.dispatch(hl.dsp.exec_cmd(
-    -- Use notify-send to display the current layout in a notification
     "notify-send -t 2000 'Hyprland' 'Workspace " .. ws.name .. ": Layout changed to " .. label .. "'"
   ))
 end
@@ -703,6 +737,17 @@ hl.define_submap("hyprsunset", function()
   hl.bind(mod .. " + n", hl.dsp.submap("reset"))
 end)
 
+-- Layouts submap
+hl.define_submap("layouts", function()
+  hl.bind("c", function() SetWorkspaceLayout("lua:columns") end) hl.bind("c", hl.dsp.submap("reset"))
+  hl.bind("d", function() SetWorkspaceLayout("dwindle") end) hl.bind("d", hl.dsp.submap("reset"))
+  hl.bind("m", function() SetWorkspaceLayout("master") end) hl.bind("m", hl.dsp.submap("reset"))
+  hl.bind("s", function() SetWorkspaceLayout("scrolling") end) hl.bind("s", hl.dsp.submap("reset"))
+
+  hl.bind("ESCAPE",      hl.dsp.submap("reset"))
+  hl.bind(mod .. " + u", hl.dsp.submap("reset"))
+end)
+
 -- Apps submap
 hl.define_submap("apps", function()
   hl.bind("a", hl.dsp.exec_cmd(reset .. "audacious"))
@@ -809,8 +854,7 @@ hl.bind(mod .. " + c",              hl.dsp.exec_cmd("quickshell ipc call clipboa
 hl.bind(mod .. " + d",              hl.dsp.exec_cmd("hyprminimizer"))
 hl.bind(mod .. " + e",              hl.dsp.group.lock_active())
 hl.bind(mod .. " + f",              hl.dsp.window.fullscreen())
-hl.bind(mod .. " + g",              function() set_gaps(10) end, { repeating = true })
-hl.bind(mod .. " + i",              function() ToggleLayout("scrolling") end)
+hl.bind(mod .. " + g",              function() SetGaps(10) end, { repeating = true })
 hl.bind(mod .. " + m",              hl.dsp.submap("mouse"))
 hl.bind(mod .. " + n",              hl.dsp.submap("hyprsunset"))
 hl.bind(mod .. " + o",              hl.dsp.submap("shell"))
@@ -818,7 +862,7 @@ hl.bind(mod .. " + q",              hl.dsp.window.close())
 hl.bind(mod .. " + r",              hl.dsp.exec_cmd("kitty -e sh -c 'f=$(mktemp); yazi --cwd-file=\"$f\"; cd -- \"$(cat \"$f\")\"; rm -f \"$f\"; exec zsh'"))
 hl.bind(mod .. " + s",              Scratchpad)
 hl.bind(mod .. " + t",              BraveTranslate)
-hl.bind(mod .. " + u",              function() ToggleLayout("lua:columns") end)
+hl.bind(mod .. " + u",              hl.dsp.submap("layouts"))
 hl.bind(mod .. " + w",              hl.dsp.group.toggle())
 hl.bind(mod .. " + y",              Waydroid)
 
@@ -828,7 +872,7 @@ hl.bind(mod .. " + SHIFT + a",      GroupAll)
 hl.bind(mod .. " + SHIFT + c",      hl.dsp.exec_cmd("quickshell ipc call notifications dismissAll"))
 hl.bind(mod .. " + SHIFT + d",      RestoreMinimized)
 hl.bind(mod .. " + SHIFT + f",      ToggleGaps)
-hl.bind(mod .. " + SHIFT + g",      function() set_gaps(-10) end, { repeating = true })
+hl.bind(mod .. " + SHIFT + g",      function() SetGaps(-10) end, { repeating = true })
 hl.bind(mod .. " + SHIFT + q",      hl.dsp.exec_cmd("quickshell ipc call powermenu toggle"))
 hl.bind(mod .. " + SHIFT + r",      hl.dsp.exec_cmd("hyprctl reload && killall quickshell; quickshell"))
 hl.bind(mod .. " + SHIFT + t",      hl.dsp.exec_cmd("confet"))
