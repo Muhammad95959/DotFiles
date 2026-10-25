@@ -75,8 +75,8 @@ Scope {
   ]
 
   readonly property var actions: [
-    { key: "open", label: "Open", icon: "󰖃" },
     { key: "stop", label: "Stop", icon: "󰐥" },
+    { key: "resize", label: "Resize", icon: "󰖃" },
     { key: "restart", label: "Restart", icon: "󰑓" },
     { key: "kill", label: "Force kill", icon: "󰚌" },
     { key: "screenshot", label: "Screenshot", icon: "󰄀" },
@@ -249,7 +249,7 @@ Scope {
   }
 
   function runV(cmd, v) {
-    if (cmd === "restart" || cmd === "start" || cmd === "resize" || cmd === "open") {
+    if (cmd === "restart" || cmd === "start" || cmd === "resize") {
       const img = imageFor(v)
       Quickshell.execDetached(["env", "REDROID_IMAGE=" + img, "bash", scriptPath, cmd, String(v)])
     } else {
@@ -308,7 +308,7 @@ Scope {
     if (idx < 0 || idx >= list.length) return
     const a = list[idx]
     if (pendingVersion < 0) return
-    if (a.key === "open") {
+    if (a.key === "resize") {
       sizeMode = "resize"
       stage = "sizes"
       selectedIndex = 0
