@@ -17,7 +17,7 @@ return {
     ]]
     startify.section.header.val = vim.split(logo, "\n")
     startify.section.top_buttons.val = {
-      startify.button("e", "  New file", ":ene <BAR> startinsert<CR>"),
+      startify.button("e", "  New file", ":ene<CR>"),
       startify.button("d", "  Restore current dir session", "<cmd>lua require('persistence').load()<CR>"),
       startify.button("r", "󰑓  Restore last session", "<cmd>lua require('persistence').load({ last = true })<CR>"),
     }
