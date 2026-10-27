@@ -107,7 +107,14 @@ open_scrcpy() {
 
 cmd_start() {
   local v="$1" w="$2" h="$3" d="$4"
-  local image="${REDROID_IMAGE:-redroid/redroid:${v}.0.0-latest}"
+  local image="${REDROID_IMAGE:-}"
+  if [ -z "$image" ]; then
+    if [ "$v" = "15" ] && docker_cmd images --format '{{.Repository}}:{{.Tag}}' 2>/dev/null | grep -qx 'redroid15-patched:v1'; then
+      image="redroid15-patched:v1"
+    else
+      image="redroid/redroid:${v}.0.0-latest"
+    fi
+  fi
   local name port
   name="$(name_for "$v")"
   port="$(port_for "$v")"
@@ -124,6 +131,26 @@ cmd_start() {
   if is_running "$name"; then
     notify -t 300000 "Redroid $v" "Applying ${w}x${h} @ ${d} dpi…"
     apply_size "$port" "$w" "$h" "$d"
+  elif docker ps -a --format '{{.Names}}' 2>/dev/null | grep -qx "$name" || \
+       sudo docker ps -a --format '{{.Names}}' 2>/dev/null | grep -qx "$name"; then
+    notify -t 300000 "Redroid $v" "Starting existing container ${w}x${h} @ ${d} dpi…"
+    log "start $v: docker start $name on $port (${w}x${h}@${d})"
+    docker_cmd start "$name" >/dev/null 2>&1 || {
+      notify -u critical "Redroid $v" "Failed to start container (see log)"
+      log "start $v: docker start failed"
+      exit 1
+    }
+
+    if ! wait_boot "$v" "$port" "$name"; then
+      if is_running "$name"; then
+        notify -u critical "Redroid $v" "Boot timed out. Check: docker logs $name"
+        log "start $v: boot timed out"
+      else
+        notify -t 3000 "Redroid $v" "Stopped"
+        log "start $v: aborted by user"
+      fi
+      exit 1
+    fi
   else
     notify -t 300000 "Redroid $v" "Booting ${w}x${h} @ ${d} dpi…"
     log "start $v: docker run $name on $port (${w}x${h}@${d})"
@@ -132,6 +159,7 @@ cmd_start() {
       -p "$port:5555" \
       "$image" \
       androidboot.redroid_gpu_mode=host \
+      androidboot.redroid_gpu_node=/dev/dri/renderD128 \
       androidboot.redroid_fps=60 \
       androidboot.use_memfd=1 \
       androidboot.redroid_width="$w" \
@@ -152,6 +180,13 @@ cmd_start() {
       fi
       exit 1
     fi
+  fi
+
+  # Disable the emulator Bluetooth app: on redroid 15 it crash-loops SystemUI
+  # (BLUETOOTH_CONNECT SecurityException), which breaks the whole layer tree.
+  if [ "$v" = "15" ]; then
+    adb connect "localhost:$port" >/dev/null 2>&1 || true
+    adb -s "localhost:$port" shell 'pm disable-user --user 0 com.android.bluetooth' >/dev/null 2>&1 || true
   fi
 
   apply_size "$port" "$w" "$h" "$d"

@@ -75,8 +75,8 @@ Scope {
   ]
 
   readonly property var actions: [
+    { key: "resize", label: "open & resize", icon: "󰖃" },
     { key: "stop", label: "Stop", icon: "󰐥" },
-    { key: "resize", label: "Resize", icon: "󰖃" },
     { key: "restart", label: "Restart", icon: "󰑓" },
     { key: "kill", label: "Force kill", icon: "󰚌" },
     { key: "screenshot", label: "Screenshot", icon: "󰄀" },
