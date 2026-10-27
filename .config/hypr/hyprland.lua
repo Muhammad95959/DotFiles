@@ -126,7 +126,6 @@ hl.config({
   dwindle = {
     force_split                  = 1,
     preserve_split               = true,
-    permanent_direction_override = true,
   },
 
   master = {

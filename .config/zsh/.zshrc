@@ -366,7 +366,7 @@ function audiosep() {
 rd() {
   local v=$1
   [[ -z $v ]] && {
-    echo "usage: rd <12|13|14|15|16>"
+    echo "usage: rd <12|13|14|15>"
     return 1
   }
 
@@ -452,13 +452,11 @@ alias rd12='rd 12'
 alias rd13='rd 13'
 alias rd14='rd 14'
 alias rd15='rd 15'
-alias rd16='rd 16'
 
 alias rdstop12='sudo docker stop redroid12'
 alias rdstop13='sudo docker stop redroid13'
 alias rdstop14='sudo docker stop redroid14'
 alias rdstop15='sudo docker stop redroid15'
-alias rdstop16='sudo docker stop redroid16'
 alias rdstopall='sudo docker stop $(sudo docker ps -q --filter "name=redroid")'
 
 alias rdls='sudo docker ps --filter "name=redroid"'
