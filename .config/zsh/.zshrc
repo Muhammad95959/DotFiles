@@ -233,7 +233,7 @@ alias litecli='echo -ne "\e[2 q" && litecli'
 alias musicremover='~/Scripts/video_music_remover.sh'
 alias hyprconfig='nvim $HOME/.config/hypr/hyprland.lua'
 alias webtemplate='cp -r /mnt/Disk_D/Muhammad/Website-Template/* .'
-alias cppath="pwd | sed 's/\(^.*$\)/\"\1\"/' | wl-copy"
+alias cppath='printf "\"%s\"" "$PWD" | wl-copy'
 alias salawat='printf "%s" "ﷺ" | wl-copy'
 alias copycmd='tail -n 2 $ZDOTDIR/.zhistory | head -n 1 | tr -d "\n" | wl-copy'
 alias cbimage='wl-paste --type image/png > /tmp/clipboard.png && kitty +kitten icat /tmp/clipboard.png'
@@ -245,10 +245,12 @@ if command -v pacman &> /dev/null; then
   alias paruf='(pacman -Slq; cat ~/.cache/aur/packages.txt) | sort -u \
     | fzf -m --preview "paru -Si {1} | bat --color=always --plain" \
     | xargs -ro paru -S'
-  alias pkgsbackup="pacman -Qne | awk '{print \$1}' \
+  alias pkgsbackup='pacman -Qne | awk "{print \$1}" \
     > $HOME/Arch-Setup/native-packages.txt \
-    && pacman -Qme | awk '{print \$1}' \
-    > $HOME/Arch-Setup/aur-packages.txt"
+    && pacman -Qme | awk "{print \$1}" \
+    > $HOME/Arch-Setup/aur-packages.txt \
+    && npm list -g --json | jq -r ".dependencies | keys[]" \
+    > $HOME/Arch-Setup/npm-packages.txt'
 fi
 
 ### zoxide setup ----------------------------------------------------------
