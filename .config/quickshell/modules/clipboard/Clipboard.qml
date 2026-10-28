@@ -148,7 +148,7 @@ Scope {
       _restorePos = 0
     }
     _restoreSel = true
-    Quickshell.execDetached(["sh", "-c", "printf '%s' " + shQuote(id) + " | cliphist delete; rm -f " + shQuote(thumbDir + "/" + id + ".png") + " " + shQuote(thumbDir + "/" + id + ".jpg") + " " + shQuote(thumbDir + "/" + id + ".gif") + " " + shQuote(thumbDir + "/" + id + ".webp") + " " + shQuote(thumbDir + "/" + id + ".bmp") + " 2>/dev/null || true"])
+    Quickshell.execDetached(["sh", "-c", "printf '%s' " + shQuote(id) + " | cliphist delete; nid=$(cliphist list 2>/dev/null | head -n1 | cut -f1); [ -n \"$nid\" ] && cliphist decode \"$nid\" | wl-copy; rm -f " + shQuote(thumbDir + "/" + id + ".png") + " " + shQuote(thumbDir + "/" + id + ".jpg") + " " + shQuote(thumbDir + "/" + id + ".gif") + " " + shQuote(thumbDir + "/" + id + ".webp") + " " + shQuote(thumbDir + "/" + id + ".bmp") + " 2>/dev/null || true"])
     Qt.callLater(() => { if (clipRoot.visible) refresh() })
   }
   function wipe() {
