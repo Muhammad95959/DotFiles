@@ -176,7 +176,10 @@ hl.config({
     disable_hyprland_logo      = true,
     enable_anr_dialog          = false,
     initial_workspace_tracking = 0,
-    layers_hog_keyboard_focus  = false,
+  },
+
+  layers = {
+    layers_hog_keyboard_focus = false
   },
 
   cursor = {
@@ -851,7 +854,7 @@ hl.bind(mod .. " + a",              hl.dsp.submap("apps"))
 hl.bind(mod .. " + b",              hl.dsp.exec_cmd("/usr/bin/brave-origin --test-type"))
 hl.bind(mod .. " + c",              hl.dsp.exec_cmd("quickshell ipc call clipboard toggle"))
 hl.bind(mod .. " + d",              hl.dsp.exec_cmd("hyprminimizer"))
-hl.bind(mod .. " + e",              hl.dsp.group.lock_active())
+hl.bind(mod .. " + e",              hl.dsp.group.lock())
 hl.bind(mod .. " + f",              hl.dsp.window.fullscreen())
 hl.bind(mod .. " + g",              function() SetGaps(10) end, { repeating = true })
 hl.bind(mod .. " + m",              hl.dsp.submap("mouse"))
