@@ -29,5 +29,6 @@
   },
   "experimental": {
     "todo": true,
+    "image_generate": true,
   },
 }
