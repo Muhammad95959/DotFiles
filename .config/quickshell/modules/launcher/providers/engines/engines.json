@@ -17,13 +17,13 @@
     "icon": "chatgpt.svg",
     "name": "ChatGPT",
     "trigger": "c",
-    "url": "https://chatgpt.com/?prompt=%s&send=1"
+    "url": "https://chatgpt.com/?q=%s"
   },
   {
     "icon": "deepseek.svg",
     "name": "DeepSeek",
     "trigger": "d",
-    "url": "https://chat.deepseek.com/?prompt=%s&send=1"
+    "url": "https://chat.deepseek.com/?q=%s"
   },
   {
     "icon": "amazon.svg",
@@ -59,13 +59,13 @@
     "icon": "claude.svg",
     "name": "Claude",
     "trigger": "l",
-    "url": "https://claude.ai/new?prompt=%s&send=1"
+    "url": "https://claude.ai/new?q=%s"
   },
   {
     "icon": "gemini.svg",
     "name": "Gemini",
     "trigger": "m",
-    "url": "https://gemini.google.com/app?prompt=%s&send=1"
+    "url": "https://gemini.google.com/app?q=%s"
   },
   {
     "icon": "noon.svg",
