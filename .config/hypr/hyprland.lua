@@ -549,6 +549,7 @@ function ToggleFocusFloat()
   local ws = hl.get_active_workspace()
   if ws == nil or ws.id < 0 then return end
   local id = ws.id
+  if not id then return end
   if w.floating then
     last_floating_window[id] = w
     if is_window_valid(last_tiled_window[id], false) then
@@ -672,7 +673,7 @@ function BraveTranslate()
       if win.class == "brave-translate.google.com.eg__-Default" or win.class == "chrome-translate.google.com.eg__-Default" then
         found = true
         hl.dispatch(hl.dsp.window.move({ workspace = ws, window = win, follow = true }))
-        hl.dispatch(hl.dsp.window.bring_to_top({ window = win }))
+        hl.dispatch(hl.dsp.window.alter_zorder({ window = win, mode = "top" }))
         hl.dispatch(hl.dsp.focus({ window = win }))
         break
       end
