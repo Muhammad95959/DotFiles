@@ -18,8 +18,8 @@ Scope {
   property var allFiles: []
   property string _accum: ""
   property bool _blockHover: false
-  property int rowsVisible: 8
-  property real aspect: 4 / 3
+  property int rowsVisible: 10
+  property real aspect: 1 / 1
   readonly property int _rowH: 40
   readonly property int _rowGap: 6
   readonly property int listH: rowsVisible * _rowH + (rowsVisible - 1) * _rowGap

@@ -14,6 +14,7 @@ Scope {
   property bool visible: false
   property bool _everOpened: false
   property bool _loading: false
+  property bool _refreshPending: false
   property bool _everLoaded: false
   property var _thumbReady: ({})
   property int _thumbTick: 0
@@ -77,7 +78,7 @@ Scope {
   }
   function toggle() { visible ? close() : open() }
   function open() { _everOpened = true; visible = true; query = ""; selectedIndex = 0; showPreview(); schedulePreview(); refresh() }
-  function close() { visible = false; query = ""; selectedIndex = 0 }
+  function close() { visible = false; query = ""; selectedIndex = 0; clearHold(); _restoreSel = false; _deleteQueue = []; if (deleteProc.running) deleteProc.running = false; _deleteCurrent = "" }
 
   property string query: ""
   property int selectedIndex: 0
@@ -129,13 +130,25 @@ Scope {
   }
 
   function refresh() {
-    if (clipProc.running) return
+    if (clipProc.running) {
+      _refreshPending = true
+      return
+    }
     _lines = []; _pendingDecoded = []; _loading = true; clipProc.running = true
   }
   function decodeId(id) {
     Quickshell.execDetached(["sh", "-c", "cliphist decode " + shQuote(id) + " | wl-copy"])
     close()
     postActivateTimer.restart()
+  }
+  property var _deleteQueue: []
+  property string _deleteCurrent: ""
+  function startNextDelete() {
+    if (clipRoot._deleteQueue.length === 0 || deleteProc.running) return
+    const id = clipRoot._deleteQueue.shift()
+    clipRoot._deleteCurrent = id
+    deleteProc.command = ["sh", "-c", "printf '%s' " + shQuote(id) + " | cliphist delete; nid=$(cliphist list 2>/dev/null | head -n1 | cut -f1); [ -n \"$nid\" ] && cliphist decode \"$nid\" | wl-copy; rm -f " + shQuote(clipRoot.thumbDir + "/" + id + ".png") + " " + shQuote(clipRoot.thumbDir + "/" + id + ".jpg") + " " + shQuote(clipRoot.thumbDir + "/" + id + ".gif") + " " + shQuote(clipRoot.thumbDir + "/" + id + ".webp") + " " + shQuote(clipRoot.thumbDir + "/" + id + ".bmp") + " 2>/dev/null || true"]
+    deleteProc.running = true
   }
   function deleteId(id) {
     clearHold(); previewDrop(id)
@@ -148,12 +161,13 @@ Scope {
       _restorePos = 0
     }
     _restoreSel = true
-    Quickshell.execDetached(["sh", "-c", "printf '%s' " + shQuote(id) + " | cliphist delete; nid=$(cliphist list 2>/dev/null | head -n1 | cut -f1); [ -n \"$nid\" ] && cliphist decode \"$nid\" | wl-copy; rm -f " + shQuote(thumbDir + "/" + id + ".png") + " " + shQuote(thumbDir + "/" + id + ".jpg") + " " + shQuote(thumbDir + "/" + id + ".gif") + " " + shQuote(thumbDir + "/" + id + ".webp") + " " + shQuote(thumbDir + "/" + id + ".bmp") + " 2>/dev/null || true"])
-    Qt.callLater(() => { if (clipRoot.visible) refresh() })
+    _deleteQueue.push(id)
+    startNextDelete()
   }
   function wipe() {
     clearHold(); _previewCache = ({}); _previewCacheOrder = []
     _restoreSel = false
+    _deleteQueue = []; if (deleteProc.running) deleteProc.running = false; _deleteCurrent = ""
     Quickshell.execDetached(["sh", "-c", "cliphist wipe; rm -rf " + shQuote(thumbDir) + "/* 2>/dev/null || true"])
     allEntries = []
   }
@@ -213,6 +227,23 @@ Scope {
       const first = []
       for (let v = 0; v < out.length && first.length < 12; v++) if (out[v].isImage) first.push(out[v])
       clipRoot.requestThumbs(first)
+      if (clipRoot._refreshPending) {
+        clipRoot._refreshPending = false
+        Qt.callLater(() => { if (clipRoot.visible) clipRoot.refresh() })
+      }
+    }
+  }
+
+  Process {
+    id: deleteProc
+    running: false
+    onExited: {
+      clipRoot._deleteCurrent = ""
+      if (clipRoot._deleteQueue.length > 0) {
+        clipRoot.startNextDelete()
+      } else if (clipRoot.visible) {
+        clipRoot.refresh()
+      }
     }
   }
 
