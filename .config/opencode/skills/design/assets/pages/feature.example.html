@@ -1,0 +1,66 @@
+<!-- Pattern reference for a feature page. One .v-page per feature, one .v-screen per screen, one .v-state per valid state.
+     data-trigger says when the state happens; data-note says which error tier applies and why. The viewer builds tabs, frame and notes. -->
+<section class="v-page" data-page="tasks" data-title="Tasks" data-group="Features">
+  <h1>Tasks</h1>
+  <p class="v-lead">Create, find and finish tasks. Primary question on this page: "What do I need to do next?"</p>
+
+  <article class="v-screen" data-screen="list" data-title="Task list" data-purpose="The default home screen. Primary action: add a task.">
+
+    <div class="v-state" data-state="loaded" data-label="Loaded" data-trigger="Tasks fetched">
+      <div class="app">
+        <header class="topbar"><span class="title">Today</span><button class="icon-btn" aria-label="Search"><i data-icon="search"></i></button></header>
+        <ul class="list">
+          <li><a class="list-item" href="#" data-goto="tasks/detail/loaded"><span class="avatar">MK</span><span class="text"><span class="truncate">Review onboarding copy</span><span>Due 14:00 · Design</span></span><span class="tag">High</span></a></li>
+          <li><a class="list-item" href="#" data-snackbar="#undo"><span class="avatar">JS</span><span class="text"><span>Send invoice #2024-118</span><span>Swipe or tap to complete</span></span></a></li>
+        </ul>
+        <div class="snackbar-host"><div class="snackbar" id="undo" role="status" hidden><span class="msg">Task completed</span><button class="btn text" data-close>Undo</button></div></div>
+        <button class="fab" aria-label="Add task"><i data-icon="plus"></i></button>
+      </div>
+    </div>
+
+    <div class="v-state" data-state="loading" data-label="Loading" data-trigger="First open, no cache" data-note="Skeleton mirrors the loaded layout so nothing jumps.">
+      <div class="app" aria-busy="true">
+        <header class="topbar"><span class="title">Today</span></header>
+        <div class="stack content"><div class="row"><div class="skeleton circle" style="width:40px;height:40px"></div><div class="stack" style="flex:1;gap:6px"><div class="skeleton line" style="width:70%"></div><div class="skeleton line" style="width:40%"></div></div></div></div>
+      </div>
+    </div>
+
+    <div class="v-state" data-state="empty" data-label="Empty (first use)" data-trigger="Account has no tasks yet" data-note="Teaches the next step. Different from 'no results'.">
+      <div class="app"><header class="topbar"><span class="title">Today</span></header>
+        <div class="empty"><svg class="art" viewBox="0 0 160 120" aria-hidden="true"><rect x="30" y="20" width="100" height="80" rx="12" style="fill:var(--color-primary-container)"/><path d="M55 60l15 15 35-35" style="fill:none;stroke:var(--color-primary);stroke-width:8;stroke-linecap:round"/></svg>
+          <h2>Nothing on your plate</h2><p>Add your first task and it shows up here, sorted by due date.</p><button class="btn">Add a task</button></div>
+      </div>
+    </div>
+
+    <div class="v-state" data-state="error" data-label="Error" data-trigger="Fetch failed, no cache" data-note="T5 screen-level error. Navigation stays usable.">
+      <div class="app"><header class="topbar"><span class="title">Today</span></header>
+        <div class="screen-error"><i data-icon="cloud-off"></i><h2>Couldn't load your tasks</h2><p>The server didn't respond. Your tasks are safe. Try again in a moment.</p><button class="btn" data-state-to="loading">Try again</button></div>
+      </div>
+    </div>
+
+    <div class="v-state" data-state="offline" data-label="Offline (cached)" data-trigger="No connection, cache available" data-note="T4 inline callout, persistent until back online. Creating tasks still works and syncs later.">
+      <div class="app"><header class="topbar"><span class="title">Today</span></header>
+        <div class="content stack"><div class="callout warning" role="status"><i data-icon="wifi-off"></i><div class="body"><strong>You're offline</strong>Showing tasks from 09:41. Changes sync when you're back online.</div></div></div>
+      </div>
+    </div>
+
+    <div class="v-state" data-state="stress" data-label="Long content" data-trigger="Long titles, big numbers, missing avatar" data-note="Titles truncate to one line in the list and wrap fully on detail.">
+      <div class="app"><header class="topbar"><span class="title">Today</span></header>
+        <ul class="list"><li><a class="list-item" href="#"><span class="avatar">?</span><span class="text"><span class="truncate">Prepare the quarterly reconciliation report for the Northern European subsidiaries before the audit</span><span class="num">€1,284,903.17 · 214 subtasks</span></span><span class="badge">99+</span></a></li></ul>
+      </div>
+    </div>
+
+    <div class="v-state" data-state="delete-confirm" data-label="Delete project (dialog)" data-trigger="User deletes a project with tasks" data-note="T6: irreversible and destroys other people's data, so it needs a decision.">
+      <div class="app">
+        <header class="topbar"><span class="title">Today</span></header>
+        <div class="overlay" data-overlay data-static role="presentation">
+          <div class="dialog" role="alertdialog" aria-labelledby="dlg-t" aria-describedby="dlg-d">
+            <h2 id="dlg-t">Delete "Website relaunch"?</h2>
+            <p id="dlg-d">This deletes 38 tasks for everyone on the project. You can't undo this.</p>
+            <div class="actions"><button class="btn text">Keep project</button><button class="btn danger">Delete project</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </article>
+</section>

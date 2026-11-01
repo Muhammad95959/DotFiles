@@ -1,0 +1,102 @@
+/* Viewer chrome. Deliberately neutral and separate from the app's tokens so it never competes with the design. */
+:root {
+  --v-bg: #f4f4f5; --v-panel: #ffffff; --v-text: #18181b; --v-muted: #52525b; --v-line: #d4d4d8;
+  --v-accent: #1d4ed8; --v-on-accent: #ffffff; --v-pass: #166534; --v-pass-bg: #dcfce7; --v-fail: #991b1b; --v-fail-bg: #fee2e2;
+  --v-font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --v-mono: ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --v-bg: #0f0f11; --v-panel: #18181b; --v-text: #f4f4f5; --v-muted: #a1a1aa; --v-line: #3f3f46; --v-accent: #93c5fd; --v-on-accent: #0b1220; --v-pass: #86efac; --v-pass-bg: #14532d; --v-fail: #fca5a5; --v-fail-bg: #7f1d1d; }
+}
+:root[data-theme="dark"] { --v-bg: #0f0f11; --v-panel: #18181b; --v-text: #f4f4f5; --v-muted: #a1a1aa; --v-line: #3f3f46; --v-accent: #93c5fd; --v-on-accent: #0b1220; --v-pass: #86efac; --v-pass-bg: #14532d; --v-fail: #fca5a5; --v-fail-bg: #7f1d1d; }
+
+[hidden] { display: none !important; }
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--v-bg); color: var(--v-text); font: 14px/1.5 var(--v-font); }
+
+.v-app { display: grid; grid-template-columns: 248px minmax(0, 1fr); min-height: 100vh; }
+.v-nav { position: sticky; top: 0; height: 100vh; overflow: auto; border-right: 1px solid var(--v-line); background: var(--v-panel); padding: 20px 12px; }
+.v-nav h1 { font-size: 15px; margin: 0 8px 16px; }
+.v-nav .v-group { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--v-muted); margin: 16px 8px 4px; }
+.v-nav a { display: block; padding: 6px 8px; border-radius: 6px; color: var(--v-text); text-decoration: none; }
+.v-nav a:hover { background: var(--v-bg); }
+.v-nav a[aria-current="page"] { background: var(--v-accent); color: var(--v-on-accent); }
+.v-main { min-width: 0; padding: 0 32px 64px; }
+.v-toolbar { position: sticky; top: 0; z-index: 50; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: flex-end; padding: 12px 0; background: var(--v-bg); border-bottom: 1px solid var(--v-line); margin-bottom: 24px; }
+.v-toolbar .v-title { margin-right: auto; font-weight: 600; }
+.v-seg { display: inline-flex; border: 1px solid var(--v-line); border-radius: 8px; overflow: hidden; background: var(--v-panel); }
+.v-seg button { font: inherit; border: 0; background: none; color: var(--v-text); padding: 6px 12px; min-height: 32px; cursor: pointer; }
+.v-seg button[aria-pressed="true"] { background: var(--v-accent); color: var(--v-on-accent); }
+.v-seg button:focus-visible, .v-tabs button:focus-visible, .v-nav a:focus-visible { outline: 2px solid var(--v-accent); outline-offset: 2px; }
+
+.v-page > h1 { font-size: 28px; margin: 8px 0 4px; }
+.v-page > .v-lead { color: var(--v-muted); max-width: 70ch; margin: 0 0 32px; }
+.v-section { margin: 40px 0; }
+.v-section > h2 { font-size: 20px; margin: 0 0 4px; }
+.v-section > p { color: var(--v-muted); max-width: 72ch; margin: 0 0 16px; }
+.v-card { background: var(--v-panel); border: 1px solid var(--v-line); border-radius: 12px; padding: 20px; }
+.v-grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
+.v-label { font-size: 12px; color: var(--v-muted); font-family: var(--v-mono); }
+.v-specimen { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; padding: 20px; border-radius: 12px; border: 1px solid var(--v-line); background: var(--color-background); color: var(--color-on-background); }
+.v-specimen > figure { margin: 0; display: grid; gap: 8px; justify-items: start; }
+.v-specimen figcaption { font: 12px/1.4 var(--v-mono); color: var(--color-on-surface-variant); }
+.v-note { font-size: 13px; color: var(--v-muted); border-left: 3px solid var(--v-line); padding: 4px 12px; margin: 8px 0; max-width: 80ch; }
+
+/* Screens and device frames */
+.v-screen { margin: 48px 0; }
+.v-screen > h2 { font-size: 20px; margin: 0; }
+.v-screen > .v-purpose { color: var(--v-muted); margin: 2px 0 12px; max-width: 72ch; }
+.v-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.v-tabs button { font: inherit; font-size: 13px; border: 1px solid var(--v-line); background: var(--v-panel); color: var(--v-text); border-radius: 999px; padding: 4px 12px; min-height: 30px; cursor: pointer; }
+.v-tabs button[aria-pressed="true"] { background: var(--v-accent); border-color: var(--v-accent); color: var(--v-on-accent); }
+.v-stage { overflow-x: auto; padding-bottom: 8px; }
+.v-frame { position: relative; container-type: inline-size; overflow: auto; border: 1px solid var(--v-line); border-radius: 20px; background: var(--color-background); color: var(--color-on-background); width: 390px; height: 844px; flex: none; }
+.v-frame[data-viewport="tablet"] { width: 820px; height: 1180px; border-radius: 16px; }
+.v-frame[data-viewport="desktop"] { width: 1280px; height: 800px; border-radius: 10px; }
+.v-frame[data-viewport="auto"] { width: 100%; height: auto; }
+.v-frame > .v-state { min-height: 100%; }
+.v-state-note { margin-top: 12px; max-width: 80ch; font-size: 13px; color: var(--v-muted); }
+.v-state-note strong { color: var(--v-text); }
+.v-pair { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+
+/* Foundation renderers */
+.v-ramp { display: grid; grid-template-columns: 120px repeat(auto-fit, minmax(56px, 1fr)); gap: 4px; align-items: stretch; margin-bottom: 6px; }
+.v-ramp > span:first-child { font-family: var(--v-mono); font-size: 12px; align-self: center; }
+.v-sw { border-radius: 6px; min-height: 48px; padding: 4px; font: 10px/1.2 var(--v-mono); display: flex; flex-direction: column; justify-content: flex-end; }
+.v-roles { display: grid; gap: 8px; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+.v-role { border: 1px solid var(--v-line); border-radius: 10px; overflow: hidden; background: var(--v-panel); }
+.v-role > div:first-child { height: 56px; display: flex; align-items: center; padding: 0 12px; font-weight: 600; }
+.v-role > div:last-child { padding: 8px 12px; font: 12px/1.5 var(--v-mono); }
+.v-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.v-table th, .v-table td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--v-line); vertical-align: middle; }
+.v-table th { color: var(--v-muted); font-weight: 500; }
+.v-badge { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+.v-badge.pass { background: var(--v-pass-bg); color: var(--v-pass); }
+.v-badge.fail { background: var(--v-fail-bg); color: var(--v-fail); }
+.v-sample { display: inline-block; padding: 4px 10px; border-radius: 6px; font-weight: 600; }
+.v-type-row { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 16px; padding: 12px 0; border-bottom: 1px solid var(--v-line); align-items: baseline; }
+.v-type-row .v-label { line-height: 1.4; }
+.v-type-row > div:last-child { overflow-wrap: anywhere; color: var(--color-on-surface); }
+.v-bar { height: 16px; background: var(--v-accent); border-radius: 3px; }
+.v-box { width: 88px; height: 64px; background: var(--color-primary-container); border: 1px solid var(--color-outline); }
+.v-elev { width: 140px; height: 88px; border-radius: 12px; background: var(--color-surface-container-high); display: grid; place-items: center; color: var(--color-on-surface); }
+.v-icons { display: grid; grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); gap: 8px; color: var(--color-on-surface); }
+.v-icons > div { display: grid; justify-items: center; gap: 6px; padding: 12px 4px; border-radius: 8px; background: var(--color-surface); font: 11px var(--v-mono); color: var(--color-on-surface-variant); }
+
+/* Icons from either supported set */
+svg.lucide { width: 1.25em; height: 1.25em; stroke-width: var(--icon-stroke, 2); flex: none; vertical-align: middle; }
+[class^="material-symbols-"] { font-size: 1.25em; line-height: 1; vertical-align: middle; flex: none; }
+
+/* Options mode */
+.v-options { max-width: 1440px; margin: 0 auto; padding: 0 32px 64px; }
+.v-option { padding: 32px 0; border-bottom: 1px solid var(--v-line); }
+.v-option > header h2 { font-size: 26px; margin: 0; }
+.v-option > header p { color: var(--v-muted); max-width: 75ch; margin: 4px 0 0; }
+
+@media (max-width: 760px) {
+  .v-app { grid-template-columns: 1fr; }
+  .v-nav { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--v-line); }
+  .v-main, .v-options { padding: 0 16px 48px; }
+  .v-type-row { grid-template-columns: 1fr; gap: 4px; }
+}

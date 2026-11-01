@@ -1,0 +1,47 @@
+<title>__APP__ Directions</title>
+<!-- tokens: option-a.tokens.json scope=.opt-a id=opt-a -->
+<!-- tokens: option-b.tokens.json scope=.opt-b id=opt-b -->
+<!-- tokens: option-c.tokens.json scope=.opt-c id=opt-c -->
+<style><!-- include: viewer.css --></style>
+<style><!-- include: components.css --></style>
+<style><!-- include: options.css --></style>
+<script>window.DESIGN = { app: "__APP__ · Round __N__", mode: "options", themes: ["light", "dark"] };</script>
+<div class="v-options">
+  <!-- Repeat this section per option. Everything inside is styled only by that option's tokens. -->
+  <section class="v-option opt-a" data-tokens="opt-a" id="opt-a">
+    <header>
+      <h2>A · __Option name__</h2>
+      <p>__One-line rationale: who it is for and why this mood fits the brief.__</p>
+      <p class="v-label">Mood: __word, word, word__ · Type: __display / body__ · Icons: __set__</p>
+    </header>
+
+    <div class="v-section"><h2>Signature screen</h2>
+      <div class="v-pair">
+        <div class="v-frame" data-viewport="phone" data-theme-panel="light"><div class="app">__screen markup__</div></div>
+        <div class="v-frame" data-viewport="phone" data-theme-panel="dark"><div class="app">__same markup__</div></div>
+      </div>
+    </div>
+
+    <div class="v-section"><h2>Color</h2><div data-render="primitives"></div><div data-render="roles"></div></div>
+    <div class="v-section"><h2>Contrast (WCAG 2.2 AA)</h2><div data-render="contrast"></div></div>
+    <div class="v-section"><h2>Typography</h2><div class="v-card" data-render="type"></div></div>
+    <div class="v-section"><h2>Shape, elevation, icons</h2>
+      <div data-render="radius"></div><div data-render="elevation"></div>
+      <div data-render="icons" data-names="__8-12 icon names this app needs__"></div>
+    </div>
+    <div class="v-section"><h2>Core components</h2>
+      <div class="v-specimen app">
+        __buttons (all variants), text field (default, focus, error), chip, switch, list item, card, callout, snackbar, dialog__
+      </div>
+    </div>
+  </section>
+
+  <section class="v-section" id="compare"><h2>Side by side</h2>
+    <div class="v-pair">
+      <div class="opt-a" data-tokens="opt-a"><p class="v-label">A</p><div class="v-frame" data-viewport="phone"><div class="app">__signature screen A__</div></div></div>
+      <div class="opt-b" data-tokens="opt-b"><p class="v-label">B</p><div class="v-frame" data-viewport="phone"><div class="app">__signature screen B__</div></div></div>
+      <div class="opt-c" data-tokens="opt-c"><p class="v-label">C</p><div class="v-frame" data-viewport="phone"><div class="app">__signature screen C__</div></div></div>
+    </div>
+  </section>
+</div>
+<script><!-- include: viewer.js --></script>
