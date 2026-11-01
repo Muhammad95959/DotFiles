@@ -13,7 +13,8 @@
     "npm:pi-subagents",
     "npm:pi-cd",
     "npm:pi-session-manager",
-    "npm:pi-goal-x"
+    "npm:pi-goal-x",
+    "npm:pi-blackhole"
   ],
   "editorPaddingX": 1,
   "tuiMode": "fullscreen",
@@ -25,5 +26,6 @@
   "fullscreenCopyOnSelect": true,
   "defaultThinkingLevel": "high",
   "theme": "system",
-  "quietStartup": false
+  "quietStartup": false,
+  "fullscreenExitOutput": "transcript"
 }

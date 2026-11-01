@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "stitch": {
+      "lifecycle": "lazy"
+    },
+    "photocraft": {
+      "lifecycle": "lazy"
+    }
+  },
+  "settings": {
+    "deferWithMissingMetadata": true,
+    "notifyOnStartupConnect": false
+  }
+}
