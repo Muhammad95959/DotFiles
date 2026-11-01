@@ -747,6 +747,9 @@ hl.define_submap("layouts", function()
   hl.bind("m", function() SetWorkspaceLayout("master") end) hl.bind("m", hl.dsp.submap("reset"))
   hl.bind("s", function() SetWorkspaceLayout("scrolling") end) hl.bind("s", hl.dsp.submap("reset"))
 
+  hl.bind("CTRL + f", hl.dsp.layout("colresize 1.0")) hl.bind("CTRL + f", hl.dsp.submap("reset"))
+  hl.bind("CTRL + u", hl.dsp.layout("colresize 0.5")) hl.bind("CTRL + u", hl.dsp.submap("reset"))
+
   hl.bind("ESCAPE",      hl.dsp.submap("reset"))
   hl.bind(mod .. " + u", hl.dsp.submap("reset"))
 end)
