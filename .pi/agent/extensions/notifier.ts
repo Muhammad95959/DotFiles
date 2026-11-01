@@ -70,13 +70,18 @@ function dispatch(key: string, pi: ExtensionAPI, ctx: ExtensionContext, cfg: Cfg
 }
 
 export default function (pi: ExtensionAPI) {
+  // Subagent child processes run their own Pi sessions; skip notifications there
+  // so completion of background subagents doesn't spam while the parent runs.
+  if (process.env.PI_SUBAGENT_CHILD === "1") return;
   const cfg = loadCfg();
   let startMs = Date.now();
   let hadError = false;
+  let lastDispatchMs = 0;
 
   pi.on("session_start", async (_e, ctx) => {
     startMs = Date.now();
     hadError = false;
+    lastDispatchMs = 0;
   });
 
   pi.on("agent_start", async () => { startMs = Date.now(); hadError = false; });
@@ -84,9 +89,13 @@ export default function (pi: ExtensionAPI) {
   pi.on("tool_result", async (e: any) => { if (e?.isError) hadError = true; });
 
   pi.on("agent_settled", async (e: any, ctx) => {
-    if (e?.aborted) dispatch("user_cancelled", pi, ctx, cfg, startMs);
-    else if (hadError) dispatch("error", pi, ctx, cfg, startMs);
-    else dispatch("complete", pi, ctx, cfg, startMs);
+    // Only notify when Pi is truly idle with no queued follow-up work.
+    if (!ctx.isIdle() || ctx.hasPendingMessages()) return;
+    // Coalesce bursts from retries/compaction/subagent wakes.
+    if (Date.now() - lastDispatchMs < 2000) return;
+    if (e?.aborted) { lastDispatchMs = Date.now(); dispatch("user_cancelled", pi, ctx, cfg, startMs); }
+    else if (hadError) { lastDispatchMs = Date.now(); dispatch("error", pi, ctx, cfg, startMs); }
+    else { lastDispatchMs = Date.now(); dispatch("complete", pi, ctx, cfg, startMs); }
   });
 
   pi.on("ui_prompt_start", async (_e: any, ctx) => {
