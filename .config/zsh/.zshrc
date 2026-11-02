@@ -146,7 +146,7 @@ compdef _paru_all_packages paru
 ### Command-finish notifications -------------------------------------------
 
 NOTIFY_WHITELIST=(
-  "aria2c" "audio-separator" "cargo" "cmake" "convert" "curl" "deno" "docker"
+  "adb" "aria2c" "audio-separator" "cargo" "cmake" "convert" "curl" "deno" "docker"
   "ffmpeg" "flatpak" "gcc" "go" "gradlew" "install-app" "magick" "make" "musicremover"
   "npm" "npx" "pacman" "paru" "pip" "pnpm" "rsync" "uninstall-app" "wget" "yt-dlp"
 )
@@ -190,6 +190,7 @@ export EDITOR=nvim
 export TERMCMD=kitty
 export MANPAGER='nvim +Man!'
 export BAT_THEME="tokyonight_moon"
+export FZF_CTRL_R_OPTS="--no-multi-line"
 export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS \
   --ansi \
   --height=~99% \
@@ -325,7 +326,7 @@ function seshi() {
       --no-sort --ansi \
       --border-label " sesh " \
       --prompt "⚡  " \
-      --header $'ALL    (^a)   FIND    (^f)   CONFIG (^g)\nTMUX   (^t)   ZOXIDE  (^x)   KILL   (^d)' \
+      --header $'ALL    (^a)   FIND    (^f)   CONFIG (^g)\nTMUX   (^t)   ZOXIDE  (^x)   HOME   (^h)   KILL   (^d)' \
       --bind "tab:down,btab:up" \
       --bind "ctrl-a:change-prompt(⚡  )+reload(sesh list --icons)" \
       --bind "ctrl-t:change-prompt(🪟  )+reload(sesh list -t --icons)" \
@@ -333,6 +334,7 @@ function seshi() {
       --bind "ctrl-x:change-prompt(📁  )+reload(sesh list -z --icons)" \
       --bind "ctrl-f:change-prompt(🔎  )+reload(fd -H -d 2 -t d -E .Trash . ~)" \
       --bind "ctrl-d:execute(tmux kill-session -t {2..})+change-prompt(⚡  )+reload(sesh list --icons)" \
+      --bind "ctrl-h:execute(tmux new-session -d -s home -c ~)+execute(tmux switch-client -t home)+abort" \
       --preview-window "right:55%" \
       --preview "sesh preview {}"
   )"
