@@ -295,8 +295,8 @@ hl.window_rule({ match = { class = "^hiddenkitty.*$" }, float = true, no_initial
 hl.window_rule({ match = { class = "^org%.telegram%.desktop$", title = "^Media viewer$" }, float = true, fullscreen = true })
 hl.window_rule({ match = { class = "^explorer.exe$", title = "^WineDesktop - Wine Desktop$" }, float = true, center = true })
 hl.window_rule({ match = { class = "^Waydroid$" }, float = true, size = "468 1036", move = "1444 34", no_initial_focus = true })
-hl.window_rule({ match = { class = "^brave-translate.google.com.eg__-Default$" }, float = true, size = "740 960", opacity = 0.8 })
-hl.window_rule({ match = { class = "^chrome-translate.google.com.eg__-Default$" }, float = true, size = "740 960", opacity = 0.8 })
+hl.window_rule({ match = { class = "^brave-translate.google.com.eg__-Default$" }, float = true, size = "740 960", opacity = 0.85 })
+hl.window_rule({ match = { class = "^chrome-translate.google.com.eg__-Default$" }, float = true, size = "740 960", opacity = 0.85 })
 
 -- Layer rules
 hl.layer_rule({ match = { namespace = "logout_dialog" }, blur = true })
