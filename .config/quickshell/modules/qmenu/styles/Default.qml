@@ -65,7 +65,12 @@ PanelWindow {
             Layout.fillWidth: true; color: Theme.fg; font.family: Theme.monoFont; font.pixelSize: 13
             focus: true; activeFocusOnTab: false
             onTextChanged: qmenuRoot.query = text
-            onAccepted: qmenuRoot.activateAt(qmenuRoot.selectedIndex)
+            onAccepted: {
+              if (qmenuRoot.filtered.length > 0)
+                qmenuRoot.activateAt(qmenuRoot.selectedIndex)
+              else if (String(qmenuRoot.query || "").trim().length > 0)
+                qmenuRoot.submitFreeText()
+            }
             Keys.onPressed: event => {
               if (event.key === Qt.Key_Escape) { qmenuRoot.cancelled(); qmenuRoot.close(); event.accepted = true }
               else if (event.key === Qt.Key_Backtab) { qmenuRoot.move(-1); event.accepted = true }
@@ -76,7 +81,13 @@ PanelWindow {
               else if (event.key === Qt.Key_Right) { qmenuRoot.moveNoWrap(1); event.accepted = true }
               else if (event.key === Qt.Key_PageUp) { qmenuRoot.pageMove(-1); event.accepted = true }
               else if (event.key === Qt.Key_PageDown) { qmenuRoot.pageMove(1); event.accepted = true }
-              else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) { qmenuRoot.activateAt(qmenuRoot.selectedIndex); event.accepted = true }
+              else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
+                if (qmenuRoot.filtered.length > 0)
+                  qmenuRoot.activateAt(qmenuRoot.selectedIndex)
+                else if (String(qmenuRoot.query || "").trim().length > 0)
+                  qmenuRoot.submitFreeText()
+                event.accepted = true
+              }
             }
             Text { anchors.left: parent.left; anchors.verticalCenter: parent.verticalCenter; visible: searchField.text === ""; text: qmenuRoot.placeholder; color: Theme.fg; opacity: 0.45; font.family: Theme.monoFont; font.pixelSize: 13 }
           }

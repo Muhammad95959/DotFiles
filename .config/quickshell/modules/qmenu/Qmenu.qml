@@ -47,6 +47,7 @@ Scope {
     visible = false
     query = ""
     selectedIndex = 0
+    placeholder = "Search…"
   }
   function forceClose() { visible = false; query = ""; selectedIndex = 0 }
   function _markKeyboard() { _blockHover = true }
