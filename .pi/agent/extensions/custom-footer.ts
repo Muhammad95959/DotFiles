@@ -151,8 +151,12 @@ export default function (pi: ExtensionAPI) {
 						mcpStr = theme.fg("muted", `MCP ${connected}/${total}`);
 					}
 
+					// Plan mode status (set by plan-mode extension)
+					const planModeStr = footerData.getExtensionStatuses().get("plan-mode") ?? "";
+
 					// ===== RIGHT: model info =====
 					const rightParts = [
+						planModeStr,
 						modelStr,
 						levelDot + " " + levelStr,
 						gitStr,
