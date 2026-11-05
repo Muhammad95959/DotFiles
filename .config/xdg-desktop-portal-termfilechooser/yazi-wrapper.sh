@@ -43,6 +43,15 @@ done
 
 sh -c "$command"
 
+# Normalize virtual search URLs (fd://, search://, ...) written by Yazi's
+# search mode into real filesystem paths so external apps can open them.
+if [ -s "$out" ]; then
+  sed -i -E 's,^.*//,/, ' "$out"
+fi
+if [ -s "$out.1" ]; then
+  sed -i -E 's,^.*//,/, ' "$out.1"
+fi
+
 if [ "$directory" = "1" ]; then
   if [ ! -s "$out" ] && [ -s "$out"".1" ]; then
     cat "$out"".1" >"$out"
