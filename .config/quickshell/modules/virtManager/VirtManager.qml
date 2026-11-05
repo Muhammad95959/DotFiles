@@ -19,19 +19,25 @@ Scope {
   property string stage: "vms"
   property string query: ""
   property int selectedIndex: 0
+  readonly property int entryHeight: 42
+  readonly property int entryGap: 6
+  readonly property int vmEntries: 3
+  readonly property int menuWidth: 420
   property var vms: []
-  property var actions: [
-    { label: "Force off", icon: "󰐥", shortcut: "F" },
-    { label: "Shutdown", icon: "", shortcut: "S" },
-    { label: "Open with virt-viewer", icon: "󰖃", shortcut: "V" },
-    { label: "Open with virt-manager", icon: "󰣖", shortcut: "M" }
+  property string _accum: ""
+  readonly property var actions: [
+    { label: "Force off", icon: "󰐥" },
+    { label: "Shutdown", icon: "" },
+    { label: "Open with virt-viewer", icon: "󰖃" },
+    { label: "Open with virt-manager", icon: "󰣖" }
   ]
+  readonly property int menuListHeight: Math.max(vmEntries, actions.length) * entryHeight + (Math.max(vmEntries, actions.length) - 1) * entryGap
+  readonly property int menuHeight: 180 + menuListHeight
   readonly property string selectedVmState: {
     if (stage !== "vms" || filteredVms.length === 0 || selectedIndex < 0 || selectedIndex >= filteredVms.length) return ""
     return filteredVms[selectedIndex].state || ""
   }
   property string pendingVm: ""
-  property string _accum: ""
   property bool _blockHover: false
   function _markKeyboard() { _blockHover = true }
   function shQuote(s) { return "'" + String(s).replace(/'/g, "'\\''") + "'" }
@@ -58,7 +64,7 @@ Scope {
   onVisibleChanged: { if (visible) { query=""; selectedIndex = 0; _blockHover = true } else { query=""; selectedIndex = 0 } }
 
   function refreshVms() {
-    _accum = ""; vms = []
+    _accum = ""
     ensureProc.running = true
   }
 
@@ -72,12 +78,15 @@ Scope {
     id: listProc
     command: ["sh","-c","sudo virsh list --all --name 2>/dev/null | sed '/^$/d'"]
     stdout: SplitParser { onRead: data => root._accum += data + "\n" }
-    onExited: {
-      const names = root._accum.split("\n").map(s=>s.trim()).filter(s=>s.length>0)
-      if (names.length === 0) { root.vms = []; return }
-      stateAccum = ""; stateProc.command = ["sh","-c", names.map(n=> "printf " + root.shQuote(n + ":") + "; sudo virsh domstate " + root.shQuote(n) + " 2>/dev/null | tr -d '\\n'; echo").join("; ")]
-      stateProc.running = true
-    }
+    onExited: queryStates()
+  }
+
+  function queryStates() {
+    stateAccum = ""
+    const names = _accum.split("\n").map(s=>s.trim()).filter(s=>s.length>0)
+    if (names.length === 0) { vms = []; selectedIndex = 0; return }
+    stateProc.command = ["sh","-c", names.map(n=> "printf " + root.shQuote(n + ":") + "; sudo virsh domstate " + root.shQuote(n) + " 2>/dev/null | tr -d '\\n'; echo").join("; ")]
+    stateProc.running = true
   }
   property string stateAccum: ""
   Process {
@@ -85,19 +94,14 @@ Scope {
     stdout: SplitParser { onRead: data => root.stateAccum += data + "\n" }
     onExited: {
       const lines = root.stateAccum.split("\n").map(s=>s.trim()).filter(s=>s.length>0)
-      let out = []
+      const states = {}
       for (let l of lines) {
         const idx = l.indexOf(":")
         if (idx < 0) continue
-        const n = l.slice(0, idx)
-        const st = l.slice(idx+1).trim()
-        out.push({ name: n, state: st })
+        states[l.slice(0, idx)] = l.slice(idx+1).trim() || "unknown"
       }
-      if (out.length === 0) {
-        const names = root._accum.split("\n").map(s=>s.trim()).filter(s=>s.length>0)
-        out = names.map(n=> ({name:n, state:"unknown"}))
-      }
-      root.vms = out
+      const names = root._accum.split("\n").map(s=>s.trim()).filter(s=>s.length>0)
+      root.vms = names.map(n => ({ name: n, state: states[n] || "unknown" }))
       root.selectedIndex = 0
     }
   }
@@ -137,22 +141,6 @@ Scope {
     if (stage === "vms") chooseVm(selectedIndex)
     else chooseAction(selectedIndex)
   }
-  function handleActionShortcut(text) {
-    if (stage !== "actions") return false
-    const k = String(text||"").toLowerCase()
-    if (k.length !== 1) return false
-    // F/S/V/M or 1-4
-    let idx = -1
-    if (k === "f" || k === "1") idx = 0
-    else if (k === "s" || k === "2") idx = 1
-    else if (k === "v" || k === "3") idx = 2
-    else if (k === "m" || k === "4") idx = 3
-    else {
-      for (let i=0;i<actions.length;i++) if (actions[i].shortcut.toLowerCase()===k) { idx=i; break }
-    }
-    if (idx>=0 && idx<filteredActions.length) { chooseAction(idx); return true }
-    return false
-  }
   function onBack() {
     if (stage === "actions") { stage = "vms"; selectedIndex = 0; query = "" }
     else close()
@@ -186,7 +174,7 @@ Scope {
       MouseArea{ anchors.fill: parent; onClicked: root.stage==="actions" ? root.onBack() : root.close() }
       Rectangle{ anchors.fill: parent; color: Theme.dim }
       Rectangle {
-        width: Math.max(320, col.implicitHeight * 4 / 3); height: Math.min(560, col.implicitHeight + 32); anchors.centerIn: parent; radius: Theme.radiusLg; color: Theme.bg; border.color: Theme.border; border.width:1; clip:true
+        width: root.menuWidth; height: root.menuHeight; anchors.centerIn: parent; radius: Theme.radiusLg; color: Theme.bg; border.color: Theme.border; border.width:1; clip:true
         LayoutMirroring.enabled: false
         MouseArea{ anchors.fill: parent; hoverEnabled:true; onPositionChanged: if(root._blockHover) root._blockHover=false; onClicked:{} }
         ColumnLayout {
@@ -226,12 +214,6 @@ Scope {
                   else if(event.key===Qt.Key_PageDown){ root.pageMove(1); event.accepted=true}
                   else if(event.key===Qt.Key_Return||event.key===Qt.Key_Enter){ root.onAccepted(); event.accepted=true}
                   else if(event.key===Qt.Key_Backspace && text==="" && root.stage==="actions"){ root.onBack(); event.accepted=true}
-                  else if(root.stage==="actions" && event.text && event.text.length===1){
-                    if(root.handleActionShortcut(event.text)){ event.accepted=true }
-                  }
-                  else if(root.stage==="actions" && event.key>=Qt.Key_1 && event.key<=Qt.Key_4){
-                    const d = String.fromCharCode(event.key); if(root.handleActionShortcut(d)){ event.accepted=true }
-                  }
                 }
                 Text{ anchors.left:parent.left; anchors.verticalCenter:parent.verticalCenter; visible: searchField.text===""; text: root.stage==="vms" ? "Search VM…" : "Search action…"; color:Theme.fg; opacity:0.45; font.family:Theme.monoFont; font.pixelSize:14 }
               }
@@ -239,12 +221,12 @@ Scope {
             }
           }
           ListView{
-            id: listView; Layout.fillWidth:true; Layout.preferredHeight: Math.min(360, Math.max(1, root.currentCount) * 46); Layout.fillHeight:false; clip:true; boundsBehavior:Flickable.StopAtBounds; spacing:6
+            id: listView; Layout.fillWidth:true; Layout.preferredHeight: { const n = root.stage==="vms" ? root.vmEntries : root.actions.length; return n * root.entryHeight + (n - 1) * root.entryGap } Layout.fillHeight:false; clip:true; boundsBehavior:Flickable.StopAtBounds; spacing: root.entryGap
             model: root.stage==="vms" ? root.filteredVms : root.filteredActions
             currentIndex: root.selectedIndex
             onCurrentIndexChanged:{ root.selectedIndex=currentIndex; if(currentIndex>=0) positionViewAtIndex(currentIndex, ListView.Contain) }
             delegate: Rectangle{
-              id: del; required property var modelData; required property int index; width:listView.width; height:42; radius:Theme.radiusSm; color: root.selectedIndex===index?Theme.surfaceHover:Theme.surface; border.color: root.selectedIndex===index?Qt.alpha(Theme.fg,0.33):Theme.border; border.width:1
+              id: del; required property var modelData; required property int index; width:listView.width; height: root.entryHeight; radius:Theme.radiusSm; color: root.selectedIndex===index?Theme.surfaceHover:Theme.surface; border.color: root.selectedIndex===index?Qt.alpha(Theme.fg,0.33):Theme.border; border.width:1
               RowLayout{
                 anchors.fill:parent; anchors.leftMargin:12; anchors.rightMargin:12; spacing:12
                 Rectangle{
@@ -271,15 +253,6 @@ Scope {
                     verticalAlignment: Text.AlignVCenter; lineHeight: 1.0; lineHeightMode: Text.FixedHeight
                   }
                 }
-                Rectangle{
-                  visible: root.stage==="actions"
-                  width: 18; height: 18; radius: 4
-                  color: root.selectedIndex===del.index ? Theme.accent : Qt.alpha(Theme.fg,0.08)
-                  border.color: root.selectedIndex===del.index ? Theme.accent : Qt.alpha(Theme.fg,0.15)
-                  border.width: 1
-                  Layout.alignment: Qt.AlignVCenter
-                  Text{ anchors.centerIn: parent; anchors.verticalCenterOffset: 0.5; text: modelData.shortcut || ""; color: root.selectedIndex===del.index ? Theme.bg : Theme.fg; opacity: root.selectedIndex===del.index ? 1 : 0.7; font.family:Theme.monoFont; font.pixelSize:9; font.bold:true }
-                }
                 Text{
                   text: root.stage==="vms" && modelData.state==="running" ? "running" : ""
                   color:Theme.accent; font.family:Theme.monoFont; font.pixelSize:10; font.bold:true
@@ -292,6 +265,7 @@ Scope {
             }
             Text{ anchors.centerIn:parent; visible: root.currentCount===0; text: root.stage==="vms" ? (root.vms.length===0?"No VMs":"No match") : "No actions"; color:Theme.fg; opacity:0.55; font.family:Theme.monoFont; font.pixelSize:13 }
           }
+          Item{ Layout.fillHeight:true }
           RowLayout{ Layout.alignment:Qt.AlignHCenter; spacing:8; visible: root.stage==="vms"
             Text{
               text: {
@@ -308,30 +282,8 @@ Scope {
             Text{ text:"•"; color:Theme.fg; opacity:0.3; font.pixelSize:10; visible: root.selectedVmState!=="" && root.selectedVmState!=="running" }
             Text{ text:"shut off → start"; color:Theme.fg; opacity:0.6; font.family:Theme.monoFont; font.pixelSize:9; visible: root.selectedVmState!=="" && root.selectedVmState!=="running" }
           }
-          RowLayout{ Layout.alignment:Qt.AlignHCenter; spacing:6; visible: root.stage==="actions"
-            Text{ text:"F"; color:Theme.bg; font.family:Theme.monoFont; font.pixelSize:9; font.bold:true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter
-              Rectangle{ anchors.centerIn: parent; width: parent.width+8; height: 16; radius:4; color: Theme.accent; z:-1; visible: root.selectedIndex===0 }
-              width:12; height:12
-            }
-            Text{ text:"Force off"; color:Theme.fg; opacity: root.selectedIndex===0?1:0.7; font.family:Theme.monoFont; font.pixelSize:10; font.bold: root.selectedIndex===0 }
-            Text{ text:"•"; color:Theme.fg; opacity:0.3; font.pixelSize:10 }
-            Text{ text:"S"; color:Theme.bg; font.family:Theme.monoFont; font.pixelSize:9; font.bold:true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter
-              Rectangle{ anchors.centerIn: parent; width: parent.width+8; height: 16; radius:4; color: Theme.accent; z:-1; visible: root.selectedIndex===1 }
-              width:12; height:12
-            }
-            Text{ text:"Shutdown"; color:Theme.fg; opacity: root.selectedIndex===1?1:0.7; font.family:Theme.monoFont; font.pixelSize:10; font.bold: root.selectedIndex===1 }
-            Text{ text:"•"; color:Theme.fg; opacity:0.3; font.pixelSize:10 }
-            Text{ text:"V"; color:Theme.bg; font.family:Theme.monoFont; font.pixelSize:9; font.bold:true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter
-              Rectangle{ anchors.centerIn: parent; width: parent.width+8; height: 16; radius:4; color: Theme.accent; z:-1; visible: root.selectedIndex===2 }
-              width:12; height:12
-            }
-            Text{ text:"Viewer"; color:Theme.fg; opacity: root.selectedIndex===2?1:0.7; font.family:Theme.monoFont; font.pixelSize:10; font.bold: root.selectedIndex===2 }
-            Text{ text:"•"; color:Theme.fg; opacity:0.3; font.pixelSize:10 }
-            Text{ text:"M"; color:Theme.bg; font.family:Theme.monoFont; font.pixelSize:9; font.bold:true; horizontalAlignment: Text.AlignHCenter; verticalAlignment: Text.AlignVCenter
-              Rectangle{ anchors.centerIn: parent; width: parent.width+8; height: 16; radius:4; color: Theme.accent; z:-1; visible: root.selectedIndex===3 }
-              width:12; height:12
-            }
-            Text{ text:"Manager"; color:Theme.fg; opacity: root.selectedIndex===3?1:0.7; font.family:Theme.monoFont; font.pixelSize:10; font.bold: root.selectedIndex===3 }
+          RowLayout{ Layout.alignment:Qt.AlignHCenter; spacing:8; visible: root.stage==="actions"
+            Text{ text:"↵ Run"; color:Theme.fg; opacity:0.85; font.family:Theme.monoFont; font.pixelSize:10; font.bold:true }
             Rectangle{ width:1; height:10; color:Theme.border; opacity:0.6 }
             Text{ text:"Esc Back"; color:Theme.fg; opacity:0.85; font.family:Theme.monoFont; font.pixelSize:10; font.bold:true }
           }
