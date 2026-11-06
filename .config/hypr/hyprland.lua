@@ -575,39 +575,35 @@ function GroupAll()
   local workspace = hl.get_active_workspace()
   if not workspace then return end
   local windows = hl.get_windows({ workspace = workspace })
-  if #windows < 2 then return end -- nothing to group
-  local common_group = windows[1].group
-  local all_one_group = common_group ~= nil
-  if all_one_group then
-    for _, window in pairs(windows) do
-      if window.group ~= common_group then
-        all_one_group = false
+  if #windows < 2 then return end
+  -- Skip if everything is already in one group
+  local group = windows[1].group
+  if group then
+    local all_grouped = true
+    for _, window in ipairs(windows) do
+      if window.group ~= group then
+        all_grouped = false
         break
       end
     end
+    if all_grouped then return end
   end
-  if all_one_group then return end
-  local active_win = hl.get_active_window()
-  local anchor = windows[1]
-  for _, window in pairs(windows) do
-    if active_win and window.address == active_win.address then
-      anchor = window
-      break
-    end
-  end
-  if anchor.group == nil then
-    hl.dispatch(hl.dsp.group.toggle({ window = anchor }))
+  -- Focus master and make it the anchor
+  hl.dispatch(hl.dsp.layout("focusmaster master"))
+  local master = hl.get_active_window()
+  if not master then return end
+  if not master.group then
+    hl.dispatch(hl.dsp.group.toggle({ window = master }))
   end
   local dissolved_groups = {}
-  for _, window in pairs(windows) do
-    if window.address ~= anchor.address then
-      if window.group ~= nil and window.group ~= anchor.group then
-        if not dissolved_groups[window.group] then
-          hl.dispatch(hl.dsp.group.toggle({ window = window }))
-          dissolved_groups[window.group] = true
-        end
+  for _, window in ipairs(windows) do
+    if window.address ~= master.address then
+      if window.group and window.group ~= master.group
+          and not dissolved_groups[window.group] then
+        hl.dispatch(hl.dsp.group.toggle({ window = window }))
+        dissolved_groups[window.group] = true
       end
-      for _, direction in pairs(directions) do
+      for _, direction in ipairs(directions) do
         hl.dispatch(hl.dsp.window.move({
           window = window,
           into_group = direction,
