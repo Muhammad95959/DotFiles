@@ -150,7 +150,7 @@ NOTIFY_WHITELIST=(
   "ffmpeg" "flatpak" "gcc" "go" "gradlew" "install-app" "magick" "make" "musicremover"
   "npm" "npx" "pacman" "paru" "pip" "pnpm" "rsync" "uninstall-app" "wget" "yt-dlp"
 )
-NOTIFY_THRESHOLD=10
+NOTIFY_THRESHOLD=5
 
 zmodload zsh/datetime
 
