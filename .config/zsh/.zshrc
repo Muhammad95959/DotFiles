@@ -145,38 +145,96 @@ compdef _paru_all_packages paru
 
 ### Command-finish notifications -------------------------------------------
 
-NOTIFY_WHITELIST=(
-  "adb" "aria2c" "audio-separator" "cargo" "cmake" "convert" "curl" "deno" "docker"
-  "ffmpeg" "flatpak" "gcc" "go" "gradlew" "install-app" "magick" "make" "musicremover"
-  "npm" "npx" "pacman" "paru" "pip" "pnpm" "rsync" "uninstall-app" "wget" "yt-dlp"
-)
-NOTIFY_THRESHOLD=5
-
+autoload -Uz add-zsh-hook
 zmodload zsh/datetime
+
+_notify_focused_pid() {
+  if [[ -n $HYPRLAND_INSTANCE_SIGNATURE ]]; then
+    local win ws
+    win=$(hyprctl activewindow -j 2>/dev/null)
+    ws=$(hyprctl activeworkspace -j 2>/dev/null | jq -r '.id')
+    jq -r --argjson ws "${ws:-null}" \
+      'select(.workspace.id == $ws) | .pid // empty' <<< "$win"
+  elif [[ -n $SWAYSOCK ]]; then
+    swaymsg -t get_tree 2>/dev/null | jq -r '.. | select(.focused? == true) | .pid // empty'
+  elif [[ -n $NIRI_SOCKET ]]; then
+    niri msg -j focused-window 2>/dev/null | jq -r '.pid // empty'
+  fi
+}
+
+_notify_is_ancestor() {
+  local p=$2
+  while (( p > 1 )); do
+    [[ $p == $1 ]] && return 0
+    p=$(ps -o ppid= -p $p 2>/dev/null)
+    p=${p//[[:space:]]/}
+    [[ -z $p ]] && break
+  done
+  return 1
+}
+
+_notify_tmux_client_pids() {
+  local sid wa pa
+  read -r sid wa pa <<< "$(tmux display-message -p -t $TMUX_PANE \
+    '#{session_id} #{window_active} #{pane_active}' 2>/dev/null)"
+  [[ $wa == 1 && $pa == 1 ]] || return
+  tmux list-clients -F '#{session_id} #{client_pid}' 2>/dev/null \
+    | awk -v s=$sid '$1 == s { print $2 }'
+}
+
+_notify_kitty_focused() {
+  [[ -z $1 ]] && return 0
+  local out=$(kitten @ ls 2>/dev/null)
+  [[ -z $out ]] && return 0
+  jq -e --argjson id "$1" \
+    'any(.[]; .is_focused and any(.tabs[]; .is_focused and any(.windows[]; .id == $id and .is_focused)))' \
+    <<< "$out" >/dev/null
+}
+
+_notify_term_focused() {
+  local fpid=$(_notify_focused_pid)
+  [[ -z $fpid ]] && return 1
+
+  local -a pids
+  local pid kid
+  if [[ -n $TMUX ]]; then
+    pids=(${(f)"$(_notify_tmux_client_pids)"})
+  else
+    pids=($$)
+  fi
+
+  for pid in $pids; do
+    _notify_is_ancestor $fpid $pid || continue
+    kid=$(tr '\0' '\n' < /proc/$pid/environ 2>/dev/null | sed -n 's/^KITTY_WINDOW_ID=//p')
+    _notify_kitty_focused $kid && return 0
+  done
+  return 1
+}
 
 _notify_preexec() {
   _notify_cmd_start=$EPOCHSECONDS
-  _notify_cmd_name=${1%% *}
+  _notify_cmd_name=${1[1,80]}
 }
 
 _notify_precmd() {
   local exit_code=$?
   [[ -z $_notify_cmd_start ]] && return
   local elapsed=$(( EPOCHSECONDS - _notify_cmd_start ))
-  local base_cmd=${_notify_cmd_name:t}
-
-  if (( elapsed >= NOTIFY_THRESHOLD )) && (( ${NOTIFY_WHITELIST[(Ie)$base_cmd]} )); then
-    case $exit_code in
-      0) notify-send "Done" "$_notify_cmd_name finished (${elapsed}s, exit $exit_code)" ;;
-      130|131|143) ;;
-      *) notify-send -u critical "Error" "$_notify_cmd_name failed (${elapsed}s, exit $exit_code)" ;;
-    esac
-  fi
+  local cmd=$_notify_cmd_name
   unset _notify_cmd_start _notify_cmd_name
+  _notify_term_focused && return
+  case $exit_code in
+    0) notify-send "Done" "$cmd (${elapsed}s)" ;;
+    130|131|143) ;;  # Ctrl-C / SIGHUP / SIGTERM: you did that yourself
+    *) notify-send -u critical "Failed" "$cmd (${elapsed}s, exit $exit_code)" ;;
+  esac
 }
 
 add-zsh-hook preexec _notify_preexec
-add-zsh-hook precmd _notify_precmd
+add-zsh-hook precmd  _notify_precmd
+
+# Manual override: notify regardless of focus, e.g. `n make -j8`
+n() { "$@"; local c=$?; notify-send "Finished" "$* (exit $c)"; return $c }
 
 ### Environment variables -------------------------------------------------
 
