@@ -531,6 +531,7 @@ _adb_pick_device() {
   for line in "${(@f)$(adb devices -l)}"; do
     [[ "$line" == *" device "* ]] || continue
     serial="${line%% device *}"
+    serial="${serial%"${serial##*[![:space:]]}"}"
     attrs="${line#* device }"
     label=""
     [[ "$attrs" == *model:* ]] && label="${${attrs#*model:}%%[[:space:]]*}"
