@@ -37,6 +37,7 @@ Scope {
   readonly property string scriptPath: Quickshell.shellPath("modules/redroid/redroid.sh")
   // ── Config: Redroid versions and their Docker images ───────────────
   readonly property var versionConfigs: [
+    { version: 8, image: "redroid/redroid:8.1.0-latest" },
     { version: 12, image: "redroid/redroid:12.0.0-latest" },
     { version: 13, image: "redroid/redroid:13.0.0-latest" },
     { version: 14, image: "redroid/redroid:14.0.0-latest" },

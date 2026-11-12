@@ -4,7 +4,7 @@ set -u
 
 export PATH="$HOME/.local/bin:$HOME/.android/Sdk/platform-tools:$HOME/Android/Sdk/platform-tools:/usr/local/bin:/usr/bin:/bin:$PATH"
 
-VERSIONS=(12 13 14 15)
+VERSIONS=(8 12 13 14 15)
 NAME_PREFIX="redroid"
 BASE_PORT=5500
 STATE_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/quickshell/redroid"
@@ -111,6 +111,8 @@ cmd_start() {
   if [ -z "$image" ]; then
     if [ "$v" = "15" ] && docker_cmd images --format '{{.Repository}}:{{.Tag}}' 2>/dev/null | grep -qx 'redroid15-patched:v1'; then
       image="redroid15-patched:v1"
+    elif [ "$v" = "8" ]; then
+      image="redroid/redroid:8.1.0-latest"
     else
       image="redroid/redroid:${v}.0.0-latest"
     fi
@@ -348,7 +350,7 @@ cmd_versions() {
     versions=$(sudo docker ps --format '{{.Names}}' 2>/dev/null | sed -n 's/^redroid\([0-9]*\)$/\1/p' | sort -nu | tr '\n' ' ')
   fi
   if [ -z "$versions" ]; then
-    versions="12 13 14 15"
+    versions="8 12 13 14 15"
   fi
   printf '%s\n' "$versions" | tr ' ' '\n' | grep -E '^[0-9]+$' | sort -nu | tr '\n' ' '
   echo
