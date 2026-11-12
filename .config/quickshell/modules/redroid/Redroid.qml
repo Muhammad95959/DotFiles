@@ -20,9 +20,10 @@ Scope {
     query = ""
     selectedIndex = 0
     sizeMode = "start"
+    pendingKind = "version"
     pendingVersion = -1
+    pendingAvd = ""
     _blockHover = true
-    loadPins()
     refresh()
     refreshTimer.restart()
   }
@@ -37,13 +38,24 @@ Scope {
   readonly property string scriptPath: Quickshell.shellPath("modules/redroid/redroid.sh")
   // ── Config: Redroid versions and their Docker images ───────────────
   readonly property var versionConfigs: [
-    { version: 8, image: "redroid/redroid:8.1.0-latest" },
-    { version: 12, image: "redroid/redroid:12.0.0-latest" },
-    { version: 13, image: "redroid/redroid:13.0.0-latest" },
-    { version: 14, image: "redroid/redroid:14.0.0-latest" },
-    { version: 15, image: "redroid/redroid:15.0.0-latest" }
+    { version: 15, name: "Android 15.0", image: "redroid/redroid:15.0.0-latest" },
+    { version: 14, name: "Android 14.0", image: "redroid/redroid:14.0.0-latest" },
+    { version: 13, name: "Android 13.0", image: "redroid/redroid:13.0.0-latest" },
+    { version: 12, name: "Android 12.0", image: "redroid/redroid:12.0.0-latest" },
+    { version: 8, name: "Android 08.1", image: "redroid/redroid:8.1.0-latest" }
   ]
   readonly property var versions: versionConfigs.map(c => c.version)
+
+  // AVDs are listed statically so the menu is filled instantly; only their
+  // running state and adb serial are refreshed in the background.
+  readonly property var avdConfigs: [
+    { id: "Android_16.0", name: "Android 16.0", api: "android-36.1", width: 1344, height: 2992, density: 480 },
+    { id: "Android_07.0", name: "Android 07.0", api: "android-24", width: 720, height: 1280, density: 320 }
+  ]
+
+  readonly property string iconWaydroid: "󰀲"
+  readonly property string iconRedroid: "󰡨"
+  readonly property string iconAvd: "󰦉"
 
   function imageFor(v) {
     for (let i = 0; i < versionConfigs.length; i++) {
@@ -52,15 +64,36 @@ Scope {
     return "redroid/redroid:" + v + ".0.0-latest"
   }
 
+  function nameFor(v) {
+    for (let i = 0; i < versionConfigs.length; i++) {
+      if (versionConfigs[i].version === v) return versionConfigs[i].name
+    }
+    return "Android " + v
+  }
+
   property var versionStates: ({})
+  property var versionSizes: ({})
+  property var emuStates: ({})
+  readonly property var emulators: avdConfigs.map(function(c) {
+    const s = emuStates[c.id] || ({})
+    return {
+      id: c.id, name: c.name, api: c.api,
+      width: c.width, height: c.height, density: c.density,
+      state: s.state || "stopped", serial: s.serial || ""
+    }
+  })
   property string stage: "versions"
   property string query: ""
   property int selectedIndex: 0
   property string sizeMode: "start"
+  property string pendingKind: "version"
   property int pendingVersion: -1
+  property string pendingAvd: ""
+  readonly property bool pendingWaydroid: pendingKind === "waydroid"
+  readonly property bool pendingEmu: pendingKind === "emu"
   property bool _blockHover: false
-  property var pinnedRatios: []
-  readonly property string pinFile: Quickshell.env("HOME") + "/.local/share/quickshell/redroid/pinned-sizes.json"
+
+  readonly property var defaultSize: ({ width: 1080, height: 1920, density: 420 })
 
   readonly property var sizeOptions: [
     { label: "Small Phone — 720×1280", width: 720, height: 1280, density: 320 },
@@ -75,17 +108,73 @@ Scope {
     { label: "Large Tablet — 1600×2560", width: 1600, height: 2560, density: 320 }
   ]
 
-  readonly property var actions: [
-    { key: "resize", label: "open & resize", icon: "󰖃" },
-    { key: "stop", label: "Stop", icon: "󰐥" },
-    { key: "restart", label: "Restart", icon: "󰑓" },
-    { key: "kill", label: "Force kill", icon: "󰚌" },
-    { key: "screenshot", label: "Screenshot", icon: "󰄀" },
-    { key: "logs", label: "Follow logs", icon: "󰈙" },
-    { key: "shell", label: "ADB shell", icon: "󰆍" },
-    { key: "copy", label: "Copy ADB address", icon: "󰅇" },
-    { key: "clear", label: "Clear data (danger)", icon: "󰃢" }
-  ]
+  readonly property var pendingEmulator: {
+    for (let i = 0; i < emulators.length; i++)
+      if (emulators[i].id === pendingAvd) return emulators[i]
+    return null
+  }
+
+  readonly property var deviceActions: {
+    if (pendingWaydroid) return waydroidActions
+    if (pendingEmu) return emulatorActions
+    const running = (versionStates[String(pendingVersion)] || "stopped") === "running"
+    if (running) {
+      return [
+        { key: "open", label: "Open", icon: "󰖯" },
+        { key: "resize", label: "Resize screen…", icon: "󰍹" },
+        { key: "screenshot", label: "Screenshot", icon: "󰄀" },
+        { key: "restart", label: "Restart", icon: "󰑓" },
+        { key: "stop", label: "Stop", icon: "󰓛" },
+        { key: "kill", label: "Force kill", icon: "󰚌" },
+        { key: "logs", label: "Follow logs", icon: "󰈙" },
+        { key: "shell", label: "ADB shell", icon: "󰆍" },
+        { key: "copy", label: "Copy ADB address", icon: "󰅇" },
+        { key: "doctor", label: "Diagnostics report", icon: "󰒓" },
+        { key: "clear", label: "Clear data (danger)", icon: "󰃢" }
+      ]
+    }
+    const sz = sizeFor(pendingVersion)
+    return [
+      { key: "start", label: "Start & open", subtitle: sizeLabel(sz), icon: "󰐥" },
+      { key: "start-size", label: "Start with size…", icon: "󰍹" },
+      { key: "logs", label: "Follow logs", icon: "󰈙" },
+      { key: "doctor", label: "Diagnostics report", icon: "󰒓" },
+      { key: "clear", label: "Clear data (danger)", icon: "󰃢" }
+    ]
+  }
+
+  readonly property var waydroidActions: {
+    const running = (versionStates["waydroid"] || "stopped") === "running"
+    const all = [
+      { key: "start", label: "Start & open", icon: "󰐥", when: "stopped" },
+      { key: "open", label: "Open UI", icon: "󰖯", when: "running" },
+      { key: "copy", label: "Copy ADB address", icon: "󰅇", when: "running" },
+      { key: "stop", label: "Stop", icon: "󰓛", when: "running" },
+      { key: "restart", label: "Restart", icon: "󰑓", when: "running" },
+      { key: "logs", label: "Follow logs", icon: "󰈙", when: "any" },
+      { key: "shell", label: "Android shell", icon: "󰆍", when: "running" },
+      { key: "screenshot", label: "Screenshot", icon: "󰄀", when: "running" },
+      { key: "doctor", label: "Diagnostics report", icon: "󰒓", when: "any" }
+    ]
+    return all.filter(a => a.when === "any" || a.when === (running ? "running" : "stopped"))
+  }
+
+  readonly property var emulatorActions: {
+    const running = pendingEmulator ? pendingEmulator.state === "running" : false
+    const all = [
+      { key: "start", label: "Start & open", icon: "󰐥", when: "stopped" },
+      { key: "cold", label: "Cold boot", icon: "󰜉", when: "stopped" },
+      { key: "open", label: "Focus window", icon: "󰖯", when: "running" },
+      { key: "screenshot", label: "Screenshot", icon: "󰄀", when: "running" },
+      { key: "restart", label: "Restart", icon: "󰑓", when: "running" },
+      { key: "stop", label: "Stop", icon: "󰓛", when: "running" },
+      { key: "logs", label: "Follow logcat", icon: "󰈙", when: "any" },
+      { key: "shell", label: "ADB shell", icon: "󰆍", when: "running" },
+      { key: "copy", label: "Copy ADB serial", icon: "󰅇", when: "running" },
+      { key: "doctor", label: "Diagnostics report", icon: "󰒓", when: "any" }
+    ]
+    return all.filter(a => a.when === "any" || a.when === (running ? "running" : "stopped"))
+  }
 
   readonly property var confirmOptions: [
     { key: "yes", label: "Yes, delete container and data", icon: "󰃢" },
@@ -99,38 +188,92 @@ Scope {
     return true
   }
 
+  function parseSizeStr(s) {
+    const m = /^(\d{2,4})x(\d{2,4})@(\d{2,3})$/.exec(String(s || "").trim())
+    if (!m) return null
+    return { width: parseInt(m[1]), height: parseInt(m[2]), density: parseInt(m[3]) }
+  }
+
+  function sizeFor(v) {
+    return parseSizeStr(versionSizes[String(v)]) || defaultSize
+  }
+
+  function sizeLabel(s) {
+    return s.width + "×" + s.height + " @" + s.density
+  }
+
+  // Accepts "1440x3200@560", "1440×3200 560", "1440 3200 560".
+  function sizeQuery(q) {
+    const m = /^\s*(\d{2,4})\s*(?:[x×*]\s*|\s+)(\d{2,4})\s*[@:\s]\s*(\d{2,3})\s*$/.exec(String(q || ""))
+    if (!m) return null
+    return { width: parseInt(m[1]), height: parseInt(m[2]), density: parseInt(m[3]) }
+  }
+
   readonly property var currentModel: {
     const q = query.toLowerCase().trim()
     const toks = q === "" ? [] : q.split(/\s+/)
     let out = []
 
     if (stage === "versions") {
+      const wdState = versionStates["waydroid"] || "stopped"
+      const wdTitle = "Waydroid"
+      const wdSubtitle = "container session"
+      if (versionStates["waydroid"] !== undefined && matches(wdTitle + " " + wdSubtitle + " " + wdState + " android", toks))
+        out.push({ kind: "waydroid", version: "waydroid", state: wdState, title: wdTitle, subtitle: wdSubtitle, icon: iconWaydroid })
       for (let i = 0; i < versions.length; i++) {
         const v = versions[i]
         const state = versionStates[v] || "stopped"
-        const title = "Android " + v
-        const subtitle = "redroid" + v + " • localhost:" + (5500 + v)
+        const title = nameFor(v)
+        const saved = versionSizes[String(v)]
+        const subtitle = "redroid" + v + " • " + (saved || "localhost:" + (5500 + v))
         if (!matches(title + " " + subtitle + " " + state, toks)) continue
-        out.push({ kind: "version", version: v, state: state, title: title, subtitle: subtitle, icon: "󰀲" })
+        out.push({ kind: "version", version: v, state: state, title: title, subtitle: subtitle, icon: iconRedroid })
+      }
+      for (let i = 0; i < emulators.length; i++) {
+        const e = emulators[i]
+        const title = e.name || e.id
+        const subtitle = "AVD • " + (e.api || "android") +
+          (e.width ? " • " + e.width + "×" + e.height : "") +
+          (e.serial ? " • " + e.serial : "")
+        if (!matches(title + " " + subtitle + " " + e.state + " emulator avd", toks)) continue
+        out.push({ kind: "emulator", avd: e.id, state: e.state, title: title, subtitle: subtitle, icon: iconAvd })
       }
     } else if (stage === "sizes") {
-      let pinned = []
-      let rest = []
+      const running = (versionStates[String(pendingVersion)] || "stopped") === "running"
+      const saved = parseSizeStr(versionSizes[String(pendingVersion)])
+      const current = saved || defaultSize
+      out.push({
+        kind: "size", key: "last",
+        width: current.width, height: current.height, density: current.density,
+        title: (saved ? "Last used" : "Default") + " — " + current.width + "×" + current.height,
+        subtitle: current.density + " dpi" + (saved ? " • what " + nameFor(pendingVersion) + " ran with" : " • first-run default"),
+        icon: "󰄬"
+      })
+      if (running && sizeMode === "resize")
+        out.push({ kind: "size", key: "reset", title: "Container default", subtitle: "wm size reset • native resolution", icon: "󰑓" })
+
       for (let i = 0; i < sizeOptions.length; i++) {
         const s = sizeOptions[i]
         const subtitle = s.width + "×" + s.height + " • " + s.density + " dpi"
         if (!matches(s.label + " " + subtitle, toks)) continue
-        const key = s.width + "x" + s.height + ":" + s.density
-        const isPinned = (root.pinnedRatios || []).indexOf(key) >= 0
-        const item = { kind: "size", key: key, pinned: isPinned, width: s.width, height: s.height, density: s.density, title: s.label, subtitle: subtitle, icon: "󰍹" }
-        if (isPinned) { pinned.push(item) } else { rest.push(item) }
+        out.push({ kind: "size", key: s.width + "x" + s.height + ":" + s.density, width: s.width, height: s.height, density: s.density, title: s.label, subtitle: subtitle, icon: "󰍹" })
       }
-      out = pinned.concat(rest)
+
+      const parsed = sizeQuery(query)
+      if (parsed || matches("custom size resolution", toks)) {
+        out.push({
+          kind: "size", key: "custom", custom: parsed,
+          title: parsed ? "Custom — " + parsed.width + "×" + parsed.height : "Custom size…",
+          subtitle: parsed ? parsed.density + " dpi" : "type 1440x3200@560 in the search field",
+          icon: "󰌷"
+        })
+      }
     } else if (stage === "actions") {
-      for (let i = 0; i < actions.length; i++) {
-        const a = actions[i]
-        if (!matches(a.label, toks)) continue
-        out.push({ kind: "action", key: a.key, title: a.label, subtitle: "", icon: a.icon })
+      const list = deviceActions
+      for (let i = 0; i < list.length; i++) {
+        const a = list[i]
+        if (!matches(a.label + " " + (a.subtitle || ""), toks)) continue
+        out.push({ kind: "action", key: a.key, title: a.label, subtitle: a.subtitle || "", icon: a.icon })
       }
     } else if (stage === "confirm") {
       for (let i = 0; i < confirmOptions.length; i++) {
@@ -153,8 +296,15 @@ Scope {
     let n = 0
     for (let i = 0; i < versions.length; i++)
       if ((versionStates[versions[i]] || "stopped") === "running") n++
+    for (let i = 0; i < emulators.length; i++)
+      if (emulators[i].state === "running") n++
+    if ((versionStates["waydroid"] || "stopped") === "running") n++
     return n
   }
+
+  readonly property string pendingName: pendingWaydroid
+    ? "Waydroid"
+    : (pendingEmu ? (pendingEmulator ? pendingEmulator.name : pendingAvd) : nameFor(pendingVersion))
 
   readonly property string stageIcon: {
     if (stage === "sizes") return "󰍹"
@@ -164,61 +314,79 @@ Scope {
 
   readonly property string headerTitle: {
     if (stage === "versions") return "Redroid"
-    if (stage === "sizes") return sizeMode === "resize" ? "Resize Android " + pendingVersion : "Android " + pendingVersion + " • screen size"
-    if (stage === "actions") return "Android " + pendingVersion
-    if (stage === "confirm") return "Clear Android " + pendingVersion + " data?"
+    if (stage === "sizes") return (sizeMode === "resize" ? "Resize " : "Start ") + pendingName + " • screen size"
+    if (stage === "actions") return pendingName
+    if (stage === "confirm") return "Clear " + nameFor(pendingVersion) + " data?"
     return "Redroid"
   }
 
   readonly property string headerSubtitle: {
-    if (stage === "versions") return currentModel.length + " versions • " + runningCount + " running"
-    if (stage === "sizes") return sizeMode === "resize" ? "pick a new resolution and density" : "pick a resolution and density"
-    if (stage === "actions") return "running on localhost:" + (5500 + pendingVersion)
+    if (stage === "versions") return currentModel.length + " targets • " + runningCount + " running"
+    if (stage === "sizes") return sizeMode === "resize" ? "applies live • pick a size" : "pick a size to boot with"
+    if (stage === "actions") {
+      if (pendingWaydroid)
+        return (versionStates["waydroid"] || "stopped") === "running" ? "running • container session" : "stopped • container session"
+      if (pendingEmu)
+        return (pendingEmulator && pendingEmulator.state === "running"
+          ? "running • " + (pendingEmulator.serial || "AVD")
+          : "stopped • " + (pendingEmulator ? (pendingEmulator.api || "AVD") : "AVD"))
+      return "localhost:" + (5500 + pendingVersion) + " • " + (versionStates[String(pendingVersion)] || "stopped")
+    }
     if (stage === "confirm") return "this deletes the container and its data volume"
     return ""
   }
 
   readonly property string searchPlaceholder: {
     if (stage === "versions") return "Search Android version…"
-    if (stage === "sizes") return "Search resolution…"
+    if (stage === "sizes") return "Search size — or type 1440x3200@560"
     if (stage === "actions") return "Search action…"
     return "Search…"
   }
 
   function refresh() {
-    const vlist = versions.join(" ")
-    if (!listProc.running) {
-      listProc.command = ["sh", "-c", "for v in " + vlist + "; do port=$((5500+v)); if ss -ltn 2>/dev/null | awk '{print $4}' | grep -q \":$port$\"; then echo \"$v running\"; else echo \"$v stopped\"; fi; done"]
-      listProc.running = true
-    }
+    if (!listProc.running) listProc.running = true
+    if (!emuProc.running) emuProc.running = true
   }
 
   Process {
     id: listProc
-    command: ["sh", "-c", "for v in $(seq 8 20); do port=$((5500+v)); if ss -ltn 2>/dev/null | awk '{print $4}' | grep -q \":$port$\"; then echo \"$v running\"; else echo \"$v stopped\"; fi; done"]
+    command: ["bash", root.scriptPath, "status"].concat(root.versions.map(function(v) { return String(v) }))
     stdout: StdioCollector {
       waitForEnd: true
       onStreamFinished: {
         const lines = String(text || "").split("\n")
         let map = {}
+        let sizes = {}
         for (let i = 0; i < lines.length; i++) {
           const parts = lines[i].trim().split(/\s+/)
-          if (parts.length >= 2) map[parts[0]] = parts[1]
+          if (parts.length >= 2) {
+            map[parts[0]] = parts[1]
+            if (parts.length >= 3) sizes[parts[0]] = parts[2]
+          }
         }
         root.versionStates = map
+        root.versionSizes = sizes
         if (root.selectedIndex >= root.currentModel.length) root.selectedIndex = 0
       }
     }
   }
 
   Process {
-    id: pinLoadProc
-    command: ["sh", "-c", "cat '" + root.pinFile + "' 2>/dev/null || echo '[]'"]
+    id: emuProc
+    command: ["bash", root.scriptPath, "emulators"]
     stdout: StdioCollector {
       waitForEnd: true
       onStreamFinished: {
-        try { root.pinnedRatios = JSON.parse(String(text || "[]").trim() || "[]") }
-        catch (e) { root.pinnedRatios = [] }
+        const lines = String(text || "").split("\n")
+        let states = {}
+        for (let i = 0; i < lines.length; i++) {
+          if (lines[i].trim() === "") continue
+          const p = lines[i].split("\t")
+          if (p.length < 4) continue
+          states[p[0]] = { state: p[3], serial: p[4] || "" }
+        }
+        root.emuStates = states
+        if (root.selectedIndex >= root.currentModel.length) root.selectedIndex = 0
       }
     }
   }
@@ -249,6 +417,14 @@ Scope {
     Quickshell.execDetached(args)
   }
 
+  function runWaydroid(action) {
+    Quickshell.execDetached(["bash", root.scriptPath, "waydroid", action])
+  }
+
+  function runEmu(action) {
+    Quickshell.execDetached(["bash", root.scriptPath, "emu", action, root.pendingAvd])
+  }
+
   function runV(cmd, v) {
     if (cmd === "restart" || cmd === "start" || cmd === "resize") {
       const img = imageFor(v)
@@ -258,41 +434,34 @@ Scope {
     }
   }
 
-  function loadPins() {
-    pinLoadProc.running = false
-    pinLoadProc.running = true
-  }
-
-  function savePins() {
-    const payload = JSON.stringify(root.pinnedRatios || [])
-    const dir = Quickshell.env("HOME") + "/.local/share/quickshell/redroid"
-    Quickshell.execDetached(["sh", "-c", "mkdir -p '" + dir + "' && cat > '" + root.pinFile + "' <<'EOF'\n" + payload + "\nEOF\n"])
-  }
-
-  function togglePin(key) {
-    let arr = (root.pinnedRatios || []).slice()
-    const i = arr.indexOf(key)
-    if (i >= 0) arr.splice(i, 1)
-    else arr.push(key)
-    root.pinnedRatios = arr
-    savePins()
-  }
-
   function chooseVersion(idx) {
     const list = currentModel
     if (idx < 0 || idx >= list.length) return
     const e = list[idx]
-    pendingVersion = e.version
-    if (e.state === "running") {
+    if (e.kind === "waydroid") {
+      pendingKind = "waydroid"
+      pendingVersion = -1
+      pendingAvd = ""
       stage = "actions"
       selectedIndex = 0
       query = ""
-    } else {
-      sizeMode = "start"
-      stage = "sizes"
+      return
+    }
+    if (e.kind === "emulator") {
+      pendingKind = "emu"
+      pendingVersion = -1
+      pendingAvd = e.avd
+      stage = "actions"
       selectedIndex = 0
       query = ""
+      return
     }
+    pendingKind = "version"
+    pendingVersion = e.version
+    pendingAvd = ""
+    stage = "actions"
+    selectedIndex = 0
+    query = ""
   }
 
   function chooseSize(idx) {
@@ -300,7 +469,17 @@ Scope {
     if (idx < 0 || idx >= list.length) return
     const s = list[idx]
     if (pendingVersion < 0) return
-    run(sizeMode === "resize" ? "resize" : "start", pendingVersion, s)
+    if (s.key === "reset") {
+      runV("size-reset", pendingVersion)
+      close()
+      return
+    }
+    let size = s
+    if (s.key === "custom") {
+      size = s.custom || sizeQuery(query)
+      if (!size) return
+    }
+    run(sizeMode === "resize" ? "resize" : "start", pendingVersion, size)
     close()
   }
 
@@ -308,12 +487,34 @@ Scope {
     const list = currentModel
     if (idx < 0 || idx >= list.length) return
     const a = list[idx]
-    if (pendingVersion < 0) return
+    if (pendingVersion < 0 && !pendingWaydroid && !pendingEmu) return
+    if (pendingWaydroid) {
+      runWaydroid(a.key)
+      close()
+      return
+    }
+    if (pendingEmu) {
+      runEmu(a.key)
+      close()
+      return
+    }
+    if (a.key === "start-size") {
+      sizeMode = "start"
+      stage = "sizes"
+      selectedIndex = 0
+      query = ""
+      return
+    }
     if (a.key === "resize") {
       sizeMode = "resize"
       stage = "sizes"
       selectedIndex = 0
       query = ""
+      return
+    }
+    if (a.key === "start") {
+      run("start", pendingVersion, sizeFor(pendingVersion))
+      close()
       return
     }
     if (a.key === "clear") {
@@ -348,7 +549,7 @@ Scope {
     if (stage === "confirm") {
       stage = "actions"
     } else if (stage === "sizes") {
-      stage = sizeMode === "resize" ? "actions" : "versions"
+      stage = "actions"
     } else if (stage === "actions") {
       stage = "versions"
     } else {
@@ -391,17 +592,34 @@ Scope {
   }
 
   function openVersion(vstr, running) {
-    const v = parseInt(vstr)
-    if (isNaN(v)) return
+    const s = String(vstr || "")
+    const isWaydroid = /^waydroid$/i.test(s)
+    const isEmu = /^emu[: ]/i.test(s)
+    const v = parseInt(s)
+    if (!isWaydroid && !isEmu && isNaN(v)) return
     open()
-    pendingVersion = v
-    const isRunning = String(running || "") === "1" || (versionStates[v] || "stopped") === "running"
-    if (isRunning) {
+    if (isWaydroid) {
+      pendingKind = "waydroid"
+      pendingVersion = -1
+      pendingAvd = ""
       stage = "actions"
-    } else {
-      sizeMode = "start"
-      stage = "sizes"
+      selectedIndex = 0
+      query = ""
+      return
     }
+    if (isEmu) {
+      pendingKind = "emu"
+      pendingVersion = -1
+      pendingAvd = s.replace(/^emu[: ]\s*/i, "")
+      stage = "actions"
+      selectedIndex = 0
+      query = ""
+      return
+    }
+    pendingKind = "version"
+    pendingVersion = v
+    pendingAvd = ""
+    stage = "actions"
     selectedIndex = 0
     query = ""
   }
@@ -571,12 +789,6 @@ Scope {
                       root.pageMove(-1); event.accepted = true
                     } else if (event.key === Qt.Key_PageDown) {
                       root.pageMove(1); event.accepted = true
-                    } else if (event.key === Qt.Key_P && (event.modifiers & Qt.ControlModifier)) {
-                      if (root.stage === "sizes" && root.currentCount > 0) {
-                        const it = root.currentModel[root.selectedIndex]
-                        if (it && it.key) root.togglePin(it.key)
-                      }
-                      event.accepted = true
                     } else if (event.key === Qt.Key_Return || event.key === Qt.Key_Enter) {
                       root.onAccepted(); event.accepted = true
                     }
@@ -628,6 +840,7 @@ Scope {
                 id: del
                 required property var modelData
                 required property int index
+                readonly property bool isDeviceRow: modelData.kind === "version" || modelData.kind === "waydroid" || modelData.kind === "emulator"
                 width: listView.width
                 height: root.rowH
                 radius: Theme.radiusSm
@@ -643,7 +856,7 @@ Scope {
 
                   Rectangle {
                     width: 28; height: 28; radius: 6
-                    color: del.modelData.kind === "version"
+                    color: del.isDeviceRow
                       ? (del.modelData.state === "running" ? Qt.alpha(Theme.accent, 0.2) : Theme.bg)
                       : Qt.alpha(Theme.accent, 0.12)
                     border.color: Theme.border
@@ -653,7 +866,7 @@ Scope {
                       anchors.centerIn: parent
                       anchors.verticalCenterOffset: 0.5
                       text: del.modelData.icon || "󰀲"
-                      color: del.modelData.kind === "version" && del.modelData.state === "running" ? Theme.accent : Theme.fg
+                      color: del.isDeviceRow && del.modelData.state === "running" ? Theme.accent : Theme.fg
                       font.family: Theme.nerdFont
                       font.pixelSize: 12
                     }
@@ -695,23 +908,7 @@ Scope {
                   }
 
                   Rectangle {
-                    visible: del.modelData.kind === "size" && del.modelData.pinned
-                    width: 24; height: 24; radius: 6
-                    color: Qt.alpha(Theme.accent, 0.2)
-                    border.color: Qt.alpha(Theme.accent, 0.5)
-                    border.width: 1
-                    Layout.alignment: Qt.AlignVCenter
-                    Text {
-                      anchors.centerIn: parent
-                      text: "󰐃"
-                      color: Theme.accent
-                      font.family: Theme.nerdFont
-                      font.pixelSize: 11
-                    }
-                  }
-
-                  Rectangle {
-                    visible: del.modelData.kind === "version"
+                    visible: del.isDeviceRow
                     width: stateText.implicitWidth + 14
                     height: 18
                     radius: 9
@@ -763,7 +960,7 @@ Scope {
               Text {
                 text: {
                   if (root.stage === "versions") return "↵ select"
-                  if (root.stage === "sizes") return root.sizeMode === "resize" ? "↵ resize & open" : "↵ start & open"
+                  if (root.stage === "sizes") return root.sizeMode === "resize" ? "↵ resize" : "↵ start & open"
                   if (root.stage === "actions") return "↵ run"
                   return "↵ confirm"
                 }
@@ -775,8 +972,6 @@ Scope {
               }
               Rectangle { width: 1; height: 10; color: Theme.border; opacity: 0.6 }
               Text { text: root.stage === "versions" ? "Esc close" : "Esc back"; color: Theme.fg; opacity: 0.85; font.family: Theme.monoFont; font.pixelSize: 10; font.bold: true }
-              Rectangle { width: 1; height: 10; color: Theme.border; opacity: 0.6; visible: root.stage === "sizes" }
-              Text { text: "Ctrl+P pin"; color: Theme.fg; opacity: 0.85; font.family: Theme.monoFont; font.pixelSize: 10; font.bold: true; visible: root.stage === "sizes" }
               Rectangle { width: 1; height: 10; color: Theme.border; opacity: 0.6; visible: root.stage === "versions" }
               Text { text: root.runningCount + " running"; color: Theme.accent; font.family: Theme.monoFont; font.pixelSize: 9; visible: root.stage === "versions" }
             }
@@ -810,6 +1005,9 @@ Scope {
       return "ok"
     }
     function stop(version: string): string { root.runV("stop", parseInt(version)); return "ok" }
+    function fixWaydroid(): string { root.runWaydroid("start"); return "ok" }
+    function waydroid(action: string): string { root.runWaydroid(action || "start"); return "ok" }
+    function doctor(): string { Quickshell.execDetached(["bash", root.scriptPath, "doctor"]); return "ok" }
     function dismiss(version: string): string {
       Quickshell.execDetached(["qs", "ipc", "call", "notifications", "dismissApp", "Redroid " + version])
       return "ok"

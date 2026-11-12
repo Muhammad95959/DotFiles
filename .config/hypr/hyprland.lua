@@ -681,39 +681,6 @@ function BraveTranslate()
   end
 end
 
-function Waydroid()
-  local handle = io.popen("waydroid status 2>/dev/null")
-  if not handle then
-    hl.exec_cmd("notify-send 'waydroid' 'failed to run waydroid status'")
-    return
-  end
-  local output = handle:read("*a")
-  handle:close()
-  local session_running = output ~= nil and output:match("Session:%s*RUNNING") ~= nil
-  if session_running then
-    hl.exec_cmd([[sh -c '
-      choice=$(printf "Yes\nNo" | /home/muhammad/DotFiles/.config/quickshell/modules/qmenu/qmenu -p "Confirmation: Stop waydroid session?")
-      if [ "$choice" = "Yes" ]; then
-        waydroid session stop
-        notify-send "waydroid" "session stopped"
-      fi
-    ' &]])
-    return
-  end
-  hl.exec_cmd("waydroid session start")
-  hl.exec_cmd([[sh -c '
-    notify-send -r 91231 -t 10000 "waydroid" "starting session..."
-    for i in $(seq 1 10); do
-      if waydroid status 2>/dev/null | grep -q "Session:.*RUNNING"; then
-        waydroid show-full-ui &
-        exit 0
-      fi
-      sleep 1
-    done
-    notify-send -r 91231 -t 3000 "waydroid" "session did not start within 10s"
-  ' &]])
-end
-
 -----------------
 ---- SUBMAPS ----
 -----------------
@@ -866,7 +833,6 @@ hl.bind(mod .. " + s",              Scratchpad)
 hl.bind(mod .. " + t",              BraveTranslate)
 hl.bind(mod .. " + u",              hl.dsp.submap("layouts"))
 hl.bind(mod .. " + w",              hl.dsp.group.toggle())
-hl.bind(mod .. " + y",              Waydroid)
 
 hl.bind(mod .. " + SHIFT + RETURN", hl.dsp.exec_cmd("quickshell ipc call launcher toggle"))
 hl.bind(mod .. " + SHIFT + SPACE",  ToggleFloating)
