@@ -8,6 +8,7 @@
 - Skip verification steps for small changes that are unlikely to break the build.
 - When told to commit, always use one line commit message that is descriptive of the change made.
 - Use android cli instead of adb when possible.
+- Prefer Waydroid over the Android emulator (AVD / `emulator` / `sdkmanager` system images) for running and testing Android apps. Do not create or launch AVDs unless Waydroid is unavailable or the task requires something it cannot do.
 - When writing or translating text into Arabic:
   - Do not translate literally. Convey the meaning and intent, and rephrase
     freely so the result reads as if originally written in Arabic.
