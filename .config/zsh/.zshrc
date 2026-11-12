@@ -275,30 +275,30 @@ export FZF_DEFAULT_OPTS="$FZF_DEFAULT_OPTS \
 
 ### Aliases ---------------------------------------------------------------
 
-alias d='selected=$(grep -xv "$PWD" ~/.local/share/zdirs | fzf); [[ -n $selected ]] && cd "$selected"'
-alias ls='eza --icons -a --group-directories-first'
-alias ll='eza --icons -a --group-directories-first -l'
-alias wm='workmux'
-alias ta='tmux attach'
-alias quit='pkill -KILL -u $USER'
-alias softreboot='sudo systemctl soft-reboot'
-alias tree='eza --tree'
+alias autodlp='cd /tmp && auto-ytdlp; cd -'
+alias cbimage='wl-paste --type image/png > /tmp/clipboard.png && kitty +kitten icat /tmp/clipboard.png'
 alias cmatrix='unimatrix -n -s 96 -l o'
+alias copycmd='tail -n 2 $ZDOTDIR/.zhistory | head -n 1 | tr -d "\n" | wl-copy'
+alias cppath='printf "\"%s\"" "$PWD" | wl-copy'
+alias d='selected=$(grep -xv "$PWD" ~/.local/share/zdirs | fzf); [[ -n $selected ]] && cd "$selected"'
+alias fitwaydroid='for i in 1 2; do hyprctl dispatch "hl.dsp.window.resize({ x = 468, y = 1036 })"; done; waydroid adb connect'
+alias free-coding-models='free-coding-models --config-dir ~/.config/free-coding-models'
+alias hyprconfig='nvim $HOME/.config/hypr/hyprland.lua'
+alias litecli='echo -ne "\e[2 q" && litecli'
+alias ll='eza --icons -a --group-directories-first -l'
+alias ls='eza --icons -a --group-directories-first'
+alias musicremover='~/Scripts/video_music_remover.sh'
+alias nmtui='NEWT_COLORS=$(<~/.config/nmtui/palette) nmtui'
+alias pgcli='echo -ne "\e[2 q" && pgcli'
+alias quit='pkill -KILL -u $USER'
+alias salawat='printf "%s" "ﷺ" | wl-copy'
+alias softreboot='sudo systemctl soft-reboot'
+alias systemd-plot='systemd-analyze plot > /tmp/plot.svg && brave-origin --test-type /tmp/plot.svg'
+alias ta='tmux attach'
+alias tree='eza --tree'
+alias wm='workmux'
 alias zrefresh='source $ZDOTDIR/.zshrc'
 alias zshrc='nvim $ZDOTDIR/.zshrc'
-alias autodlp='cd /tmp && auto-ytdlp; cd -'
-alias pgcli='echo -ne "\e[2 q" && pgcli'
-alias litecli='echo -ne "\e[2 q" && litecli'
-alias musicremover='~/Scripts/video_music_remover.sh'
-alias hyprconfig='nvim $HOME/.config/hypr/hyprland.lua'
-alias webtemplate='cp -r /mnt/Disk_D/Muhammad/Website-Template/* .'
-alias cppath='printf "\"%s\"" "$PWD" | wl-copy'
-alias salawat='printf "%s" "ﷺ" | wl-copy'
-alias copycmd='tail -n 2 $ZDOTDIR/.zhistory | head -n 1 | tr -d "\n" | wl-copy'
-alias cbimage='wl-paste --type image/png > /tmp/clipboard.png && kitty +kitten icat /tmp/clipboard.png'
-alias free-coding-models='free-coding-models --config-dir ~/.config/free-coding-models'
-alias systemd-plot='systemd-analyze plot > /tmp/plot.svg && brave-origin --test-type /tmp/plot.svg'
-alias fitwaydroid='for i in 1 2; do hyprctl dispatch "hl.dsp.window.resize({ x = 468, y = 1036 })"; done; waydroid adb connect'
 
 if command -v pacman &> /dev/null; then
   alias paruf='(pacman -Slq; cat ~/.cache/aur/packages.txt) | sort -u \
@@ -427,11 +427,12 @@ function audiosep() {
 rd() {
   local v=$1
   [[ -z $v ]] && {
-    echo "usage: rd <12|13|14|15>"
+    echo "usage: rd <8|12|13|14|15>"
     return 1
   }
 
-  local name="redroid$v" port=$((5500 + v)) tries=0
+  local name="redroid$v" port=$((5500 + v)) tries=0 image="redroid/redroid:${v}.0.0-latest"
+  [[ "$v" = "8" ]] && image="redroid/redroid:8.1.0-latest"
 
   if ! command -v fzf >/dev/null 2>&1; then
     echo "Error: fzf is not installed."
@@ -479,7 +480,7 @@ Large Tablet      1600x2560  320"
     sudo docker run -itd --rm --privileged --name "$name" \
       -v "${name}-data:/data" \
       -p "$port:5555" \
-      "redroid/redroid:${v}.0.0-latest" \
+      "$image" \
       androidboot.redroid_gpu_mode=host \
       androidboot.redroid_fps=60 \
       androidboot.redroid_width="$width" \
@@ -509,11 +510,13 @@ Large Tablet      1600x2560  320"
     --no-audio --hwdec=disabled --max-fps=60 -b 16M &!
 }
 
+alias rd8='rd 8'
 alias rd12='rd 12'
 alias rd13='rd 13'
 alias rd14='rd 14'
 alias rd15='rd 15'
 
+alias rdstop8='sudo docker stop redroid8'
 alias rdstop12='sudo docker stop redroid12'
 alias rdstop13='sudo docker stop redroid13'
 alias rdstop14='sudo docker stop redroid14'
@@ -554,6 +557,16 @@ _adb_pick_device() {
   echo "Using device: $REPLY"
 }
 
+_adb_serials() {
+  local line serial
+  for line in "${(@f)$(adb devices -l)}"; do
+    [[ "$line" == *" device "* ]] || continue
+    serial="${line%% device *}"
+    serial="${serial%"${serial##*[![:space:]]}"}"
+    echo "$serial"
+  done
+}
+
 _android_app_id() {
   local module="${1:-app}" json="${1:-app}/build/AndroidProject.json" gradle app_id
   gradle="${module}/build.gradle.kts"
@@ -564,15 +577,6 @@ _android_app_id() {
   REPLY="$app_id"
 }
 
-function install-app() {
-  [[ -f ./gradlew ]] || { echo "No gradlew found — run from project root." >&2; return 1; }
-  local module="${1:-app}"
-  _adb_pick_device || return 1
-  local serial="$REPLY"
-  echo "Installing :$module on '$serial'"
-  android run --device "$serial" ":$module"
-}
-
 function uninstall-app() {
   [[ -f ./gradlew ]] || { echo "No gradlew found — run from project root." >&2; return 1; }
   _android_app_id "$1" || return 1
@@ -581,6 +585,27 @@ function uninstall-app() {
   local serial="$REPLY"
   echo "Uninstalling $app_id from '$serial'"
   adb -s "$serial" shell pm uninstall "$app_id"
+}
+
+function install-app() {
+  local -A opts
+  zparseopts -D -E -A opts a
+  [[ -f ./gradlew ]] || { echo "No gradlew found — run from project root." >&2; return 1; }
+  local module="${1:-app}" serials serial
+  serials=(${(f)"$(_adb_serials)"})
+  [[ ${#serials[@]} -eq 0 ]] && { echo "No ADB devices found." >&2; return 1; }
+  if (( ${+opts[-a]} )); then
+    echo "Installing :$module on all connected devices…"
+    for serial in "${serials[@]}"; do
+      echo "Installing :$module on '$serial'"
+      android run --device "$serial" ":$module"
+    done
+  else
+    _adb_pick_device || return 1
+    local serial="$REPLY"
+    echo "Installing :$module on '$serial'"
+    android run --device "$serial" ":$module"
+  fi
 }
 
 function logcat() {
@@ -594,7 +619,11 @@ function logcat() {
     awk -v p="package:${app_id} " 'index($0, p) == 1 { sub(/.*uid:/, ""); print; exit }')
   [[ -z "$uid" ]] && { echo "$app_id is not installed on $serial." >&2; return 1; }
   echo "Logcat for $app_id (uid $uid) on $serial (Ctrl-C to stop)"
-  adb -s "$serial" logcat -v color --uid="$uid"
+  if adb -s "$serial" shell logcat --help 2>&1 | grep -q -- "--uid"; then
+    adb -s "$serial" logcat -v color --uid="$uid"
+  else
+    adb -s "$serial" logcat -v color,uid | awk -v u="$uid" '$3 == u'
+  fi
 }
 
 function start-emu() {
