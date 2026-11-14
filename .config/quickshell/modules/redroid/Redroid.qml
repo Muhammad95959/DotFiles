@@ -42,6 +42,8 @@ Scope {
     { version: 14, name: "Android 14.0", image: "redroid/redroid:14.0.0-latest" },
     { version: 13, name: "Android 13.0", image: "redroid/redroid:13.0.0-latest" },
     { version: 12, name: "Android 12.0", image: "redroid/redroid:12.0.0-latest" },
+    { version: 10, name: "Android 10.0", image: "redroid/redroid:10.0.0-latest" },
+    { version: 9, name: "Android 09.0", image: "redroid/redroid:9.0.0-latest" },
     { version: 8, name: "Android 08.1", image: "redroid/redroid:8.1.0-latest" }
   ]
   readonly property var versions: versionConfigs.map(c => c.version)
@@ -127,7 +129,7 @@ Scope {
         { key: "stop", label: "Stop", icon: "󰓛" },
         { key: "kill", label: "Force kill", icon: "󰚌" },
         { key: "logs", label: "Follow logs", icon: "󰈙" },
-        { key: "shell", label: "ADB shell", icon: "󰆍" },
+        { key: "shell", label: "Shell", icon: "󰆍" },
         { key: "copy", label: "Copy ADB address", icon: "󰅇" },
         { key: "doctor", label: "Diagnostics report", icon: "󰒓" },
         { key: "clear", label: "Clear data (danger)", icon: "󰃢" }
@@ -148,12 +150,12 @@ Scope {
     const all = [
       { key: "start", label: "Start & open", icon: "󰐥", when: "stopped" },
       { key: "open", label: "Open UI", icon: "󰖯", when: "running" },
-      { key: "copy", label: "Copy ADB address", icon: "󰅇", when: "running" },
-      { key: "stop", label: "Stop", icon: "󰓛", when: "running" },
-      { key: "restart", label: "Restart", icon: "󰑓", when: "running" },
-      { key: "logs", label: "Follow logs", icon: "󰈙", when: "any" },
-      { key: "shell", label: "Android shell", icon: "󰆍", when: "running" },
       { key: "screenshot", label: "Screenshot", icon: "󰄀", when: "running" },
+      { key: "restart", label: "Restart", icon: "󰑓", when: "running" },
+      { key: "stop", label: "Stop", icon: "󰓛", when: "running" },
+      { key: "logs", label: "Follow logs", icon: "󰈙", when: "any" },
+      { key: "shell", label: "Shell", icon: "󰆍", when: "running" },
+      { key: "copy", label: "Copy ADB address", icon: "󰅇", when: "running" },
       { key: "doctor", label: "Diagnostics report", icon: "󰒓", when: "any" }
     ]
     return all.filter(a => a.when === "any" || a.when === (running ? "running" : "stopped"))
@@ -168,8 +170,9 @@ Scope {
       { key: "screenshot", label: "Screenshot", icon: "󰄀", when: "running" },
       { key: "restart", label: "Restart", icon: "󰑓", when: "running" },
       { key: "stop", label: "Stop", icon: "󰓛", when: "running" },
-      { key: "logs", label: "Follow logcat", icon: "󰈙", when: "any" },
-      { key: "shell", label: "ADB shell", icon: "󰆍", when: "running" },
+      { key: "kill", label: "Force kill", icon: "󰚌", when: "running" },
+      { key: "logs", label: "Follow logs", icon: "󰈙", when: "any" },
+      { key: "shell", label: "Shell", icon: "󰆍", when: "running" },
       { key: "copy", label: "Copy ADB serial", icon: "󰅇", when: "running" },
       { key: "doctor", label: "Diagnostics report", icon: "󰒓", when: "any" }
     ]

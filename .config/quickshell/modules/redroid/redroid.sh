@@ -4,7 +4,7 @@ set -u
 
 export PATH="$HOME/.android/Sdk/cmdline-tools/latest/bin:$HOME/.android/bin:$HOME/.local/bin:$HOME/.android/Sdk/platform-tools:$HOME/Android/Sdk/platform-tools:/usr/local/bin:/usr/bin:/bin:$PATH"
 
-VERSIONS=(15 14 13 12 8)
+VERSIONS=(15 14 13 12 10 9 8)
 NAME_PREFIX="redroid"
 BASE_PORT=5500
 STATE_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/quickshell/redroid"
@@ -509,10 +509,31 @@ emu_copy() {
   notify -t 2000 "$APP_NAME" "Copied $serial"
 }
 
+# Kill a hung emulator: polite `adb emu kill` first, SIGTERM as fallback.
+emu_kill() {
+  local avd="$1" serial
+  APP_NAME="Emulator $avd"
+  serial="$(emu_serial "$avd")"
+  if [ -n "$serial" ]; then
+    adb -s "$serial" emu kill >/dev/null 2>&1 || true
+    sleep 2
+  fi
+  if pgrep -f "[@]$avd" >/dev/null 2>&1; then
+    pkill -f "[@]$avd" >/dev/null 2>&1 || true
+    sleep 1
+  fi
+  if [ -z "$(emu_serial "$avd")" ]; then
+    notify -t 2000 "$APP_NAME" "Killed"
+  else
+    notify -u critical "$APP_NAME" "Still running — check $STATE_DIR/emu-$avd.log"
+    return 1
+  fi
+}
+
 cmd_emu() {
   local action="${1:-start}" avd="${2:-}"
   [ -n "$avd" ] || {
-    echo "usage: redroid.sh emu <start|cold|open|stop|restart|logs|shell|screenshot|copy|doctor> <avd>" >&2
+    echo "usage: redroid.sh emu <start|cold|open|stop|restart|kill|logs|shell|screenshot|copy|doctor> <avd>" >&2
     return 1
   }
   case "$action" in
@@ -521,13 +542,14 @@ cmd_emu() {
     open)       emu_open "$avd" ;;
     stop)       emu_stop "$avd" ;;
     restart)    emu_restart "$avd" ;;
+    kill)       emu_kill "$avd" ;;
     logs)       emu_logs "$avd" ;;
     shell)      emu_shell "$avd" ;;
     screenshot) emu_screenshot "$avd" ;;
     copy)       emu_copy "$avd" ;;
     doctor)     cmd_doctor ;;
     *)
-      echo "usage: redroid.sh emu <start|cold|open|stop|restart|logs|shell|screenshot|copy|doctor> <avd>" >&2
+      echo "usage: redroid.sh emu <start|cold|open|stop|restart|kill|logs|shell|screenshot|copy|doctor> <avd>" >&2
       return 1
       ;;
   esac
@@ -863,7 +885,7 @@ commands:
   status [v…]             print running/stopped per version
   waydroid [action]       Waydroid control: start|open|stop|restart|logs|shell|copy|screenshot|doctor
   emulators               list AVDs (tab-separated: id, name, api, state, serial, size)
-  emu <action> <avd>      AVD control: start|cold|open|stop|restart|logs|shell|screenshot|copy|doctor
+  emu <action> <avd>      AVD control: start|cold|open|stop|restart|kill|logs|shell|screenshot|copy|doctor
   doctor                  write binder/net/docker diagnostics to a report
 EOF
 }
