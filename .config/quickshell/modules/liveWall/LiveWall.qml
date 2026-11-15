@@ -163,7 +163,7 @@ Scope {
 
             Text {
               Layout.fillWidth: true; visible: LiveWallManager.isLiveActive
-              text: "auto-pause when tiled (not kitty/Yazi) / fullscreen"
+              text: "auto-pause when any tiled window or fullscreen is open"
               color: Theme.fg; opacity: 0.4; font.family: Theme.monoFont; font.pixelSize: 10
               horizontalAlignment: Text.AlignHCenter
             }
