@@ -11,7 +11,7 @@ fi
 [[ ! -f $ZDOTDIR/.p10k.zsh ]] || source $ZDOTDIR/.p10k.zsh
 
 # Change cursor shape for different vi modes.
-function zle-keymap-select {
+zle-keymap-select() {
   if [[ ${KEYMAP} == vicmd ]] ||
      [[ $1 = 'block' ]]; then
     echo -ne '\e[1 q'
@@ -281,7 +281,6 @@ alias cmatrix='unimatrix -n -s 96 -l o'
 alias copycmd='tail -n 2 $ZDOTDIR/.zhistory | head -n 1 | tr -d "\n" | wl-copy'
 alias cppath='printf "\"%s\"" "$PWD" | wl-copy'
 alias d='selected=$(grep -xv "$PWD" ~/.local/share/zdirs | fzf); [[ -n $selected ]] && cd "$selected"'
-alias fitwaydroid='for i in 1 2; do hyprctl dispatch "hl.dsp.window.resize({ x = 468, y = 1036 })"; done; waydroid adb connect'
 alias free-coding-models='free-coding-models --config-dir ~/.config/free-coding-models'
 alias hyprconfig='nvim $HOME/.config/hypr/hyprland.lua'
 alias litecli='echo -ne "\e[2 q" && litecli'
@@ -336,7 +335,7 @@ yz() {
 ### fzf setup -------------------------------------------------------------
 
 # fzf function for searching and opening files using nvim
-function ff() {
+ff() {
   local selected_file
   selected_file=$(fd -H -d 6 -t f -E .Trash -E .git . ~/.config ~/DotFiles ~/Projects ~/Scripts ~/Arch-Setup /mnt/Disk_D/References /mnt/Disk_D/Engineering /mnt/Disk_D/Muhammad \
     | fzf --preview 'bat --style=numbers --color=always --line-range :500 {}')
@@ -377,7 +376,7 @@ reboot-pick() {
 
 ### sesh command ----------------------------------------------------------
 
-function seshi() {
+seshi() {
   sesh connect "$(
     sesh list --icons | fzf-tmux -p 85%,70% \
       --no-sort --ansi \
@@ -399,7 +398,7 @@ function seshi() {
 
 ### yazi wrapper ----------------------------------------------------------
 
-function yy() {
+yy() {
 	local tmp="$(mktemp -t "yazi-cwd.XXXXXX")" cwd
 	yazi "$@" --cwd-file="$tmp"
 	IFS= read -r -d '' cwd < "$tmp"
@@ -409,7 +408,7 @@ function yy() {
 
 ### audio-separator wrapper -----------------------------------------------
 
-function audiosep() {
+audiosep() {
   bin_path="$HOME/.local/share/pipx/venvs/audio-separator/bin/audio-separator"
   models_path="$HOME/.local/share/pipx/venvs/audio-separator/models"
   model=$(ls "$models_path" | sed -E '/(yaml$|json$)/d' | fzf)
@@ -420,6 +419,29 @@ function audiosep() {
     fi
   done
   notify-send -t 7500 "Audio Separation Completed"
+}
+
+### fit-waydroid function -------------------------------------------------
+
+fitwaydroid() {
+  for i in 1 2; do hyprctl dispatch "hl.dsp.window.resize({ x = 468, y = 1036 })"; done
+  local ws_id term_addr wd_addr
+  ws_id=$(hyprctl activeworkspace -j | jq -r '.id')
+  term_addr=$(hyprctl activewindow -j | jq -r '.address')
+  until wd_addr=$(hyprctl clients -j | jq -er '[.[] | select(.class | test("^[Ww]aydroid"))][0].address'); do
+    echo "Waiting for waydroid window..."
+    sleep 1
+  done
+  while ! waydroid adb connect; do
+    echo "Waiting for waydroid to be ready..."
+    sleep 1
+  done
+  echo "Waydroid is ready!"
+  local wd="address:$wd_addr"
+  local term="address:$term_addr"
+  hyprctl dispatch "hl.dsp.window.move({ workspace = $ws_id, follow = false, window = '$wd' })"
+  hyprctl dispatch "hl.dsp.window.float({ action = 'disable', window = '$wd' })"
+  hyprctl dispatch "hl.dsp.window.close({ window = '$term' })"
 }
 
 ### android functions -----------------------------------------------------
@@ -473,7 +495,7 @@ _android_app_id() {
   REPLY="$app_id"
 }
 
-function uninstall-app() {
+uninstall-app() {
   [[ -f ./gradlew ]] || { echo "No gradlew found — run from project root." >&2; return 1; }
   _android_app_id "$1" || return 1
   local app_id="$REPLY"
@@ -483,7 +505,7 @@ function uninstall-app() {
   adb -s "$serial" shell pm uninstall "$app_id"
 }
 
-function install-app() {
+install-app() {
   local -A opts
   zparseopts -D -E -A opts a
   [[ -f ./gradlew ]] || { echo "No gradlew found — run from project root." >&2; return 1; }
@@ -504,7 +526,7 @@ function install-app() {
   fi
 }
 
-function logcat() {
+logcat() {
   [[ -f ./gradlew ]] || { echo "No gradlew found — run from project root." >&2; return 1; }
   _android_app_id "$1" || return 1
   local app_id="$REPLY"
