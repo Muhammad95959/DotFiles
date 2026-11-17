@@ -3,87 +3,18 @@ pragma ComponentBehavior: Bound
 import QtQuick
 
 import Quickshell
-import Quickshell.Io
 
+import "../common"
+
+// Live wallpapers. State and persistence live in WallpaperState;
+// this is the public API used by the picker and IPC.
 Scope {
-  id: manager
+  readonly property string activeFile: {
+    const p = WallpaperState.livePath
+    return p ? p.substring(p.lastIndexOf("/") + 1) : ""
+  }
+  readonly property bool isLiveActive: WallpaperState.isLiveActive
 
-  property string currentPath: ""
-  property string activeFile: ""
-  property bool isLiveActive: false
-  property bool skipNextAnimation: true
-
-  onSkipNextAnimationChanged: {
-    if (skipNextAnimation)
-      _resetSkipTimer.restart()
-  }
-
-  function fileUrl(path) {
-    if (!path)
-      return ""
-    return "file://" + path.split("/").map(c => c === "" ? "" : encodeURIComponent(c)).join("/")
-  }
-  function loadCurrent() { loadProc.running = true }
-  function setVideo(fileName, animate) {
-    if (!fileName)
-      return
-    const full = Quickshell.env("HOME") + "/Backgrounds/Live/" + fileName
-    const esc = fileName.replace(/["$`\\]/g, "\\$&")
-    Quickshell.execDetached(["sh", "-c", "ln -frs \"$HOME/Backgrounds/Live/" + esc + "\" \"$HOME/Backgrounds/Live/active\""])
-    const shouldAnimate = animate !== false
-    skipNextAnimation = !shouldAnimate
-    if (skipNextAnimation)
-      _resetSkipTimer.restart()
-    currentPath = full
-    activeFile = fileName
-    isLiveActive = true
-  }
-  function setActivePath(fullPath, animate) {
-    if (!fullPath)
-      return
-    setVideo(fullPath.substring(fullPath.lastIndexOf("/") + 1), animate)
-  }
-  function toggleLive() {
-    if (isLiveActive) {
-      skipNextAnimation = false
-      isLiveActive = false
-    } else {
-      if (!activeFile && !currentPath) {
-        skipNextAnimation = false
-        isLiveActive = true
-        loadCurrent()
-        return
-      }
-      skipNextAnimation = false
-      isLiveActive = true
-      if (!currentPath && activeFile)
-        currentPath = Quickshell.env("HOME") + "/Backgrounds/Live/" + activeFile
-    }
-  }
-
-  Process {
-    id: loadProc
-    command: ["readlink", "-f", Quickshell.env("HOME") + "/Backgrounds/Live/active"]
-    stdout: SplitParser {
-      onRead: data => {
-        const p = data.trim()
-        if (p.length > 0) {
-          manager.skipNextAnimation = true
-          _resetSkipTimer.restart()
-          manager.currentPath = p
-          manager.activeFile = p.substring(p.lastIndexOf("/") + 1)
-        }
-      }
-    }
-  }
-
-  Timer {
-    id: _resetSkipTimer
-    interval: 750
-    onTriggered: manager.skipNextAnimation = false
-  }
-
-  Component.onCompleted: {
-    loadCurrent()
-  }
+  function setVideo(fileName, animate) { WallpaperState.setLiveFile(fileName, animate) }
+  function toggleLive() { WallpaperState.toggleMode() }
 }

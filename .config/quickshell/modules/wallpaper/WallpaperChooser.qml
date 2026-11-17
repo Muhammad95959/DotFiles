@@ -29,9 +29,8 @@ Scope {
   property string wallpapersPaths: Quickshell.env("HOME") + "/Backgrounds"
   property var allWallpapers: []
 
-  // encode segments for #, unicode, spaces
   function fileUrl(path) {
-    return "file://" + path.split("/").map(c => c === "" ? "" : encodeURIComponent(c)).join("/")
+    return WallpaperState.fileUrl(path)
   }
 
   readonly property var categories: [
@@ -128,11 +127,6 @@ Scope {
 
   function setWallpaper(path) {
     WallpaperManager.setWallpaper(path)
-    close()
-  }
-
-  function setTransientWallpaper(path) {
-    WallpaperManager.setTransientWallpaper(path)
     close()
   }
 
@@ -537,7 +531,7 @@ Scope {
     function toggle() { wallpaperRoot.toggle() }
     function open() { wallpaperRoot.open() }
     function close() { wallpaperRoot.close() }
-    function set(wallpaperPath: string) { wallpaperRoot.setTransientWallpaper(wallpaperPath) }
+    function set(wallpaperPath: string) { wallpaperRoot.setWallpaper(wallpaperPath) }
     function random() { WallpaperManager.setRandomWallpaper() }
   }
 

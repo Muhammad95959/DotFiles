@@ -4,7 +4,6 @@ import QtQuick
 import Quickshell
 import Quickshell.Wayland
 
-import "."
 import "../common"
 
 Scope {
@@ -14,7 +13,8 @@ Scope {
       id: win
       required property var modelData
       screen: modelData
-      visible: WallpaperManager.currentPath !== ""
+      // Never show a stale static wallpaper while the persisted mode says live.
+      visible: WallpaperState.restored && WallpaperState.staticPath !== "" && !WallpaperState.isLiveActive
       color: Theme.bg
       exclusionMode: ExclusionMode.Ignore
       WlrLayershell.layer: WlrLayer.Background
@@ -24,13 +24,13 @@ Scope {
         fadeBehavior.enabled = false
         topImage.opacity = 0
         fadeBehavior.enabled = true
-        topImage.source = WallpaperManager.fileUrl(path)
+        topImage.source = WallpaperState.fileUrl(path)
         if (topImage.status === Image.Ready)
           topImage.opacity = 1
       }
       function _instantTo(path) {
         fadeBehavior.enabled = false
-        const url = WallpaperManager.fileUrl(path)
+        const url = WallpaperState.fileUrl(path)
         bottomImage.source = url
         topImage.source = url
         topImage.opacity = 1
@@ -38,13 +38,9 @@ Scope {
       }
 
       Component.onCompleted: {
-        const p = WallpaperManager.currentPath
-        if (p) {
-          const url = WallpaperManager.fileUrl(p)
-          bottomImage.source = url
-          topImage.source = url
-          topImage.opacity = 1
-        }
+        const p = WallpaperState.staticPath
+        if (p)
+          _instantTo(p)
       }
 
       Item {
@@ -77,7 +73,7 @@ Scope {
           Behavior on opacity { id: fadeBehavior; NumberAnimation { duration: 500; easing.type: Easing.InOutCubic } }
 
           onStatusChanged: {
-            if (status === Image.Ready && !WallpaperManager.skipNextAnimation && opacity === 0)
+            if (status === Image.Ready && !WallpaperState.skipNextAnimation && opacity === 0)
               opacity = 1
           }
           onOpacityChanged: {
@@ -87,24 +83,17 @@ Scope {
         }
       }
 
-      Rectangle {
-        anchors.fill: parent
-        color: Theme.bg
-        visible: WallpaperManager.currentPath === ""
-        z: -1
-      }
-
       Connections {
-        target: WallpaperManager
-        function onCurrentPathChanged() {
-          const p = WallpaperManager.currentPath
+        target: WallpaperState
+        function onStaticPathChanged() {
+          const p = WallpaperState.staticPath
           if (!p)
             return
           if (bottomImage.source === "" && topImage.source === "") {
             _instantTo(p)
             return
           }
-          if (WallpaperManager.skipNextAnimation)
+          if (WallpaperState.skipNextAnimation)
             _instantTo(p)
           else
             _crossFadeTo(p)

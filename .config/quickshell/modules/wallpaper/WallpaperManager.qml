@@ -5,65 +5,18 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 
+import "../common"
+
+// Static wallpapers. State and persistence live in WallpaperState;
+// this is the public API used by the chooser and IPC.
 Scope {
   id: manager
 
-  property string currentPath: ""
-  property bool skipNextAnimation: true
-  property string startupPath: ""
+  readonly property string startupPath: WallpaperState.staticPath
 
-  // Storage: ~/Backgrounds/active symlink, like LiveWall's ~/Backgrounds/Live/active.
-  readonly property string activeLink: Quickshell.env("HOME") + "/Backgrounds/active"
-
-  onSkipNextAnimationChanged: {
-    if (skipNextAnimation)
-      _resetSkipTimer.restart()
-  }
-
-  function fileUrl(path) {
-    if (!path)
-      return ""
-    return "file://" + path.split("/").map(c => c === "" ? "" : encodeURIComponent(c)).join("/")
-  }
-  function loadCurrent() { loadProc.running = true }
-  function setRandomWallpaper() {
-    skipNextAnimation = true
-    _resetSkipTimer.restart()
-    randomProc.running = true
-  }
-  function setTransientWallpaper(path, skipAnimation) {
-    if (!path)
-      return
-    const skip = skipAnimation === true
-    skipNextAnimation = skip
-    if (skip)
-      _resetSkipTimer.restart()
-    currentPath = path
-  }
-  function setWallpaper(path) {
-    if (!path)
-      return
-    skipNextAnimation = false
-    currentPath = path
-    startupPath = path
-    Quickshell.execDetached(["ln", "-sfnr", path, manager.activeLink])
-  }
-
-  Process {
-    id: loadProc
-    command: ["readlink", "-f", manager.activeLink]
-    stdout: SplitParser {
-      onRead: data => {
-        const p = data.trim()
-        if (p.length > 0) {
-          manager.skipNextAnimation = true
-          _resetSkipTimer.restart()
-          manager.currentPath = p
-          manager.startupPath = p
-        }
-      }
-    }
-  }
+  function setWallpaper(path) { WallpaperState.setStatic(path, true) }
+  function setTransientWallpaper(path, skipAnimation) { WallpaperState.setStatic(path, skipAnimation !== true, false) }
+  function setRandomWallpaper() { randomProc.running = true }
 
   Process {
     id: randomProc
@@ -76,12 +29,4 @@ Scope {
       }
     }
   }
-
-  Timer {
-    id: _resetSkipTimer
-    interval: 750
-    onTriggered: manager.skipNextAnimation = false
-  }
-
-  Component.onCompleted: loadCurrent()
 }

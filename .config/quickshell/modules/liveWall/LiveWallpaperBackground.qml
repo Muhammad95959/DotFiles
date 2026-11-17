@@ -3,21 +3,23 @@ import QtQuick
 import QtMultimedia
 
 import Quickshell
+import Quickshell.Hyprland
 import Quickshell.Io
 import Quickshell.Wayland
 
-import "."
+import "../common"
 
 Scope {
   LazyLoader {
-    active: LiveWallManager.isLiveActive && LiveWallManager.currentPath !== ""
+    active: WallpaperState.isLiveActive
     Variants {
       model: Quickshell.screens
       PanelWindow {
         required property var modelData
         screen: modelData
         visible: true
-        color: "transparent"
+        // Opaque until the first frame is decoded: no stale static wallpaper, no black gap.
+        color: WallpaperState.liveReady ? "transparent" : Theme.bg
         exclusionMode: ExclusionMode.Ignore
         WlrLayershell.layer: WlrLayer.Bottom
         anchors { top: true; bottom: true; left: true; right: true }
@@ -26,45 +28,63 @@ Scope {
           id: crossFadeContainer
           anchors.fill: parent
 
+          // True while a window occupies the focused workspace (auto-pause).
+          property bool holdPlay: false
+          // True between the start of a crossfade and the new video becoming visible.
+          property bool transitioning: false
+
+          readonly property int focusedWorkspaceId: Hyprland.focusedWorkspace ? Hyprland.focusedWorkspace.id : -1
+
+          function _syncPlayback() {
+            if (holdPlay && !transitioning) {
+              topVideo.pause()
+              bottomVideo.pause()
+              return
+            }
+            if (topVideo.source !== "" && topVideo.playbackState !== MediaPlayer.PlayingState)
+              topVideo.play()
+            if (transitioning && bottomVideo.source !== "")
+              bottomVideo.play()
+          }
+
           function _crossFadeTo(path) {
+            const url = WallpaperState.fileUrl(path)
+            if (url === "" || url === topVideo.source)
+              return
+            transitioning = true
+            if (bottomVideo.source !== topVideo.source)
+              bottomVideo.source = topVideo.source
+            bottomVideo.play()
             fadeBehavior.enabled = false
             topVideo.opacity = 0
             fadeBehavior.enabled = true
-            topVideo.source = LiveWallManager.fileUrl(path)
+            topVideo.source = url
             topVideo.play()
-            if (topVideo.playbackState === MediaPlayer.PlayingState || topVideo.hasVideo)
-              topVideo.opacity = 1
           }
+
           function _instantTo(path) {
+            const url = WallpaperState.fileUrl(path)
             fadeBehavior.enabled = false
-            const url = LiveWallManager.fileUrl(path)
             bottomVideo.source = url
             topVideo.source = url
             topVideo.opacity = 1
-            bottomVideo.play()
-            topVideo.play()
             fadeBehavior.enabled = true
+            transitioning = false
+            _syncPlayback()
+            _settleTimer.restart()
           }
 
           Component.onCompleted: {
-            const p = LiveWallManager.currentPath
-            if (p) {
-              const url = LiveWallManager.fileUrl(p)
-              bottomVideo.source = url
-              topVideo.source = url
-              topVideo.opacity = 1
-              if (topVideo.playbackState !== MediaPlayer.PlayingState)
-                topVideo.play()
-              if (bottomVideo.playbackState !== MediaPlayer.PlayingState)
-                bottomVideo.play()
-            }
+            WallpaperState.liveReady = false
+            const p = WallpaperState.livePath
+            if (p)
+              _instantTo(p)
           }
 
           Video {
             id: bottomVideo
             anchors.fill: parent
             loops: MediaPlayer.Infinite
-            volume: 0
             muted: true
             autoPlay: true
           }
@@ -73,23 +93,39 @@ Scope {
             id: topVideo
             anchors.fill: parent
             loops: MediaPlayer.Infinite
-            volume: 0
             muted: true
             autoPlay: true
             opacity: 0
 
             Behavior on opacity { id: fadeBehavior; NumberAnimation { duration: 500; easing.type: Easing.InOutCubic } }
 
+            onHasVideoChanged: {
+              if (hasVideo)
+                WallpaperState.liveReady = true
+            }
             onPlaybackStateChanged: {
-              if (playbackState === MediaPlayer.PlayingState && !LiveWallManager.skipNextAnimation && opacity === 0)
+              if (playbackState === MediaPlayer.PlayingState && !WallpaperState.skipNextAnimation && opacity === 0)
                 opacity = 1
             }
             onOpacityChanged: {
-              if (opacity === 1 && playbackState === MediaPlayer.PlayingState) {
-                bottomVideo.source = source
-                if (bottomVideo.playbackState !== MediaPlayer.PlayingState)
-                  bottomVideo.play()
-              }
+              if (opacity !== 1 || playbackState !== MediaPlayer.PlayingState)
+                return
+              // Fade finished: refresh the backdrop player, then settle into the right
+              // play state (a window on the focused workspace should pause both).
+              crossFadeContainer.transitioning = false
+              bottomVideo.source = source
+              crossFadeContainer._syncPlayback()
+              _settleTimer.restart()
+            }
+          }
+
+          // Keeps the backdrop decoder warm (one frame ready) without decoding it forever.
+          Timer {
+            id: _settleTimer
+            interval: 700
+            onTriggered: {
+              if (!crossFadeContainer.transitioning)
+                bottomVideo.pause()
             }
           }
 
@@ -97,43 +133,48 @@ Scope {
             interval: 1000
             running: true
             repeat: true
-            onTriggered: pauseCheck.running = true
+            onTriggered: clientsProc.running = true
           }
 
           Process {
-            id: pauseCheck
-            command: ["sh", "-c",
-              "hyprctl clients -j 2>/dev/null | python3 -c \"\nimport json, subprocess, sys\ntry:\n    clients=json.load(sys.stdin)\nexcept:\n    sys.exit(0)\ntry:\n    mon=json.loads(subprocess.check_output(['hyprctl','monitors','-j']))\nexcept:\n    mon=[]\nactiveWs=None\nfor m in mon:\n    if m.get('focused'):\n        activeWs=m.get('activeWorkspace',{}).get('id'); break\nif activeWs is None and mon:\n    activeWs=mon[0].get('activeWorkspace',{}).get('id')\nfs=set(c.get('workspace',{}).get('id') for c in clients if c.get('fullscreen')!=0)\ntiled=[c for c in clients if not c.get('floating') and c.get('workspace',{}).get('id')==activeWs]\npause='yes' if tiled or activeWs in fs else 'no'\nprint(pause)\n\" 2>/dev/null"
-            ]
-            stdout: SplitParser {
-              onRead: data => {
-                const p = data.trim()
-                if (p === "yes") {
-                  if (bottomVideo.playbackState === MediaPlayer.PlayingState)
-                    bottomVideo.pause()
-                  if (topVideo.playbackState === MediaPlayer.PlayingState)
-                    topVideo.pause()
-                } else if (p === "no") {
-                  if (bottomVideo.playbackState === MediaPlayer.PausedState)
-                    bottomVideo.play()
-                  if (topVideo.playbackState === MediaPlayer.PausedState)
-                    topVideo.play()
+            id: clientsProc
+            property string _out: ""
+            command: ["hyprctl", "-j", "clients"]
+            stdout: SplitParser { onRead: data => clientsProc._out += data + "\n" }
+            onExited: {
+              const raw = clientsProc._out
+              clientsProc._out = ""
+              let pause = false
+              try {
+                const list = JSON.parse(raw)
+                const ws = crossFadeContainer.focusedWorkspaceId
+                for (let i = 0; ws >= 0 && i < list.length; i++) {
+                  const c = list[i]
+                  if (!c.workspace || c.workspace.id !== ws)
+                    continue
+                  if (!c.floating || c.fullscreen !== 0) {
+                    pause = true
+                    break
+                  }
                 }
-              }
+              } catch (e) {}
+              crossFadeContainer.holdPlay = pause
             }
           }
 
+          onHoldPlayChanged: _syncPlayback()
+
           Connections {
-            target: LiveWallManager
-            function onCurrentPathChanged() {
-              const p = LiveWallManager.currentPath
+            target: WallpaperState
+            function onLivePathChanged() {
+              const p = WallpaperState.livePath
               if (!p)
                 return
               if (bottomVideo.source === "" && topVideo.source === "") {
                 crossFadeContainer._instantTo(p)
                 return
               }
-              if (LiveWallManager.skipNextAnimation)
+              if (WallpaperState.skipNextAnimation)
                 crossFadeContainer._instantTo(p)
               else
                 crossFadeContainer._crossFadeTo(p)

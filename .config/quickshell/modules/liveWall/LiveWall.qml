@@ -60,11 +60,11 @@ Scope {
 
   Process {
     id: scanProc
-    command: ["sh", "-c", "find \"$HOME/Backgrounds/Live\" -type f ! -name \"active\" -exec basename {} \\; 2>/dev/null | sort -u"]
+    command: ["sh", "-c", "find \"$HOME/Backgrounds/Live\" -maxdepth 1 -type f \\( -iname '*.mp4' -o -iname '*.m4v' -o -iname '*.webm' -o -iname '*.mkv' -o -iname '*.mov' -o -iname '*.avi' -o -iname '*.gif' \\) -printf '%f\\n' 2>/dev/null | sort -u"]
     stdout: SplitParser { onRead: d => root._accum += d + "\n" }
     onExited: {
       root.allFiles = root._accum.split("\n").map(s => s.trim()).filter(s => s.length > 0)
-      if (root.selectedIndex >= root.filtered.length)
+      if (root.selectedIndex >= root.filtered.length || root.selectedIndex < 0)
         root.selectedIndex = 0
     }
   }
