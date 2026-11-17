@@ -15,6 +15,8 @@ Scope {
   }
   readonly property bool isLiveActive: WallpaperState.isLiveActive
 
-  function setVideo(fileName, animate) { WallpaperState.setLiveFile(fileName, animate) }
+  function setVideo(file, animate) { WallpaperState.setLiveFile(file, animate, true) }
+  // Temporary video: played now, not restored on the next start.
+  function previewVideo(file, animate) { WallpaperState.setLiveFile(file, animate, false) }
   function toggleLive() { WallpaperState.toggleMode() }
 }

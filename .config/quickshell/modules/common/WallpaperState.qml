@@ -29,6 +29,8 @@ Scope {
   // is picked before anything is painted.
   property bool restored: false
   property int _pendingReads: 0
+  // Set once a wallpaper is chosen explicitly; a slow startup read must not clobber it.
+  property bool _userSet: false
   // True once the live player has a decoded video frame to show.
   property bool liveReady: false
 
@@ -54,6 +56,7 @@ Scope {
   function setStatic(path, animate, persist) {
     if (!path)
       return
+    _userSet = true
     staticPath = path
     mode = "static"
     if (animate === false)
@@ -66,26 +69,30 @@ Scope {
     }
   }
 
-  function setLive(path, animate) {
+  function setLive(path, animate, persist) {
     if (!path)
       return
+    _userSet = true
     livePath = path
     mode = "live"
     if (animate === false)
       _skipNext()
     else
       skipNextAnimation = false
-    Quickshell.execDetached(["ln", "-sfnr", path, state.liveLink])
-    _persistMode()
+    if (persist !== false) {
+      Quickshell.execDetached(["ln", "-sfnr", path, state.liveLink])
+      _persistMode()
+    }
   }
 
-  function setLiveFile(fileName, animate) {
-    if (!fileName)
+  function setLiveFile(file, animate, persist) {
+    if (!file)
       return
-    setLive(liveDir + "/" + fileName, animate)
+    setLive(file.startsWith("/") ? file : liveDir + "/" + file, animate, persist)
   }
 
   function toggleMode() {
+    _userSet = true
     if (isLiveActive) {
       mode = "static"
       skipNextAnimation = false
@@ -126,6 +133,8 @@ Scope {
     command: ["cat", state.modeFile]
     stdout: SplitParser {
       onRead: data => {
+        if (state._userSet)
+          return
         const m = data.trim()
         if (m === "live" || m === "static") {
           state.mode = m
@@ -141,6 +150,8 @@ Scope {
     command: ["readlink", "-e", state.staticLink]
     stdout: SplitParser {
       onRead: data => {
+        if (state._userSet)
+          return
         const p = data.trim()
         if (p.length > 0) {
           state.staticPath = p
@@ -156,6 +167,8 @@ Scope {
     command: ["readlink", "-e", state.liveLink]
     stdout: SplitParser {
       onRead: data => {
+        if (state._userSet)
+          return
         const p = data.trim()
         if (p.length > 0) {
           state.livePath = p

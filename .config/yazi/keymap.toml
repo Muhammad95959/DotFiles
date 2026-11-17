@@ -392,9 +392,9 @@ desc = "dragon-drop"
 [[mgr.prepend_keymap]]
 on  = [ "<A-Space>", "w" ]
 run = '''
-	shell 'quickshell ipc call wallpaper set %s' --confirm
+	shell 'set -- %s; f=$1; [ -n "$f" ] || exit 0; e=$(echo "${f##*.}" | tr A-Z a-z); case "$e" in mp4|m4v|webm|mkv|mov|avi|gif) quickshell ipc call liveWall preview "$f" ;; *) quickshell ipc call wallpaper preview "$f" ;; esac' --confirm
 '''
-desc = "set background"
+desc = "preview background"
 [[mgr.prepend_keymap]]
 on  = [ "<A-Space>", "u" ]
 run = '''

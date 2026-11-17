@@ -130,6 +130,11 @@ Scope {
     close()
   }
 
+  function previewWallpaper(path) {
+    WallpaperManager.previewWallpaper(path)
+    close()
+  }
+
   property string _scanAccum: ""
 
   function refreshWallpapers() {
@@ -532,6 +537,7 @@ Scope {
     function open() { wallpaperRoot.open() }
     function close() { wallpaperRoot.close() }
     function set(wallpaperPath: string) { wallpaperRoot.setWallpaper(wallpaperPath) }
+    function preview(wallpaperPath: string) { wallpaperRoot.previewWallpaper(wallpaperPath) }
     function random() { WallpaperManager.setRandomWallpaper() }
   }
 

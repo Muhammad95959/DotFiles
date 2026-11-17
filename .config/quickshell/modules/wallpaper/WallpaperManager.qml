@@ -15,7 +15,8 @@ Scope {
   readonly property string startupPath: WallpaperState.staticPath
 
   function setWallpaper(path) { WallpaperState.setStatic(path, true) }
-  function setTransientWallpaper(path, skipAnimation) { WallpaperState.setStatic(path, skipAnimation !== true, false) }
+  // Temporary wallpaper: shown now, not restored on the next start.
+  function previewWallpaper(path, animate) { WallpaperState.setStatic(path, animate !== false, false) }
   function setRandomWallpaper() { randomProc.running = true }
 
   Process {
@@ -25,7 +26,7 @@ Scope {
       onRead: data => {
         const p = data.trim()
         if (p.length > 0)
-          manager.setTransientWallpaper(p, true)
+          manager.previewWallpaper(p, false)
       }
     }
   }

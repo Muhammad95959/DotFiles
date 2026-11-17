@@ -227,6 +227,7 @@ Scope {
     function close(): string { root.close(); return "ok" }
     function toggleLive(): string { root.toggleLive(); return LiveWallManager.isLiveActive ? "live" : "static" }
     function set(fileName: string): string { LiveWallManager.setVideo(fileName, true); return "ok " + fileName }
+    function preview(fileName: string): string { LiveWallManager.previewVideo(fileName, true); return "ok " + fileName }
   }
   GlobalShortcut { name: "liveWallToggle"; description: "Toggle live wall"; onPressed: root.toggle() }
 }
