@@ -18,7 +18,7 @@ Scope {
   property var allFiles: []
   property string _accum: ""
   property bool _blockHover: false
-  property int rowsVisible: 10
+  property int rowsVisible: 8
   property real aspect: 1 / 1
   readonly property int _rowH: 40
   readonly property int _rowGap: 6
@@ -105,10 +105,7 @@ Scope {
               Rectangle { width: 32; height: 32; radius: 8; color: Theme.surface; border.color: Theme.border; border.width: 1
                 Text { anchors.centerIn: parent; text: ""; color: Theme.fg; font.family: Theme.nerdFont; font.pixelSize: 14 }
               }
-              ColumnLayout { spacing: 2
-                Text { text: "Live Wallpaper"; color: Theme.fg; font.family: Theme.monoFont; font.pixelSize: 14; font.bold: true }
-                Text { text: LiveWallManager.activeFile === "" ? "no active" : "active: " + LiveWallManager.activeFile + (LiveWallManager.isLiveActive ? " • live" : " • static"); color: LiveWallManager.isLiveActive ? Theme.accent : Theme.fg; opacity: 0.7; font.family: Theme.monoFont; font.pixelSize: 11 }
-              }
+              Text { text: "Live Wallpaper"; color: Theme.fg; font.family: Theme.monoFont; font.pixelSize: 14; font.bold: true }
               Item { Layout.fillWidth: true }
               Rectangle {
                 width: 90; height: 28; radius: 14
@@ -206,8 +203,6 @@ Scope {
             RowLayout {
               Layout.alignment: Qt.AlignHCenter; spacing: 10
               Text { text: "↵ Set active"; color: Theme.fg; opacity: 0.85; font.family: Theme.monoFont; font.pixelSize: 10; font.bold: true }
-              Rectangle { width: 1; height: 10; color: Theme.border; opacity: 0.6 }
-              Text { text: "Live toggle"; color: Theme.fg; opacity: 0.65; font.family: Theme.monoFont; font.pixelSize: 10 }
               Rectangle { width: 1; height: 10; color: Theme.border; opacity: 0.6 }
               Text { text: "Esc Close"; color: Theme.fg; opacity: 0.85; font.family: Theme.monoFont; font.pixelSize: 10; font.bold: true }
             }
