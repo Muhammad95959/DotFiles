@@ -236,6 +236,8 @@ previewers = [
 	{ url = "*", run = "file" },
 ]
 prepend_previewers = [
+  # Audio previewer
+  { mime = "audio/*", run = "exifaudio"},
 	# Archive previewer
 	{ mime = "application/*zip",            run = "ouch" },
 	{ mime = "application/x-tar",           run = "ouch" },

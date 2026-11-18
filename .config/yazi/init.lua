@@ -1,3 +1,21 @@
+---@diagnostic disable: undefined-global
+
+local build = Tab.build
+Tab.build = function(self, ...)
+	local c = self._chunks
+	self._chunks = {
+		c[1]:pad(ui.Pad.y(1)),
+		c[2]:pad(ui.Pad.y(1)),
+		c[3]:pad(ui.Pad.y(1)),
+	}
+	local style = th.mgr.border_style
+	self._base = ya.list_merge(self._base or {}, {
+		ui.Border(ui.Edge.ALL):area(c[2]):type(ui.Border.ROUNDED):style(style),
+		ui.Border(ui.Edge.ALL):area(self._area):type(ui.Border.ROUNDED):style(style):merge(),
+	})
+	build(self, ...)
+end
+
 Status:children_add(function()
 	local h = cx.active.current.hovered
 	if not h or ya.target_family() ~= "unix" then
@@ -12,7 +30,11 @@ Status:children_add(function()
 	})
 end, 500, Status.RIGHT)
 
+require("git"):setup({ order = 1500 })
+
 require("zoxide"):setup({ update_db = true })
+
+require("smart-enter"):setup({ open_multi = true })
 
 require("relative-motions"):setup({ show_numbers = "relative_absolute", show_motion = true })
 
@@ -32,15 +54,6 @@ require("bookmarks"):setup({
 	},
 })
 
-require("full-border"):setup({
-	-- Available values: ui.Border.PLAIN, ui.Border.ROUNDED
-	type = ui.Border.ROUNDED,
-})
-
-require("smart-enter"):setup({
-	open_multi = true,
-})
-
 require("simple-tag"):setup({
 	ui_mode = "icon",
 	hints_disabled = false,
@@ -56,5 +69,3 @@ require("simple-tag"):setup({
 		["3"] = "󰃅 ",
 	},
 })
-
-require("git"):setup({ order = 1500 })

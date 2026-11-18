@@ -1,62 +1,62 @@
 [[plugin.deps]]
 use = "yazi-rs/plugins:chmod"
-rev = "044c3cc"
+rev = "1ef5fe0"
 hash = "87472b05a8c420100f6a2b9cde1e7746"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:smart-enter"
-rev = "044c3cc"
+rev = "1ef5fe0"
 hash = "187cc58ba7ac3befd49c342129e6f1b6"
 
 [[plugin.deps]]
 use = "pirafrank/what-size"
-rev = "c1a8cb6"
-hash = "57056b9728006881d580ccabe8154a9c"
+rev = "1cb456f"
+hash = "7699acf73a1079f8a4afef5cec84ce73"
 
 [[plugin.deps]]
 use = "Ape/open-with-cmd"
-rev = "eba191d"
-hash = "722a60eca1b338c9c24bb508d2d48578"
+rev = "56705e2"
+hash = "7c84fff414a652c86c44523dbb08026f"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:mount"
-rev = "044c3cc"
-hash = "46cbdc05596a3ecd730b288e28c7079d"
+rev = "1ef5fe0"
+hash = "f0dcc0ea71d5c59ce0d527f4b8a3937b"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:toggle-pane"
-rev = "044c3cc"
+rev = "1ef5fe0"
 hash = "5b2fbef7d1513ce38ff72623a071a5e"
 
 [[plugin.deps]]
 use = "ndtoan96/ouch"
-rev = "cfe4f50"
-hash = "eff5702573b6cfba61e4ac8b1969629a"
-
-[[plugin.deps]]
-use = "dedukun/relative-motions"
-rev = "a603d9e"
-hash = "e02a788e5b8ae0fb47fd0193dda589cc"
-
-[[plugin.deps]]
-use = "dedukun/bookmarks"
-rev = "9ef1254"
-hash = "92fbb5483657fa7976cdf4e0104e18e0"
-
-[[plugin.deps]]
-use = "yazi-rs/plugins:full-border"
-rev = "044c3cc"
-hash = "f281261ff04ad7ec867c3f802a50835f"
+rev = "596b666"
+hash = "c2f4f4aca257dcceafa9e3b828dbf1c9"
 
 [[plugin.deps]]
 use = "boydaihungst/simple-tag"
-rev = "d019de3"
-hash = "c1c9aaf057e2347942361b7155a0308c"
+rev = "7728d5c"
+hash = "eb786acc1ca28d843e701a7d567aeb50"
 
 [[plugin.deps]]
 use = "yazi-rs/plugins:git"
-rev = "044c3cc"
-hash = "5bb0bfab901d3601c370eafdd66edd31"
+rev = "1ef5fe0"
+hash = "347cc6b190eb0c2fd60513cc7ae37412"
+
+[[plugin.deps]]
+use = "sidhantunnithan/bookmarks"
+rev = "a61e524"
+hash = "13cf0570b489646c52f4fb1ff4db547e"
+
+[[plugin.deps]]
+use = "hurricaane/relative-motions"
+rev = "15a2041"
+hash = "6633a6951cfff272fa1ff1df993860fa"
+
+[[plugin.deps]]
+use = "Sonico98/exifaudio"
+rev = "4506f9d"
+hash = "4761fffb60a12d37096c34a356380cdf"
 
 [flavor]
 deps = []
