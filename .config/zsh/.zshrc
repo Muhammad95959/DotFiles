@@ -224,9 +224,9 @@ _notify_precmd() {
   unset _notify_cmd_start _notify_cmd_name
   _notify_term_focused && return
   case $exit_code in
-    0) notify-send "Done" "$cmd (${elapsed}s)" ;;
+    0) notify-send "Done" "$cmd (${elapsed}s)"; paplay /usr/share/sounds/freedesktop/stereo/complete.oga ;;
     130|131|143) ;;  # Ctrl-C / SIGHUP / SIGTERM: you did that yourself
-    *) notify-send -u critical "Failed" "$cmd (${elapsed}s, exit $exit_code)" ;;
+    *) notify-send -u critical "Failed" "$cmd (${elapsed}s, exit $exit_code)"; paplay /usr/share/sounds/freedesktop/stereo/dialog-error.oga ;;
   esac
 }
 
