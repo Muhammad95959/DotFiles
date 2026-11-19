@@ -37,6 +37,8 @@ Scope {
   property string translatePrefix: "@"
   property string bookmarkPrefix: "b"
   property string webPrefix: "w"
+  // Prefixed to an engine trigger to search in a private window: `py` = private YouTube.
+  property string privatePrefix: "p"
 
   // Browsers whose bookmarks should appear. Sources are normalized to:
   // brave, brave-origin, helium, chrome, chromium, vivaldi, firefox
@@ -51,6 +53,24 @@ Scope {
     "vivaldi": ["vivaldi", "vivaldi-stable"],
     "firefox": ["firefox"]
   })
+  // Private-window flag per bookmark source, appended to the browser command.
+  property var privateBrowserFlags: ({
+    "brave": "--incognito",
+    "brave-origin": "--incognito",
+    "helium": "--incognito",
+    "chrome": "--incognito",
+    "chromium": "--incognito",
+    "vivaldi": "--incognito",
+    "firefox": "--private-window"
+  })
+  // Result of `xdg-settings get default-web-browser`, e.g. "brave-origin.desktop".
+  property string defaultBrowser: ""
+
+  Process {
+    command: ["sh", "-c", "xdg-settings get default-web-browser 2>/dev/null"]
+    running: true
+    stdout: SplitParser { onRead: line => launcherRoot.defaultBrowser = String(line || "").trim() }
+  }
 
   CalcProvider {
     id: calcProvider
@@ -106,7 +126,10 @@ Scope {
       const si = after.indexOf(" ")
       if (si !== -1)
         return []
-      const picks = engineProvider.enginePickItems(after)
+      let picks = engineProvider.enginePickItems(after)
+      // `w p<trigger>`: private variant of a matching engine.
+      if (picks.length === 0 && privatePrefix !== "" && after.length > privatePrefix.length)
+        picks = engineProvider.enginePickItems(after.slice(privatePrefix.length), privatePrefix)
       if (picks.length > 0)
         return picks
     }
@@ -120,6 +143,11 @@ Scope {
       if (bookmarkPrefix !== "" && pre === bookmarkPrefix.toLowerCase()) return bookmarkProvider.bookmarkHits(Match.toksOf(rest), 0)
       const eng = engineProvider.engineByTrigger(pre)
       if (eng) return [engineProvider.webItem(eng, rest)]
+      // `p<trigger> <query>`: same engine, private window.
+      if (privatePrefix !== "" && pre.length > privatePrefix.length) {
+        const privEng = engineProvider.engineByTrigger(pre.slice(privatePrefix.length))
+        if (privEng) return [engineProvider.webItem(privEng, rest, true)]
+      }
     }
     const toks = Match.toksOf(raw)
     let out = []
@@ -169,6 +197,37 @@ Scope {
   function openUrl(url) {
     if (!url) return
     Quickshell.execDetached(["sh", "-c", "xdg-open " + Match.shQuote(url) + " >/dev/null 2>&1 &"])
+    closeAndClear()
+  }
+  // Maps a desktop id ("brave-origin.desktop") onto a key of browserCommands.
+  function browserSourceFor(desktopId) {
+    const s = String(desktopId || "").toLowerCase().replace(/\.desktop$/, "")
+    let best = ""
+    for (let k in browserCommands)
+      if (k.length > best.length && s.indexOf(k) !== -1)
+        best = k
+    return best
+  }
+  // Opens in the default browser's private window; falls back to any known
+  // private-capable browser, then to the ordinary handler.
+  function openUrlPrivate(url) {
+    if (!url) return
+    const qurl = Match.shQuote(url)
+    let order = []
+    const def = browserSourceFor(defaultBrowser)
+    if (def !== "") order.push(def)
+    for (let k in browserCommands)
+      if (order.indexOf(k) === -1) order.push(k)
+    let parts = []
+    for (let i = 0; i < order.length; i++) {
+      const src = order[i]
+      const flag = privateBrowserFlags[src] || "--incognito"
+      const cmds = browserCommands[src] || []
+      for (let j = 0; j < cmds.length; j++)
+        parts.push("command -v " + cmds[j] + " >/dev/null 2>&1 && exec " + cmds[j] + " " + flag + " " + qurl)
+    }
+    parts.push("xdg-open " + qurl + " >/dev/null 2>&1 &")
+    Quickshell.execDetached(["sh", "-c", parts.join("; ")])
     closeAndClear()
   }
   function openBookmark(url, source) {
@@ -221,6 +280,8 @@ Scope {
       return ""
     if (it.tag)
       return String(it.tag)
+    if (it.private)
+      return "private"
     if (it.kind === "bookmark")
       return it.source || "mark"
     if (it.kind === "engine")
@@ -278,7 +339,8 @@ Scope {
       query = (it.trigger || "") + " "
       selectedIndex = 0
     } else if (it.kind === "web") {
-      openUrl(it.url)
+      if (it.private) openUrlPrivate(it.url)
+      else openUrl(it.url)
     } else if (it.kind === "run") {
       Quickshell.execDetached(["sh", "-c", it.cmd])
       closeAndClear()

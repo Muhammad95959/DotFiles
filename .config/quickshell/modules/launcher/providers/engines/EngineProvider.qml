@@ -47,11 +47,12 @@ Scope {
     if (out.length > 0)
       root.engines = out
   }
-  function webItem(eng, rest) {
+  function webItem(eng, rest, isPrivate) {
     const url = eng.url.replace("%s", encodeURIComponent(rest))
     // Show line breaks in the result row; a raw newline would break the layout.
     const preview = String(rest || "").replace(/\n/g, " ⏎ ")
-    return { kind: "web", title: rest !== "" ? eng.name + ": " + preview : eng.name, subtitle: url, icon: "󰖟", iconFile: root.engineIconFile(eng), url: url }
+    const label = isPrivate === true ? eng.name + " (private)" : eng.name
+    return { kind: "web", title: rest !== "" ? label + ": " + preview : label, subtitle: url, icon: "󰖟", iconFile: root.engineIconFile(eng), url: url, private: isPrivate === true }
   }
   function enginesMatching(prefix) {
     const p = String(prefix || "").toLowerCase()
@@ -67,12 +68,14 @@ Scope {
     }
     return out
   }
-  function enginePickItems(prefix) {
+  function enginePickItems(prefix, triggerPrefix) {
     const matched = root.enginesMatching(prefix)
+    const tp = String(triggerPrefix || "")
     let out = []
     for (let i = 0; i < matched.length; i++) {
       const eng = matched[i]
-      out.push({ kind: "engine", title: eng.name, subtitle: eng.trigger + " — space to search", icon: "󰖟", iconFile: root.engineIconFile(eng), trigger: eng.trigger })
+      const trigger = tp + eng.trigger
+      out.push({ kind: "engine", title: tp !== "" ? eng.name + " (private)" : eng.name, subtitle: trigger + " — space to search", icon: "󰖟", iconFile: root.engineIconFile(eng), trigger: trigger })
     }
     return out
   }
