@@ -29,10 +29,10 @@ Scope {
   // is picked before anything is painted.
   property bool restored: false
   property int _pendingReads: 0
-  // Set once a wallpaper is chosen explicitly; a slow startup read must not clobber it.
-  property bool _userSet: false
-  // True once the live player has a decoded video frame to show.
-  property bool liveReady: false
+  // Set once something is chosen explicitly; a slow startup read must not clobber it.
+  property bool _userModeSet: false
+  property bool _userStaticSet: false
+  property bool _userLiveSet: false
 
   // A live mode without a video falls back to the static wallpaper.
   readonly property bool isLiveActive: mode === "live" && livePath !== ""
@@ -56,15 +56,16 @@ Scope {
   function setStatic(path, animate, persist) {
     if (!path)
       return
-    _userSet = true
-    staticPath = path
+    _userModeSet = true
+    _userStaticSet = true
+    staticPath = path.startsWith("/") ? path : home + "/Backgrounds/" + path
     mode = "static"
     if (animate === false)
       _skipNext()
     else
       skipNextAnimation = false
     if (persist !== false) {
-      Quickshell.execDetached(["ln", "-sfnr", path, state.staticLink])
+      Quickshell.execDetached(["ln", "-sfnr", state.staticPath, state.staticLink])
       _persistMode()
     }
   }
@@ -72,7 +73,8 @@ Scope {
   function setLive(path, animate, persist) {
     if (!path)
       return
-    _userSet = true
+    _userModeSet = true
+    _userLiveSet = true
     livePath = path
     mode = "live"
     if (animate === false)
@@ -92,16 +94,18 @@ Scope {
   }
 
   function toggleMode() {
-    _userSet = true
+    // Never fall back to a static layer that has nothing to show.
     if (isLiveActive) {
+      if (staticPath === "")
+        return
       mode = "static"
-      skipNextAnimation = false
-    } else if (livePath) {
+    } else if (livePath !== "") {
       mode = "live"
-      skipNextAnimation = false
     } else {
       return
     }
+    _userModeSet = true
+    skipNextAnimation = false
     _persistMode()
   }
 
@@ -133,7 +137,7 @@ Scope {
     command: ["cat", state.modeFile]
     stdout: SplitParser {
       onRead: data => {
-        if (state._userSet)
+        if (state._userModeSet)
           return
         const m = data.trim()
         if (m === "live" || m === "static") {
@@ -150,7 +154,7 @@ Scope {
     command: ["readlink", "-e", state.staticLink]
     stdout: SplitParser {
       onRead: data => {
-        if (state._userSet)
+        if (state._userStaticSet)
           return
         const p = data.trim()
         if (p.length > 0) {
@@ -167,7 +171,7 @@ Scope {
     command: ["readlink", "-e", state.liveLink]
     stdout: SplitParser {
       onRead: data => {
-        if (state._userSet)
+        if (state._userLiveSet)
           return
         const p = data.trim()
         if (p.length > 0) {

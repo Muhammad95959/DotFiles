@@ -137,8 +137,11 @@ Scope {
 
   property string _scanAccum: ""
 
+  // Keep the previous list on screen while the scan runs, so the grid does not
+  // flash "No wallpapers" every time it is refreshed or reopened.
   function refreshWallpapers() {
-    _scanAccum = ""; allWallpapers = []; scanProc.running = true
+    _scanAccum = ""
+    scanProc.running = true
   }
 
   Process {
@@ -525,7 +528,6 @@ Scope {
         }
 
         Component.onCompleted: if (wallpaperRoot.visible) searchField.forceActiveFocus()
-        Connections { target: wallpaperRoot; function onVisibleChanged() { if (wallpaperRoot.visible) { searchField.text = ""; wallpaperRoot.query = ""; searchField.forceActiveFocus(); wallpaperRoot.refreshWallpapers() } } }
       }
       }
     }

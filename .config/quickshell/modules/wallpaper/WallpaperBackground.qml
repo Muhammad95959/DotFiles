@@ -13,7 +13,7 @@ Scope {
       id: win
       required property var modelData
       screen: modelData
-      // Never show a stale static wallpaper while the persisted mode says live.
+      // Never show the static wallpaper while the persisted mode says live.
       visible: WallpaperState.restored && WallpaperState.staticPath !== "" && !WallpaperState.isLiveActive
       color: Theme.bg
       exclusionMode: ExclusionMode.Ignore

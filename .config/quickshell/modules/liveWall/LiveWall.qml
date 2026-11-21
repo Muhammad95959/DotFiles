@@ -41,7 +41,8 @@ Scope {
   function open() { visible = true; query = ""; selectedIndex = 0; refresh() }
   function close() { visible = false; query = ""; selectedIndex = 0 }
   function _markKeyboard() { _blockHover = true }
-  function refresh() { _accum = ""; allFiles = []; scanProc.running = true }
+  // Keep the previous list while rescanning to avoid an empty-state flash.
+  function refresh() { _accum = ""; scanProc.running = true }
   function activateAt(idx) {
     const list = filtered
     if (idx < 0 || idx >= list.length)
@@ -209,7 +210,6 @@ Scope {
           }
 
           Component.onCompleted: if (root.visible) searchField.forceActiveFocus()
-          Connections { target: root; function onVisibleChanged() { if (root.visible) { searchField.text = ""; root.query = ""; searchField.forceActiveFocus() } } }
         }
       }
     }
