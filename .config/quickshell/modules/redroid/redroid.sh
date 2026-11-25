@@ -57,6 +57,14 @@ ensure_docker() {
   return 0
 }
 
+# Android's `fsverity_init --lock` inside a privileged container flips this
+# host-wide sysctl, which makes containerd's unsigned verity blobs unreadable
+# ("operation not permitted"), so every later `docker run` fails.
+reset_fsverity() {
+  [ "$(cat /proc/sys/fs/verity/require_signatures 2>/dev/null)" = "1" ] || return 0
+  sudo -n sysctl -q -w fs.verity.require_signatures=0 >/dev/null 2>&1 || true
+}
+
 save_size() {
   local v="$1" w="$2" h="$3" d="$4"
   printf '%sx%s@%s\n' "$w" "$h" "$d" >"$STATE_DIR/last-size-$v"
@@ -74,6 +82,7 @@ wait_boot() {
   local v="$1" port="$2" name="$3" tries=0
   until timeout 5 adb connect "localhost:$port" >/dev/null 2>&1 &&
     [ "$(timeout 5 adb -s "localhost:$port" shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = "1" ]; do
+    reset_fsverity
     if ! is_running "$name"; then
       return 1
     fi
@@ -627,6 +636,7 @@ cmd_start() {
     log "start $v: docker failed"
     exit 1
   fi
+  reset_fsverity
 
   if is_running "$name"; then
     notify -t 300000 "Redroid $v" "Applying ${w}x${h} @ ${d} dpi…"
@@ -785,6 +795,11 @@ cmd_restart() {
 cmd_logs() {
   local v="$1" name
   name="$(name_for "$v")"
+  if ! docker ps -a --format '{{.Names}}' 2>/dev/null | grep -qx "$name" && \
+     ! sudo docker ps -a --format '{{.Names}}' 2>/dev/null | grep -qx "$name"; then
+    notify -t 3000 "Redroid $v" "Not running"
+    return 1
+  fi
   setsid kitty --title "redroid$v logs" sh -c \
     "docker logs -f '$name' 2>/dev/null || sudo docker logs -f '$name'; echo; echo '[log stream ended]'; read -r _" >/dev/null 2>&1 &
 }
